@@ -2,8 +2,6 @@
 
 #define DRIFT_THRESHOLD 0.01
 
-#include "entity.h"
-
 #include <vector>
 
 
@@ -12,27 +10,26 @@ class Stage {
 public:
 
 	Camera* camera;
-	Entity* root;
-	std::vector<Entity*> entities;
-	bool mouse_locked; //tells if the mouse is locked (not seen)
+	
+	bool mouse_locked;
 
 	//ctor
 	Stage();
 	//~Stage();
 
 	// Functions that will be overwritten
-	virtual void render();
+	virtual void render() {};
 	virtual void update(float dt) {};
 };
 
-class PlayStage : public Stage {
+class DayStage : public Stage {
 
 public:
 
 	float gamepad_sensitivity;
 
+	DayStage();
 
-	PlayStage();
-
+	void render();
 	void update(float dt);
 };

@@ -1,7 +1,7 @@
 #include "stageManager.h"
 
 StageManager::StageManager() {
-	cur_stage = new PlayStage();
+	cur_stage = new DayStage();
 }
 
 void StageManager::render() {

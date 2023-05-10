@@ -7,7 +7,7 @@
 #include "input.h"
 #include "animation.h"
 #include "stageManager.h"
-
+#include "world.h"
 
 #include <cmath>
 
@@ -36,7 +36,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//create our camera
 	camera = new Camera();
-	camera->lookAt(Vector3(0.f, 100.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
+	camera->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	camera->ourRotate(0.0f, 0.0f);
 
 	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
@@ -44,6 +44,8 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	camera->enable();
 
 	stage_manager = new StageManager();
+
+	new World();
 }
 
 //what to do when the image has to be draw

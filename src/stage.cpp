@@ -1,9 +1,7 @@
 #include "stage.h"
-#include "mesh.h"
-#include "texture.h"
-#include "shader.h"
 #include "input.h"
 #include "camera.h"
+#include "world.h"
 
 #include <algorithm>
  
@@ -11,53 +9,19 @@ float angle = 0;
 float mouse_speed = 100.0f;
 
 Stage::Stage() {
-	root = new Entity();
-	
-	entities.push_back(root);
-	mouse_locked = false;
 	camera = Camera::current;
-	
-
+	mouse_locked = false;
 }
 
-void Stage::render() {
-	for (auto& entity : entities) {
-		entity->render();
-	}
-}
-
-PlayStage::PlayStage() : Stage() {
+DayStage::DayStage() : Stage() {
 
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
 
 	//hide the cursor
-	SDL_ShowCursor(false); //hide or show the mouse
+	SDL_ShowCursor(false); //hide or show the mouse+
 
-
-
-	Entity* entity;
-	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-
-	for (int i = 0; i < 100; ++i) {
-		for (int j = 0; j < 100; ++j) {
-			entity = new EntityMesh(
-				Mesh::Get("data/pruebas/advanced.obj"),
-				Texture::Get("data/pruebas/skin.tga"),
-				shader
-			);
-
-			entity->model_matrix.setTranslation(i * 400.f, j * 400.f, 0.f);
-
-			entities.push_back(entity);
-		}
-	}
-
-	/*std::sort(entities.begin(), entities.end(), [](const Entity* ent0, const Entity* ent1) {
-		return static_cast<const EntityMesh*>(ent0)->shader < static_cast<const EntityMesh*>(ent1)->shader;
-	})*/
 };
-
 
 float right_analog_x_disp;
 float right_analog_y_disp;
@@ -65,10 +29,13 @@ float left_analog_x_disp;
 float left_analog_y_disp;
 float speed;
 
+void DayStage::render() {
+	for (auto& entity : World::world_instance->day_entities) {
+		entity->render();
+	}
+}
 
-
-
-void PlayStage::update(float dt) {
+void DayStage::update(float dt) {
 	speed = dt * mouse_speed; //the speed is defined by the seconds_elapsed so it goes constant
 
 	//example
@@ -86,7 +53,6 @@ void PlayStage::update(float dt) {
 		left_analog_x_disp = Input::gamepads[0].axis[LEFT_ANALOG_X];
 		left_analog_y_disp = Input::gamepads[0].axis[LEFT_ANALOG_Y];
 
-		
 
 		//We check in case the gamepad has slight drift. 
 		if (std::abs(right_analog_x_disp) > DRIFT_THRESHOLD || std::abs(right_analog_y_disp) > DRIFT_THRESHOLD) {
@@ -95,10 +61,10 @@ void PlayStage::update(float dt) {
 
 		//The player moves with the left joystick, so when the left joystick is moved, we need to move the camera. 
 		if (std::abs(left_analog_x_disp) > DRIFT_THRESHOLD)
-			camera->moveXZ(Vector3(left_analog_x_disp, 0.f, 0.f) * -speed);
+			camera->moveXZ(Vector3(left_analog_x_disp, 0.f, 0.f) * -3.0f * speed);
 
 		if (std::abs(left_analog_y_disp) > DRIFT_THRESHOLD) {
-			camera->moveXZ(Vector3(0.f, 0.f, left_analog_y_disp) * -speed);
+			camera->moveXZ(Vector3(0.f, 0.f, left_analog_y_disp) * -3.0f * speed);
 		}
 			
 	}

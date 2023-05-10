@@ -8,11 +8,10 @@
 #define MAX_HEALTH 100
 #define MAX_SHIELD 75
 
-
-
 enum weaponType { FISTS, BAT, KNIFE, GUN};
 enum consumableType { AID_KIT, PAINKILLER, BANDAGES, VEST, HELMET, BURGER, CANNED_BEANS, APPLE};
 enum defensiveType { WOODEN_DOOR, METAL_SHIELD };
+enum affectingStat { HEALTH, SHIELD, HUNGER };
 
 // all classes related to stages
 class Player {
@@ -21,8 +20,8 @@ public:
 	Vector3 position;
 
 	//Inicialisating the statistics
-	float health;
-	float shield;
+	int health;
+	int shield;
 	int hunger;
 	
 	//array containing the uses 
@@ -37,5 +36,5 @@ public:
 	Player();
 	void addWeaponUses(weaponType type, int uses);
 	void useConsumable(consumableType consumable);
-	
+	void affectPlayerStat(affectingStat stat, int amount, bool add);
 };
