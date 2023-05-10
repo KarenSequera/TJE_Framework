@@ -219,7 +219,7 @@ class Matrix44
 		//get base vectors
 		Vector3 rightVector() { return Vector3(m[0],m[1],m[2]); }
 		Vector3 topVector() { return Vector3(m[4],m[5],m[6]); }
-		Vector3 frontVector() { return Vector3(m[8],m[9],m[10]); }
+		Vector3 frontVector() const { return Vector3(m[8],m[9],m[10]); }
 
 		bool inverse();
 		void setUpAndOrthonormalize(Vector3 up);

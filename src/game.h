@@ -9,10 +9,15 @@
 #include "camera.h"
 #include "utils.h"
 
+class StageManager;
+
 class Game
 {
 public:
 	static Game* instance;
+
+	//our attributes
+	StageManager* stage_manager;
 
 	//window
 	SDL_Window* window;

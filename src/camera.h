@@ -6,7 +6,7 @@
 
 #ifndef CAMERA_H
 #define CAMERA_H
-
+#define Y_ROT_CLAMP 0.3f
 #include "framework.h"
 
 class Camera
@@ -28,12 +28,17 @@ public:
 	float aspect;		//aspect ratio (width/height)
 	float near_plane;	//near plane
 	float far_plane;	//far plane
-
+	
 	//for orthogonal projection
 	float left,right,top,bottom;
 
 	//planes
 	float frustum[6][4];
+
+	//Our variables
+	float delta_pitch;
+	float delta_yaw;
+	Matrix44 mPitch, mYaw;
 
 	//matrices
 	Matrix44 view_matrix;
@@ -75,6 +80,10 @@ public:
 	bool testPointInFrustum( Vector3 v );
 	char testSphereInFrustum( const Vector3& v, float radius);
 	char testBoxInFrustum( const Vector3& center, const Vector3& halfsize);
+
+	//our functions
+	void ourRotate(float dt_pitch, float dt_yaw);
+	void moveXZ(Vector3 delta);
 };
 
 

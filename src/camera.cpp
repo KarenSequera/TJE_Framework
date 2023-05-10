@@ -7,7 +7,10 @@ Camera* Camera::current = NULL;
 
 Camera::Camera()
 {
-	lookAt( Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0) );
+	delta_pitch = 0.f;
+	delta_yaw = 0.f;
+	lookAt( Vector3(0, 0, 0), Vector3(0, 0, -1.0), Vector3(0, 1, 0));
+	
 	setOrthographic(-100,100,-100, 100,-100,100);
 }
 
@@ -73,6 +76,7 @@ void Camera::rotate(float angle, const Vector3& axis)
 	updateViewMatrix();
 
 }
+
 
 void Camera::setOrthographic(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {
@@ -313,3 +317,25 @@ char Camera::testBoxInFrustum(const Vector3& center, const Vector3& halfsize)
 	return o == 0 ? CLIP_INSIDE : CLIP_OVERLAP;
 }
 
+//.............................................................................................................................
+
+void Camera::moveXZ(Vector3 delta)
+{
+	Vector3 localDelta = getLocalVector(delta);
+	localDelta.y = 0.f;
+	eye = eye - localDelta;
+	center = center - localDelta;
+	updateViewMatrix();
+}
+
+void Camera::ourRotate(float dt_pitch, float dt_yaw)
+{
+	delta_pitch += dt_pitch;
+	delta_yaw += dt_yaw;
+
+	delta_yaw = clamp(delta_yaw, -M_PI * Y_ROT_CLAMP, M_PI * Y_ROT_CLAMP);
+	mPitch.setRotation(delta_pitch, Vector3(0, -1, 0));
+	mYaw.setRotation(delta_yaw, getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
+
+	lookAt(eye, eye - (mPitch * mYaw).frontVector(), up);
+}
