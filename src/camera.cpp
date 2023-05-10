@@ -336,6 +336,5 @@ void Camera::ourRotate(float dt_pitch, float dt_yaw)
 	delta_yaw = clamp(delta_yaw, -M_PI * Y_ROT_CLAMP, M_PI * Y_ROT_CLAMP);
 	mPitch.setRotation(delta_pitch, Vector3(0, -1, 0));
 	mYaw.setRotation(delta_yaw, getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
-
 	lookAt(eye, eye - (mPitch * mYaw).frontVector(), up);
 }

@@ -89,6 +89,7 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 
 void Game::onKeyUp(SDL_KeyboardEvent event)
 {
+
 }
 
 void Game::onGamepadButtonDown(SDL_JoyButtonEvent event)

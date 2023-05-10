@@ -145,12 +145,14 @@
     <ClCompile Include="..\..\src\input.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\mesh.cpp" />
+    <ClCompile Include="..\..\src\player.cpp" />
     <ClCompile Include="..\..\src\rendertotexture.cpp" />
     <ClCompile Include="..\..\src\shader.cpp" />
     <ClCompile Include="..\..\src\stage.cpp" />
     <ClCompile Include="..\..\src\stageManager.cpp" />
     <ClCompile Include="..\..\src\texture.cpp" />
     <ClCompile Include="..\..\src\utils.cpp" />
+    <ClCompile Include="..\..\src\world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\animation.h" />
@@ -170,12 +172,14 @@
     <ClInclude Include="..\..\src\includes.h" />
     <ClInclude Include="..\..\src\input.h" />
     <ClInclude Include="..\..\src\mesh.h" />
+    <ClInclude Include="..\..\src\player.h" />
     <ClInclude Include="..\..\src\rendertotexture.h" />
     <ClInclude Include="..\..\src\shader.h" />
     <ClInclude Include="..\..\src\stage.h" />
     <ClInclude Include="..\..\src\stageManager.h" />
     <ClInclude Include="..\..\src\texture.h" />
     <ClInclude Include="..\..\src\utils.h" />
+    <ClInclude Include="..\..\src\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

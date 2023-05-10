@@ -64,6 +64,8 @@
     <ClCompile Include="..\..\src\stageManager.cpp" />
     <ClCompile Include="..\..\src\stage.cpp" />
     <ClCompile Include="..\..\src\entity.cpp" />
+    <ClCompile Include="..\..\src\player.cpp" />
+    <ClCompile Include="..\..\src\world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -125,6 +127,8 @@
     <ClInclude Include="..\..\src\stage.h" />
     <ClInclude Include="..\..\src\stageManager.h" />
     <ClInclude Include="..\..\src\entity.h" />
+    <ClInclude Include="..\..\src\player.h" />
+    <ClInclude Include="..\..\src\world.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
