@@ -3,15 +3,20 @@
 #include "texture.h"
 #include "shader.h"
 
+#include <fstream>
+#include <map>
+
 World* World::world_instance = NULL;
 
 World::World() {
 	//TODO: maybe parse the stats from files.
 	world_instance = this;
+
+	parseStats("data/stats.txt");
+
 	player = new Player();
-
+	
 	day_root = new Entity();
-
 	day_entities.push_back(day_root);
 
 	Entity* entity;
@@ -31,6 +36,29 @@ World::World() {
 		}
 	}
 }
+
+void World::parseStats(const char* filename) {
+	std::ifstream file(filename);
+	if (!file.good()) {
+		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
+		exit(-1);
+	}
+	std::string data;
+	int sizes[] = {NUM_CONSUMABLES, NUM_WEAPONS, NUM_WEAPONS, NUM_DEF, NUM_DEF };
+	int* array_ptr[] = { consumable_stats , weapon_dmg , weapon_use_pts, defensive_stats, defensive_durability };
+	int line = 0;
+	while (file >> data && line < 5)
+	{
+		// Get all information.
+		std::vector<std::string> tokens = tokenize(data, ",");
+		for (int t = 0; t < sizes[line]; ++t) {
+			array_ptr[line][t] = (int)atoi(tokens[t + 1].c_str());
+		}
+		line++;
+	}
+
+}
+
 
 void World::useConsumable(consumableType consumable, affectingStat stat)
 {

@@ -19,9 +19,13 @@ public:
 	int weapon_dmg[NUM_WEAPONS];
 	int weapon_use_pts[NUM_WEAPONS];
 	int defensive_stats[NUM_DEF];
+	int defensive_durability[NUM_DEF];
 
 	World();
 	
+	// function to parse stats
+	void parseStats(const char* filename);
+
 	void useConsumable(consumableType consumable, affectingStat stat);
-	
+
 };

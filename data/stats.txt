@@ -1,0 +1,5 @@
+consumable_stats,1,2,3,4,5,6,7,8
+weapon_dmg,1,2,3,4
+weapon_durability,1,2,3,4
+defensive_stats,1,2
+defensive_durability,1,2
