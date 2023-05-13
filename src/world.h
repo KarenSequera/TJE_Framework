@@ -9,6 +9,7 @@ public:
 	Player* player;
 
 	Entity* day_root;
+
 	std::vector<Entity*> day_entities;
 
 	Entity* night_root;
@@ -25,7 +26,7 @@ public:
 	
 	// function to parse stats
 	void parseStats(const char* filename);
-
+	bool parseScene(const char* filename);
 	void useConsumable(consumableType consumable, affectingStat stat);
 
 };

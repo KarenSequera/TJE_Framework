@@ -27,6 +27,13 @@ Matrix44 Entity::getGlobalMatrix() {
 		return model_matrix;
 }
 
+
+void Entity::render() {
+	for (auto& child : children) {
+		child->render();
+	}
+}
+
 EntityMesh::EntityMesh() : Entity(){
 	mesh = nullptr;
 	texture = nullptr;
@@ -40,6 +47,7 @@ EntityMesh::EntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader) : 
 }
 
 void EntityMesh::render() {
+	
 	//set flags
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -72,7 +80,7 @@ void EntityMesh::render() {
 		//disable shader
 		shader->disable();
 	}
-
+	Entity::render();
 }
 
 void EntityMesh::update(float dt) {

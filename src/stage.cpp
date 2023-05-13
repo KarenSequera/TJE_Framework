@@ -11,6 +11,7 @@ float mouse_speed = 100.0f;
 Stage::Stage() {
 	camera = Camera::current;
 	mouse_locked = false;
+
 }
 
 DayStage::DayStage() : Stage() {
@@ -19,8 +20,7 @@ DayStage::DayStage() : Stage() {
 	gamepad_sensitivity = 0.05f;
 
 	//hide the cursor
-	SDL_ShowCursor(false); //hide or show the mouse+
-
+	SDL_ShowCursor(false); //hide or show the mouse
 };
 
 float right_analog_x_disp;
