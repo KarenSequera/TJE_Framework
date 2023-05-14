@@ -1,5 +1,5 @@
-consumable_stats,1,2,3,4,5,6,7,8
-weapon_dmg,1,2,3,4
-weapon_durability,1,2,3,4
-defensive_stats,1,2
-defensive_durability,1,2
+consumable_stats,50,25,10,50,25,10,25,10
+weapon_dmg,5,10,25,50
+weapon_durability,1,20,10,5
+defensive_stats,10,25
+defensive_durability,5,3

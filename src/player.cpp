@@ -12,37 +12,52 @@ Player::Player() {
 	}
 
 	for (i = 0; i < NUM_WEAPONS; ++i) {
-		weapon_uses[i];
+		weapon_uses[i] = 0;
 	}
 
 	for (i = 0; i < NUM_CONSUMABLES; ++i) {
 		consumables[i] = 0;
 	}
-
 }
 
 void Player::addWeaponUses(weaponType type, int uses)
 {
 	weapon_uses[type] += uses;
+	#if DEBUG
+	printf("%d %d\n", type, weapon_uses[type]);
+	#endif
 }
 
-void Player::useConsumable(consumableType consumable)
+void Player::addDefUses(defensiveType type, int uses)
 {
-	consumables[consumable]--;
+	def_uses[type] += uses;
+	#if DEBUG
+	printf("%d %d\n", type, def_uses[type]);
+	#endif
 }
 
-void Player::affectPlayerStat(affectingStat stat, int amount, bool add)
+bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 {
 	int mult = add ? 1 : -1;
 	switch (stat) {
+	case HUNGER:
+		if (add && hunger == MAX_HUNGER)
+			return false;
+
+		hunger = clamp(hunger + mult * amount, 0, MAX_HUNGER);
+		break;
 	case HEALTH:
+		if (add && health == MAX_HEALTH)
+			return false;
+
 		health = clamp(health + mult * amount, 0, MAX_HEALTH);
 		break;
 	case SHIELD:
-		shield = clamp(health + mult * amount, 0, MAX_SHIELD);
-		break;
-	case HUNGER:
-		hunger = clamp(health + mult * amount, 0, MAX_HUNGER);
+		if (add && shield == MAX_SHIELD)
+			return false;
+
+		shield = clamp(shield + mult * amount, 0, MAX_SHIELD);
 		break;
 	}
+	return true;
 }

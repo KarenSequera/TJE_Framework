@@ -8,11 +8,11 @@
 #include <fstream>
 #include <map>
 
-World* World::world_instance = NULL;
+World* World::inst = NULL;
 
 World::World() {
 	//TODO: maybe parse the stats from files.
-	world_instance = this;
+	inst = this;
 
 	parseStats("data/stats.txt");
 
@@ -24,19 +24,6 @@ World::World() {
 	Entity* entity;
 	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
-	//for (int i = 0; i < 10; ++i) {
-	//	for (int j = 0; j < 10; ++j) {
-	//		entity = new EntityMesh(
-	//			Mesh::Get("data/pruebas/advanced.obj"),
-	//			Texture::Get("data/pruebas/skin.tga"),
-	//			shader
-	//		);
-
-	//		entity->model_matrix.setTranslation(i * 400.f, j * 400.f, 0.f);
-
-	//		day_entities.push_back(entity);
-	//	}
-	//}
 	parseScene("data/myscene.scene");
 
 }
@@ -49,7 +36,7 @@ void World::parseStats(const char* filename) {
 	}
 	std::string data;
 	int sizes[] = {NUM_CONSUMABLES, NUM_WEAPONS, NUM_WEAPONS, NUM_DEF, NUM_DEF };
-	int* array_ptr[] = { consumable_stats , weapon_dmg , weapon_use_pts, defensive_stats, defensive_durability };
+	int* array_ptr[] = { consumable_stats , weapon_dmg , weapon_use_pts, defensive_stats, defensive_use_pts };
 	int line = 0;
 	while (file >> data && line < 5)
 	{
@@ -63,14 +50,7 @@ void World::parseStats(const char* filename) {
 
 }
 
-void World::useConsumable(consumableType consumable, affectingStat stat)
-{
-	player->consumables[consumable]--;
-	int to_add = consumable_stats[consumable];
-	player->affectPlayerStat(stat, to_add, true);
-	
-}
-
+// render related ----------------------------------------------------------------------------------------------------
 struct sRenderData {
 	Texture* texture = nullptr;
 	Shader* shader = nullptr;
@@ -148,4 +128,89 @@ bool World::parseScene(const char* filename)
 
 	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
 	return true;
+}
+
+// behaviour related ----------------------------------------------------------------------
+
+void World::hurtPlayer(weaponType weapon)
+{
+	player->affectPlayerStat(HEALTH, weapon_dmg[weapon], false);
+}
+
+void World::consumeHunger(int quant)
+{
+	player->affectPlayerStat(HUNGER, quant, false);
+}
+
+/*  returns:
+	0 if the consumable was used without issue
+	1 if there are no consumables of that type
+	2 if the stat the consumable affects is already at the maximum
+*/
+int World::useConsumable(consumableType consumable)
+{
+	if (player->consumables[consumable])
+	{
+		int to_add = consumable_stats[consumable];
+		if(!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true)) return 2;
+		player->consumables[consumable]--;
+		return 0;
+	}
+	else return 1;
+
+}
+
+int World::getConsumableQuant(consumableType consumable)
+{
+	return player->consumables[consumable];
+}
+
+
+void World::getConsumable(consumableType consumable)
+{
+	// If the consumable is a shield, and it cat be added directly to the player's stats, do nothing
+	if (consumable / 3 == SHIELD && player->affectPlayerStat(SHIELD, consumable_stats[consumable], true)) {}
+	// otherwise add one consumable of that type
+	else player->consumables[consumable]++;
+
+	#if DEBUG
+	printf("%d\n", player->consumables[VEST]);
+	printf("%d\n", player->consumables[HELMET]);
+	#endif // DEBUG
+}
+
+void World::getWeapon(weaponType weapon) {
+	player->addWeaponUses(weapon, weapon_use_pts[weapon]);
+}
+
+void World::getDefItem(defensiveType def) {
+	player->addDefUses(def, defensive_use_pts[def]);
+}
+
+void World::getItem() {
+	// TODO: Check ray collision
+	// if collided with item mesh:
+	itemType type = rand() % 2 == 0 ? WEAPON : DEFENSIVE;
+	#if DEBUG
+	printf("%s: ", type ? "def" : "weapon");
+	#endif
+	weaponType weapon_type = KNIFE;
+	defensiveType def_type = WOODEN_DOOR;
+	consumableType consumable_type = AID_KIT;
+
+
+	switch (type) {
+		case WEAPON:
+			// get type from entity
+			getWeapon(weapon_type);
+			break;
+
+		case DEFENSIVE:
+			getDefItem(def_type);
+			break;
+
+		case CONSUMABLE:
+			getConsumable(consumable_type);
+			break;
+	}
 }

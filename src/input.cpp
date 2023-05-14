@@ -83,7 +83,10 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 	//save old state
 	int prev_direction = state.direction;
 	char prev_button[16];
+	HATState prev_hat;
 	memcpy(prev_button, state.button, 16);
+
+	prev_hat = state.hat;
 
 	//reset all gamepad state
 	memset(&state, 0, sizeof(GamepadState));
@@ -139,6 +142,7 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 	}
 	state.hat = (HATState)(SDL_JoystickGetHat((::SDL_Joystick*) joystick, 0) - SDL_HAT_CENTERED); //one hat is enough
 	memcpy(state.prev_button, prev_button, 16); //copy prev buttons state
+	state.prev_hat = prev_hat;
 
 	Vector2 axis_direction(state.axis[LEFT_ANALOG_X], state.axis[LEFT_ANALOG_Y]);
 	state.prev_direction = prev_direction;

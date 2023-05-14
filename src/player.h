@@ -1,17 +1,22 @@
 #pragma once
+
 #include "utils.h"
+
+#define DEBUG 1
 
 #define NUM_WEAPONS 4
 #define NUM_CONSUMABLES 8
+#define NUM_SHILED_ITEMS 2
 #define NUM_DEF 2
 #define MAX_HUNGER 100
 #define MAX_HEALTH 100
 #define MAX_SHIELD 75
 
-enum weaponType { FISTS, BAT, KNIFE, GUN};
-enum consumableType { AID_KIT, PAINKILLER, BANDAGES, VEST, HELMET, BURGER, CANNED_BEANS, APPLE};
+enum itemType { WEAPON, DEFENSIVE, CONSUMABLE };
+enum weaponType { FISTS, BAT, KNIFE, GUN };
+enum consumableType { BURGER, CANNED_BEANS, APPLE, AID_KIT, PAINKILLER, BANDAGES, VEST, HELMET };
 enum defensiveType { WOODEN_DOOR, METAL_SHIELD };
-enum affectingStat { HEALTH, SHIELD, HUNGER };
+enum affectingStat { HUNGER, HEALTH, SHIELD };
 
 // all classes related to stages
 class Player {
@@ -35,6 +40,6 @@ public:
 
 	Player();
 	void addWeaponUses(weaponType type, int uses);
-	void useConsumable(consumableType consumable);
-	void affectPlayerStat(affectingStat stat, int amount, bool add);
+	void addDefUses(defensiveType type, int uses);
+	bool affectPlayerStat(affectingStat stat, int amount, bool add);
 };
