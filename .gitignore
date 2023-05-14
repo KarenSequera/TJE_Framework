@@ -14,3 +14,4 @@ visualstudio/VS2015/Release
 *.ipch
 *.db
 *.exe
+visualstudio/.vs/

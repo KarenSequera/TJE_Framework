@@ -39,6 +39,3 @@ public:
 	void renderConsumableMenu();
 	void update(float dt);
 };
-
-class NightStage : public Stage {
-}
