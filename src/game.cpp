@@ -46,6 +46,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	stage_manager = new StageManager();
 
 	new World();
+
 }
 
 //what to do when the image has to be draw
@@ -61,7 +62,7 @@ void Game::render(void)
 	stage_manager->render();
 
 	//Draw the floor grid
-	drawGrid();
+	//drawGrid();
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
@@ -72,11 +73,7 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
-
 	stage_manager->update(seconds_elapsed);
-
-
-
 }
 
 //Keyboard event handler (sync input)

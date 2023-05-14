@@ -25,7 +25,7 @@ public:
 	Matrix44 getGlobalMatrix();
 
 	// methods to be overwritten
-	virtual void render() {};
+	virtual void render();
 	virtual void update(float dt) {};
 }; 
 

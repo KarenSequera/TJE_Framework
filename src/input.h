@@ -60,11 +60,13 @@ struct GamepadState
 	char prev_button[16]; //buttons in the previous frame
 	char direction;		//which direction is the left stick pointing at
 	char prev_direction; //which direction was the left stick before
+	HATState prev_hat;
 	HATState hat;		//digital pad
 
 	bool isButtonPressed(int num) { return button[num] != 0; }
 	bool wasButtonPressed(int num) { return (button[num] & !prev_button[num]) != 0; }
 	bool didDirectionChanged(char dir) { return direction != prev_direction && (direction & dir) != 0; }
+	bool wasPadPressed(HATState num) { return hat == num && prev_hat != num; };
 };
 
 class Input {
@@ -90,6 +92,7 @@ public:
 	//gamepad
 	static bool isButtonPressed(int button, int pad = 0) { return gamepads[pad].isButtonPressed(button); }
 	static bool wasButtonPressed(int button, int pad = 0) { return gamepads[pad].wasButtonPressed(button); }
+	static bool wasPadPressed(HATState button, int pad = 0) { return gamepads[pad].wasPadPressed(button);  };
 
 	//mouse
 	static bool isMousePressed(int button) { return mouse_state & SDL_BUTTON(button); } //button could be SDL_BUTTON_LEFT

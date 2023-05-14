@@ -66,6 +66,9 @@
     <ClCompile Include="..\..\src\entity.cpp" />
     <ClCompile Include="..\..\src\player.cpp" />
     <ClCompile Include="..\..\src\world.cpp" />
+    <ClCompile Include="..\..\src\our_utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -129,6 +132,9 @@
     <ClInclude Include="..\..\src\entity.h" />
     <ClInclude Include="..\..\src\player.h" />
     <ClInclude Include="..\..\src\world.h" />
+    <ClInclude Include="..\..\src\our_utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
