@@ -24,30 +24,47 @@ World::World() {
 	Entity* entity;
 	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
-	//parseScene("data/myscene.scene");
+	parseScene("data/myscene.scene");
 	//playstage constructor
-	Mesh* mesh1 = Mesh::Get("data/Meshes/ShortBuilding.obj");
-	Mesh* mesh2 = Mesh::Get("data/Meshes/TallBuilding.obj");
+	/*Mesh* mesh1 = Mesh::Get("data/ambulance.obj");
+	Mesh* mesh2 = Mesh::Get("data/Meshes/ShortBuilding.obj");
 
 	InstancedEntityMesh* building1 = new InstancedEntityMesh(mesh1,  Texture::Get("data/texture.tga"), shader);
-	InstancedEntityMesh* building2 = new InstancedEntityMesh(mesh2,  Texture::Get("data/texture.tga"), shader);
+	InstancedEntityMesh* building2 = new InstancedEntityMesh(mesh2,  Texture::Get("data/texture.tga"), shader);*/
 
-	int count = 1;
-	for (int i = 0; i < count; ++i)
-		{
-		for (int j = 0; i < count; ++j)
-		{
-			Matrix44 model;
-			model.setTranslation(400.f * i, 400.f * j, 0.f);
+	/*Matrix44 model1;
+	model1.setTranslation(0.f, 0.f, 0.f);
+	building1->addInstance(model1);
+	Matrix44 model2;
+	model2.setTranslation(400.f, 400.f, 0.f);
+	building1->addInstance(model2);
 
-			if (rand() % 2)
-				building1->addInstance(model);
-			else
-				building2->addInstance(model);
-		}
-	}
-	day_root->addChild(building1);
-	day_root->addChild(building2);
+	Matrix44 model3;
+	model3.setTranslation(-100.f, -100.f, 0.f);
+	building2->addInstance(model3);
+	Matrix44 model4;
+	model4.setTranslation(-400.f, -400.f, 0.f);
+	building2->addInstance(model4);*/
+
+
+	//int count = 5;
+	//for (int i = 0; i < count; ++i)
+	//{
+	//	for (int j = 0; j < count; ++j)
+	//	{
+	//		Matrix44 model;
+	//		model.setTranslation(400.f * i, 400.f * j, 0.f);
+
+	//		if (rand() % 2)
+	//			building1->addInstance(model);
+	//		else
+	//			building2->addInstance(model);
+	//	}
+	//}
+
+	//day_root->addChild(building1);
+	//day_root->addChild(building2);
+
 }
 
 void World::parseStats(const char* filename) {

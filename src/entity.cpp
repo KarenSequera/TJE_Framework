@@ -55,12 +55,12 @@ void EntityMesh::render() {
 
 	Camera* camera = Camera::current;
 	
-	Vector3 sphere_center = model_matrix * mesh->box.center;
+	/*Vector3 sphere_center = model_matrix * mesh->box.center;
 	float sphere_radius = mesh->radius;
 
 	if (camera->testSphereInFrustum(sphere_center, sphere_radius) == false
 		|| camera->eye.distance(model_matrix.getTranslation()) > 10000)
-		return;
+		return;*/
 
 	if (shader)
 	{
@@ -85,4 +85,45 @@ void EntityMesh::render() {
 
 void EntityMesh::update(float dt) {
 
+}
+
+void InstancedEntityMesh::addInstance(Matrix44 model) {
+	models.push_back(model);
+}
+
+void InstancedEntityMesh::render() {
+	//set flags
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	Camera* camera = Camera::current;
+
+	Vector3 sphere_center = model_matrix * mesh->box.center;
+	float sphere_radius = mesh->radius;
+
+	if (camera->testSphereInFrustum(sphere_center, sphere_radius) == false
+		|| camera->eye.distance(model_matrix.getTranslation()) > 10000)
+		return;
+
+	if (shader)
+	{
+		//enable shader
+		shader->enable();
+
+		//upload uniforms
+		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		shader->setUniform("u_texture", texture, 0);
+		shader->setUniform("u_model", getGlobalMatrix());
+		shader->setUniform("u_time", time);
+
+		//do the draw call
+		mesh->renderInstanced(GL_TRIANGLES, models.data(), models.size());
+
+		//disable shader
+		shader->disable();
+	}
+
+	Entity::render();
 }
