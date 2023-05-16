@@ -22,10 +22,32 @@ World::World() {
 	day_entities.push_back(day_root);
 
 	Entity* entity;
-	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
-	parseScene("data/myscene.scene");
+	//parseScene("data/myscene.scene");
+	//playstage constructor
+	Mesh* mesh1 = Mesh::Get("data/Meshes/ShortBuilding.obj");
+	Mesh* mesh2 = Mesh::Get("data/Meshes/TallBuilding.obj");
 
+	InstancedEntityMesh* building1 = new InstancedEntityMesh(mesh1,  Texture::Get("data/texture.tga"), shader);
+	InstancedEntityMesh* building2 = new InstancedEntityMesh(mesh2,  Texture::Get("data/texture.tga"), shader);
+
+	int count = 1;
+	for (int i = 0; i < count; ++i)
+		{
+		for (int j = 0; i < count; ++j)
+		{
+			Matrix44 model;
+			model.setTranslation(400.f * i, 400.f * j, 0.f);
+
+			if (rand() % 2)
+				building1->addInstance(model);
+			else
+				building2->addInstance(model);
+		}
+	}
+	day_root->addChild(building1);
+	day_root->addChild(building2);
 }
 
 void World::parseStats(const char* filename) {
@@ -110,19 +132,20 @@ bool World::parseScene(const char* filename)
 			continue;
 
 		// Create instanced entity
-		//if (render_data.models.size() > 1) {
-		//	InstancedEntityMesh* new_entity = new InstancedEntityMesh(Mesh::Get(mesh_name.c_str()), render_data.shader, render_data.texture);
-		//	// Add all instances
-		//	new_entity->models = render_data.models;
-		//	// Add entity to scene root
-		//	root.addChild(new_entity);
-		//}
-		// Create normal entity
-
-		EntityMesh* new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()), Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"));
-		new_entity->model_matrix = render_data.models[0];
-		// Add entity to scene root
-		day_root->addChild(new_entity);
+		if (render_data.models.size() > 1) {
+			InstancedEntityMesh* new_entity = new InstancedEntityMesh(Mesh::Get(mesh_name.c_str()), Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"));
+			// Add all instances
+			new_entity->models = render_data.models;
+			// Add entity to scene root
+			day_root->addChild(new_entity);
+		}
+		else{
+			// Create normal entity
+			EntityMesh* new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()), Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"));
+			new_entity->model_matrix = render_data.models[0];
+			// Add entity to scene root
+			day_root->addChild(new_entity);
+		}
 		
 	}
 
