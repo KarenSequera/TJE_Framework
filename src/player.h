@@ -23,6 +23,7 @@ class Player {
 public:
 	
 	Vector3 position;
+	Vector3 velocity;
 
 	//Inicialisating the statistics
 	int health;

@@ -327,6 +327,7 @@ void Camera::moveXZ(Vector3 delta)
 	center = center - localDelta;
 	updateViewMatrix();
 }
+
 void Camera::ourRotate(float dt_yaw, float dt_pitch)
 {
 	delta_pitch -= dt_pitch;

@@ -18,7 +18,6 @@ DayStage::DayStage() : Stage() {
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
 
-
 	consumable_selected = BURGER;
 
 	//hide the cursor
@@ -30,8 +29,11 @@ float right_analog_y_disp;
 float left_analog_x_disp;
 float left_analog_y_disp;
 float speed;
+vec3 move_dir = vec3(0.0);
 
 void DayStage::render() {
+	World::inst->player->position = Camera::current->eye;
+
 	for (auto& entity : World::inst->day_entities) {
 		entity->render();
 	}
@@ -42,12 +44,13 @@ void DayStage::render() {
 	renderConsumableMenu();
 }
 
+//	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
 void DayStage::renderConsumableMenu() {
 	drawText(5, 85, consumable_names[consumable_selected] + std::to_string(World::inst->getConsumableQuant(consumable_selected)), Vector3(0.0f, 0.5f, 0.75f), 2);
 }
 
 void DayStage::update(float dt) {
-	speed = dt * mouse_speed; //the speed is defined by the seconds_elapsed so it goes constant
+	speed = dt * mouse_speed * 650.f; //the speed is defined by the seconds_elapsed so it goes constant
 
 	//example
 	angle += (float)dt * 10.0f;
@@ -126,25 +129,47 @@ void DayStage::update(float dt) {
 		#endif
 	}
 	else {
-
 		//mouse input to rotate the cam
-
 		camera->ourRotate(Input::mouse_delta.x * 0.005f, Input::mouse_delta.y * 0.005f);
 
-		//async input to move the camera around
-		if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 10; //move faster with left shift
+		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) 
+		{
+			move_dir = move_dir + Vector3(0.0f, 0.0f, 1.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
 
-		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP))
-			camera->moveXZ(Vector3(0.0f, 0.0f, 1.0f) * speed);
-
-		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN))
-			camera->moveXZ(Vector3(0.0f, 0.0f, -1.0f) * speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) 
+		{
+			move_dir = move_dir + Vector3(0.0f, 0.0f, -1.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
 
 		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT))
-			camera->moveXZ(Vector3(1.0f, 0.0f, 0.0f) * speed);
+		{
+			move_dir = move_dir + Vector3(1.0f, 0.0f, 0.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
 
 		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT))
-			camera->moveXZ(Vector3(-1.0f, 0.0f, 0.0f) * speed);
+		{
+			move_dir = move_dir + Vector3(-1.0f, 0.0f, 0.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
+
+		World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
+		
+		/*#if DEBUG
+		printf("%f %f %f\n", World::inst->player->velocity.x, World::inst->player->velocity.y, World::inst->player->velocity.z);
+		#endif*/
+
+		camera->moveXZ(World::inst->player->velocity * dt);
+
+		World::inst->player->velocity *= 0.15f;
+		move_dir *= 0.15f;
 
 		if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 		{

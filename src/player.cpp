@@ -20,6 +20,7 @@ Player::Player() {
 	}
 }
 
+//	Adds weapon uses
 void Player::addWeaponUses(weaponType type, int uses)
 {
 	weapon_uses[type] += uses;
@@ -28,6 +29,7 @@ void Player::addWeaponUses(weaponType type, int uses)
 	#endif
 }
 
+//	Adds defensive item uses
 void Player::addDefUses(defensiveType type, int uses)
 {
 	def_uses[type] += uses;
@@ -36,6 +38,14 @@ void Player::addDefUses(defensiveType type, int uses)
 	#endif
 }
 
+/*
+* Tries to affect one of the player's stats.
+* @param stat: the stat we want to modify
+* @param amount: the amount we want the stat to change
+* @param add: whether we are adding or subtracting
+* @return: a bool determining whether the change could be made (true) or not (false)
+* return is used to give appropriate error messages
+*/
 bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 {
 	int mult = add ? 1 : -1;

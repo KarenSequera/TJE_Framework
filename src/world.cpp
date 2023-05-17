@@ -25,48 +25,9 @@ World::World() {
 	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
 	parseScene("data/myscene.scene");
-	//playstage constructor
-	/*Mesh* mesh1 = Mesh::Get("data/ambulance.obj");
-	Mesh* mesh2 = Mesh::Get("data/Meshes/ShortBuilding.obj");
-
-	InstancedEntityMesh* building1 = new InstancedEntityMesh(mesh1,  Texture::Get("data/texture.tga"), shader);
-	InstancedEntityMesh* building2 = new InstancedEntityMesh(mesh2,  Texture::Get("data/texture.tga"), shader);*/
-
-	/*Matrix44 model1;
-	model1.setTranslation(0.f, 0.f, 0.f);
-	building1->addInstance(model1);
-	Matrix44 model2;
-	model2.setTranslation(400.f, 400.f, 0.f);
-	building1->addInstance(model2);
-
-	Matrix44 model3;
-	model3.setTranslation(-100.f, -100.f, 0.f);
-	building2->addInstance(model3);
-	Matrix44 model4;
-	model4.setTranslation(-400.f, -400.f, 0.f);
-	building2->addInstance(model4);*/
-
-
-	//int count = 5;
-	//for (int i = 0; i < count; ++i)
-	//{
-	//	for (int j = 0; j < count; ++j)
-	//	{
-	//		Matrix44 model;
-	//		model.setTranslation(400.f * i, 400.f * j, 0.f);
-
-	//		if (rand() % 2)
-	//			building1->addInstance(model);
-	//		else
-	//			building2->addInstance(model);
-	//	}
-	//}
-
-	//day_root->addChild(building1);
-	//day_root->addChild(building2);
-
 }
 
+//	Parses the stats from a specific file
 void World::parseStats(const char* filename) {
 	std::ifstream file(filename);
 	if (!file.good()) {
@@ -98,6 +59,7 @@ struct sRenderData {
 
 std::map<std::string, sRenderData> meshes_to_load;
 
+//	Parses a scene from a .scene file
 bool World::parseScene(const char* filename)
 {
 	// You could fill the map manually to add shader and texture for each mesh
@@ -172,17 +134,22 @@ bool World::parseScene(const char* filename)
 
 // behaviour related ----------------------------------------------------------------------
 
+//	Hurts the player according to a specific weapon type
 void World::hurtPlayer(weaponType weapon)
 {
 	player->affectPlayerStat(HEALTH, weapon_dmg[weapon], false);
 }
 
+//	Consumes a specific hunger from the user
 void World::consumeHunger(int quant)
 {
 	player->affectPlayerStat(HUNGER, quant, false);
 }
 
-/*  returns:
+/* 
+	Function that tries to use a specific consumable.
+	@param consumable: type of consumable we want to use.
+	@return: an int indicating whether the consumable could be used or not
 	0 if the consumable was used without issue
 	1 if there are no consumables of that type
 	2 if the stat the consumable affects is already at the maximum
@@ -200,12 +167,14 @@ int World::useConsumable(consumableType consumable)
 
 }
 
+
+//	Returns the number of consumables we have of a specific type
 int World::getConsumableQuant(consumableType consumable)
 {
 	return player->consumables[consumable];
 }
 
-
+//	Function that adds one consumable of a specific type to the player's inventory
 void World::getConsumable(consumableType consumable)
 {
 	// If the consumable is a shield, and it cat be added directly to the player's stats, do nothing
@@ -219,14 +188,17 @@ void World::getConsumable(consumableType consumable)
 	#endif // DEBUG
 }
 
+//	Adds weapon uses of a specific type
 void World::getWeapon(weaponType weapon) {
 	player->addWeaponUses(weapon, weapon_use_pts[weapon]);
 }
 
+//	Adds uses to a specific type of defensive items
 void World::getDefItem(defensiveType def) {
 	player->addDefUses(def, defensive_use_pts[def]);
 }
 
+//	Tries to get an item from the world and add it to the player's inventory
 void World::getItem() {
 	// TODO: Check ray collision
 	// if collided with item mesh:
