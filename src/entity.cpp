@@ -99,13 +99,6 @@ void InstancedEntityMesh::render() {
 
 	Camera* camera = Camera::current;
 
-	Vector3 sphere_center = model_matrix * mesh->box.center;
-	float sphere_radius = mesh->radius;
-
-	if (camera->testSphereInFrustum(sphere_center, sphere_radius) == false
-		|| camera->eye.distance(model_matrix.getTranslation()) > 10000)
-		return;
-
 	if (shader)
 	{
 		//enable shader

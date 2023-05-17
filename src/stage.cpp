@@ -68,7 +68,7 @@ void DayStage::update(float dt) {
 
 		// We check in case the gamepad has slight drift. 
 		if (std::abs(right_analog_x_disp) > DRIFT_THRESHOLD || std::abs(right_analog_y_disp) > DRIFT_THRESHOLD) {
-			camera->ourRotate(-right_analog_x_disp * gamepad_sensitivity, -right_analog_y_disp * gamepad_sensitivity);
+			camera->ourRotate(right_analog_x_disp * gamepad_sensitivity, right_analog_y_disp * gamepad_sensitivity);
 		}
 
 		//The player moves with the left joystick, so when the left joystick is moved, we need to move the camera. 

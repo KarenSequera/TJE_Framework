@@ -327,14 +327,13 @@ void Camera::moveXZ(Vector3 delta)
 	center = center - localDelta;
 	updateViewMatrix();
 }
-
-void Camera::ourRotate(float dt_pitch, float dt_yaw)
+void Camera::ourRotate(float dt_yaw, float dt_pitch)
 {
-	delta_pitch += dt_pitch;
-	delta_yaw += dt_yaw;
+	delta_pitch -= dt_pitch;
+	delta_yaw -= dt_yaw;
 
-	delta_yaw = clamp(delta_yaw, -M_PI * Y_ROT_CLAMP, M_PI * Y_ROT_CLAMP);
-	mPitch.setRotation(delta_pitch, Vector3(0, -1, 0));
-	mYaw.setRotation(delta_yaw, getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
-	lookAt(eye, eye - (mPitch * mYaw).frontVector(), up);
+	delta_pitch = clamp(delta_pitch, -M_PI * Y_ROT_CLAMP, M_PI * Y_ROT_CLAMP);
+	mYaw.setRotation(delta_yaw, Vector3(0, 1, 0));
+	mPitch.setRotation(delta_pitch, Vector3(-1.0f, 0.0f, 0.0f));
+	lookAt(eye, eye + (mPitch * mYaw).frontVector(), up);
 }
