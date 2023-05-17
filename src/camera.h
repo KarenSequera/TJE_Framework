@@ -82,7 +82,7 @@ public:
 	char testBoxInFrustum( const Vector3& center, const Vector3& halfsize);
 
 	//our functions
-	void ourRotate(float dt_pitch, float dt_yaw);
+	void ourRotate(float dt_yaw, float dt_pitch);
 	void moveXZ(Vector3 delta);
 };
 

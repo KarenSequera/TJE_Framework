@@ -39,6 +39,16 @@ public:
 	EntityMesh();
 	EntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader);
 
-	void render();
+	virtual void render();
 	void update(float dt);
+};
+
+class InstancedEntityMesh : public EntityMesh {
+public:
+
+	std::vector<Matrix44> models;
+	InstancedEntityMesh();
+	InstancedEntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader) : EntityMesh(in_mesh, in_texture, in_shader) {};
+	void render();
+	void addInstance(Matrix44 model);
 };

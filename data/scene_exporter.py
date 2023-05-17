@@ -1,6 +1,7 @@
 import bpy
 from bpy import context
 from bpy_extras.io_utils import axis_conversion
+import os
 
 filepath = bpy.path.abspath("//") + "myscene.scene"
 folderpath = bpy.path.abspath("//") + "meshes/"
@@ -26,15 +27,20 @@ with open(filepath, 'w') as f:
         # Set identity to export in 0,0,0 and no rotations
         object.matrix_world.identity()
         
+        # Check whether the specified path exists or not
+        if not os.path.exists(folderpath):
+        # Create a new directory because it does not exist
+            os.makedirs(folderpath)
+
         # Export OBJ
         object.select_set(True)
         bpy.ops.export_scene.obj(filepath=folderpath+name, filter_glob="*.obj;*.mtl", use_selection=True, use_triangles=True, 
-            global_scale=export_scale, axis_forward='Y', axis_up='Z')
+            global_scale=export_scale)
         object.select_set(False)
 
         # Restore transform
         object.matrix_world = original_mat.copy()
-                
+        
         # Export object in scene file
         f.write("meshes/" + name + " ")
 
@@ -43,8 +49,9 @@ with open(filepath, 'w') as f:
         # Export matrix data (Change Y and Z axis and scale translation by global scale)
         
         correction_matrix = axis_conversion(to_forward='-Z', to_up='Y',).to_4x4()
+        correction_matrix_inv = correction_matrix.inverted()
         
-        original_mat = correction_matrix @ original_mat 
+        original_mat = correction_matrix @ original_mat @ correction_matrix_inv
 
         f.write( str( round(original_mat[0][0], round_val) ) )
         f.write(",")
