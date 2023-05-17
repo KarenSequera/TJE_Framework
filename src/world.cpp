@@ -50,7 +50,7 @@ void World::parseStats(const char* filename) {
 
 }
 
-// render related ----------------------------------------------------------------------------------------------------
+// render related --------------------------------------------------------------------------------------------------------------------------------------------------
 struct sRenderData {
 	Texture* texture = nullptr;
 	Shader* shader = nullptr;
@@ -112,7 +112,9 @@ bool World::parseScene(const char* filename)
 
 		// Create instanced entity
 		if (render_data.models.size() > 1) {
-			InstancedEntityMesh* new_entity = new InstancedEntityMesh(Mesh::Get(mesh_name.c_str()), Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"));
+			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"), true, false, false);
+
 			// Add all instances
 			new_entity->models = render_data.models;
 			// Add entity to scene root
@@ -120,8 +122,12 @@ bool World::parseScene(const char* filename)
 		}
 		else{
 			// Create normal entity
-			EntityMesh* new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()), Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"));
+			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+			Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"), false, false, false);
+
 			new_entity->model_matrix = render_data.models[0];
+			new_entity->models.push_back(render_data.models[0]);
+
 			// Add entity to scene root
 			day_root->addChild(new_entity);
 		}
@@ -132,8 +138,9 @@ bool World::parseScene(const char* filename)
 	return true;
 }
 
-// behaviour related ----------------------------------------------------------------------
+// behaviour related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+// GENERAL  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //	Hurts the player according to a specific weapon type
 void World::hurtPlayer(weaponType weapon)
 {
@@ -154,6 +161,13 @@ void World::consumeHunger(int quant)
 	1 if there are no consumables of that type
 	2 if the stat the consumable affects is already at the maximum
 */
+
+//	Returns the number of consumables we have of a specific type
+int World::getConsumableQuant(consumableType consumable)
+{
+	return player->consumables[consumable];
+}
+
 int World::useConsumable(consumableType consumable)
 {
 	if (player->consumables[consumable])
@@ -168,12 +182,7 @@ int World::useConsumable(consumableType consumable)
 }
 
 
-//	Returns the number of consumables we have of a specific type
-int World::getConsumableQuant(consumableType consumable)
-{
-	return player->consumables[consumable];
-}
-
+// DAY  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //	Function that adds one consumable of a specific type to the player's inventory
 void World::getConsumable(consumableType consumable)
 {
@@ -185,18 +194,20 @@ void World::getConsumable(consumableType consumable)
 }
 
 //	Adds weapon uses of a specific type
-void World::getWeapon(weaponType weapon) {
+void World::getWeaponUses(weaponType weapon) {
 	player->addWeaponUses(weapon, weapon_use_pts[weapon]);
 }
 
 //	Adds uses to a specific type of defensive items
-void World::getDefItem(defensiveType def) {
+void World::getDefItemUses(defensiveType def) {
 	player->addDefUses(def, defensive_use_pts[def]);
 }
 
 //	Tries to get an item from the world and add it to the player's inventory
-void World::getItem() {
-	// TODO: Check ray collision
+void World::getItem(const Vector3& ray) {
+	if (!checkItemCollisions(ray))
+		return;
+
 	// if collided with item mesh:
 	itemType type = rand() % 2 == 0 ? WEAPON : DEFENSIVE;
 	#if DEBUG
@@ -210,11 +221,11 @@ void World::getItem() {
 	switch (type) {
 		case WEAPON:
 			// get type from entity
-			getWeapon(weapon_type);
+			getWeaponUses(weapon_type);
 			break;
 
 		case DEFENSIVE:
-			getDefItem(def_type);
+			getDefItemUses(def_type);
 			break;
 
 		case CONSUMABLE:
@@ -222,3 +233,49 @@ void World::getItem() {
 			break;
 	}
 }
+
+bool World::checkItemCollisions(const Vector3& ray_dir)
+{
+	for (auto& entity : day_root->children)
+	{
+		//TODO: uncomment when itemEntity is implemented
+		/*
+		* ItemEntity* item = dynamic_cast< ItemEntity* > (entity);
+		* if(item)
+		* {
+		*	//replace by the code in "if collision"
+		* }
+		*/
+		EntityCollision* collision = dynamic_cast<EntityCollision*>(entity);
+		if (!collision)
+			continue;
+
+		for (auto& model : collision->models)
+		{
+			if (!collision->mesh->testRayCollision(
+				model,
+				player->position,
+				ray_dir,
+				Vector3(),
+				Vector3(),
+				MAX_ITEM_DIST,
+				false
+			))
+			#if DEBUG
+			{
+
+				printf("NO collision\n");
+				continue;
+			}
+			printf("Collided with item!\n");
+			#else
+				continue;
+			#endif
+			return true;
+		}
+		
+	}
+	return false;
+}
+
+// NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

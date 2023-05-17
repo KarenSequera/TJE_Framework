@@ -10,14 +10,15 @@
 
 class Entity {
 public:
-
+	// members
 	Matrix44 model_matrix;
 
 	Entity* parent;
 	std::vector<Entity*> children;
+	bool does_move;
 
 	// ctor & destructor
-	Entity();
+	Entity(bool moves = true);
 
 	void addChild(Entity* child);
 	void removeChild(Entity* child);
@@ -32,23 +33,30 @@ public:
 
 class EntityMesh : public Entity {
 public:
+	// members
 	Mesh* mesh;
 	Texture* texture;
 	Shader* shader;
 
+	bool is_instanced;
+	std::vector<Matrix44> models;
+
+	//methods
 	EntityMesh();
-	EntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader);
+	EntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, bool is_instanced, bool moves = true);
 
 	virtual void render();
+	void render_simple();
+	void render_instanced();
+
+	void addInstance(Matrix44 model);
+
 	void update(float dt);
 };
 
-class InstancedEntityMesh : public EntityMesh {
+class EntityCollision : public EntityMesh {
 public:
+	bool is_dynamic;
 
-	std::vector<Matrix44> models;
-	InstancedEntityMesh();
-	InstancedEntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader) : EntityMesh(in_mesh, in_texture, in_shader) {};
-	void render();
-	void addInstance(Matrix44 model);
+	EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, bool is_instanced, bool dynamic, bool moves = true);
 };

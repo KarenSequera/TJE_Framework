@@ -1,7 +1,13 @@
 #pragma once
 
-
 #include "player.h"
+#define MAX_ITEM_DIST 1000
+
+struct sCollisionData {
+	Vector3 colPoint;
+	Vector3 colNormal;
+};
+
 
 class World {
 public:
@@ -29,15 +35,20 @@ public:
 	void parseStats(const char* filename);
 	bool parseScene(const char* filename);
 
+	// General logic
 	void hurtPlayer(weaponType weapon);
 	void consumeHunger(int quant);
 
-	int useConsumable(consumableType consumable);
-	void getConsumable(consumableType consumable);
-
-	void getItem();
-	void getWeapon(weaponType weapon);
-	void getDefItem(defensiveType def);
-
 	int getConsumableQuant(consumableType consumable);
+	int useConsumable(consumableType consumable);
+
+	// Day logic
+	void getConsumable(consumableType consumable);
+	void getWeaponUses(weaponType weapon);
+	void getDefItemUses(defensiveType def);
+	void getItem(const Vector3& ray);
+
+	bool checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>collisions);
+	bool checkItemCollisions(const Vector3& ray_dir);
+
 };

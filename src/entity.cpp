@@ -5,9 +5,10 @@
 #include "shader.h"
 #include "camera.h"
 
-Entity::Entity() {
+Entity::Entity(bool moves) {
 	model_matrix = Matrix44();
 	parent = nullptr;
+	does_move = moves;
 }
 
 void Entity::addChild(Entity* child) {
@@ -27,6 +28,8 @@ Matrix44 Entity::getGlobalMatrix() {
 		return model_matrix;
 }
 
+//TODO: method for computing the global matrix of entities that do NOT move -> maybe add another members
+// for the global matrix;
 
 void Entity::render() {
 	for (auto& child : children) {
@@ -38,15 +41,25 @@ EntityMesh::EntityMesh() : Entity(){
 	mesh = nullptr;
 	texture = nullptr;
 	shader = nullptr;
+	is_instanced = false;
 }
 
-EntityMesh::EntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader) : Entity(){
+EntityMesh::EntityMesh(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, bool instanced, bool moves) : Entity(moves){
 	mesh = in_mesh;
 	texture = in_texture;
 	shader = in_shader;
+	is_instanced = instanced;
 }
 
-void EntityMesh::render() {
+void EntityMesh::render()
+{
+	if (is_instanced)
+		render_instanced();
+	else
+		render_simple();
+}
+
+void EntityMesh::render_simple() {
 	
 	//set flags
 	glDisable(GL_BLEND);
@@ -87,11 +100,11 @@ void EntityMesh::update(float dt) {
 
 }
 
-void InstancedEntityMesh::addInstance(Matrix44 model) {
+void EntityMesh::addInstance(Matrix44 model) {
 	models.push_back(model);
 }
 
-void InstancedEntityMesh::render() {
+void EntityMesh::render_instanced() {
 	//set flags
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -119,4 +132,10 @@ void InstancedEntityMesh::render() {
 	}
 
 	Entity::render();
+}
+
+EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, bool is_instanced, bool dynamic, bool moves)
+	: EntityMesh(in_mesh, in_texture, in_shader, is_instanced, moves)
+{
+	is_dynamic = dynamic;
 }

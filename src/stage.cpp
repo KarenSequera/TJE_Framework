@@ -2,6 +2,7 @@
 #include "input.h"
 #include "camera.h"
 #include "our_utils.h"
+#include "game.h"
 
 #include <algorithm>
  
@@ -55,7 +56,7 @@ void DayStage::renderConsumableMenu() {
 
 void DayStage::update(float dt) {
 	updateMovement(dt);
-	updateItemsAndStats(dt);
+	updateItemsAndStats();
 }
 
 void DayStage::updateMovement(float dt){
@@ -140,7 +141,7 @@ void DayStage::updateMovement(float dt){
 
 }
 
-void DayStage::updateItemsAndStats(float dt) {
+void DayStage::updateItemsAndStats() {
 	if (Input::gamepads[0].connected)
 	{
 		// MENU
@@ -225,7 +226,16 @@ void DayStage::updateItemsAndStats(float dt) {
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_F))
 		{
-			World::inst->getItem();
+			Vector3 ray = camera->getRayDirection(
+				Input::mouse_position.x, Input::mouse_position.y,
+				Game::instance->window_width, Game::instance->window_height);
+
+			if(ray.length())
+				ray.normalize();
+
+			printf("%f %f %f\n", ray.x, ray.y, ray.z);
+			
+			World::inst->getItem(ray);
 		}
 		#if DEBUG
 		else if (Input::wasKeyPressed(SDL_SCANCODE_J))
