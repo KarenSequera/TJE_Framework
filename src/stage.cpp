@@ -42,6 +42,10 @@ void DayStage::render() {
 	drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
 	
 	renderConsumableMenu();
+	#if DEBUG
+	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, P: getCons"
+		, Vector3(0.0f, 0.5f, 0.75f), 2);
+	#endif
 }
 
 //	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
@@ -50,7 +54,12 @@ void DayStage::renderConsumableMenu() {
 }
 
 void DayStage::update(float dt) {
-	speed = dt * mouse_speed * 650.f; //the speed is defined by the seconds_elapsed so it goes constant
+	updateMovement(dt);
+	updateItemsAndStats(dt);
+}
+
+void DayStage::updateMovement(float dt){
+	speed = dt * mouse_speed * 550.f; //the speed is defined by the seconds_elapsed so it goes constant
 
 	//example
 	angle += (float)dt * 10.0f;
@@ -60,7 +69,7 @@ void DayStage::update(float dt) {
 
 	//We check if the gamepad is connected:
 	if (Input::gamepads[0].connected) {
-		
+
 		// MOVEMENT
 		// The orientation of the camara is conttrolled with the right joystick
 		right_analog_x_disp = Input::gamepads[0].axis[RIGHT_ANALOG_X];
@@ -81,13 +90,65 @@ void DayStage::update(float dt) {
 		if (std::abs(left_analog_y_disp) > DRIFT_THRESHOLD) {
 			camera->moveXZ(Vector3(0.f, 0.f, left_analog_y_disp) * -3.0f * speed);
 		}
+	}
+	else {
+		//mouse input to rotate the cam
+		camera->ourRotate(Input::mouse_delta.x * 0.005f, Input::mouse_delta.y * 0.005f);
 
+		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP))
+		{
+			move_dir = move_dir + Vector3(0.0f, 0.0f, 1.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
+
+		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN))
+		{
+			move_dir = move_dir + Vector3(0.0f, 0.0f, -1.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
+
+		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT))
+		{
+			move_dir = move_dir + Vector3(1.0f, 0.0f, 0.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
+
+		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT))
+		{
+			move_dir = move_dir + Vector3(-1.0f, 0.0f, 0.0f);
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
+
+		World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
+
+		/*#if DEBUG
+		printf("%f %f %f\n", World::inst->player->velocity.x, World::inst->player->velocity.y, World::inst->player->velocity.z);
+		#endif*/
+
+		camera->moveXZ(World::inst->player->velocity * dt);
+
+		World::inst->player->velocity *= 0.15f;
+		move_dir *= 0.15f;
+		//to navigate with the mouse fixed in the middle
+		if (mouse_locked)
+			Input::centerMouse();
+	}
+
+}
+
+void DayStage::updateItemsAndStats(float dt) {
+	if (Input::gamepads[0].connected)
+	{
 		// MENU
 		if (Input::wasPadPressed(HATState::PAD_RIGHT))
 		{
 			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHILED_ITEMS));
 		}
-		else if(Input::wasPadPressed(HATState::PAD_LEFT))
+		else if (Input::wasPadPressed(HATState::PAD_LEFT))
 		{
 			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHILED_ITEMS)));
 		}
@@ -128,49 +189,8 @@ void DayStage::update(float dt) {
 		}
 		#endif
 	}
-	else {
-		//mouse input to rotate the cam
-		camera->ourRotate(Input::mouse_delta.x * 0.005f, Input::mouse_delta.y * 0.005f);
-
-		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) 
-		{
-			move_dir = move_dir + Vector3(0.0f, 0.0f, 1.0f);
-			if (move_dir.length() > 0.01)
-				move_dir.normalize();
-		}
-
-		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) 
-		{
-			move_dir = move_dir + Vector3(0.0f, 0.0f, -1.0f);
-			if (move_dir.length() > 0.01)
-				move_dir.normalize();
-		}
-
-		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT))
-		{
-			move_dir = move_dir + Vector3(1.0f, 0.0f, 0.0f);
-			if (move_dir.length() > 0.01)
-				move_dir.normalize();
-		}
-
-		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT))
-		{
-			move_dir = move_dir + Vector3(-1.0f, 0.0f, 0.0f);
-			if (move_dir.length() > 0.01)
-				move_dir.normalize();
-		}
-
-		World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
-		
-		/*#if DEBUG
-		printf("%f %f %f\n", World::inst->player->velocity.x, World::inst->player->velocity.y, World::inst->player->velocity.z);
-		#endif*/
-
-		camera->moveXZ(World::inst->player->velocity * dt);
-
-		World::inst->player->velocity *= 0.15f;
-		move_dir *= 0.15f;
-
+	else
+	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 		{
 			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHILED_ITEMS));
@@ -179,28 +199,28 @@ void DayStage::update(float dt) {
 		{
 			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHILED_ITEMS)));
 		}
-		
+
 		// use consumable
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 		{
 			int res = World::inst->useConsumable(consumable_selected);
 			switch (res) {
-				case 1:
-					//TODO: ERROR MSG - NO CONSUMABLES OF THAT TYPE
-					#if DEBUG
-					printf("NO CONSUMABLES OF THAT TYPE\n");
-					#endif
-					break;
+			case 1:
+				//TODO: ERROR MSG - NO CONSUMABLES OF THAT TYPE
+				#if DEBUG
+				printf("NO CONSUMABLES OF THAT TYPE\n");
+				#endif
+				break;
 
-				case 2:
-					//TODO: ERROR MSG - STAT ALREADY CAPPED
-					#if DEBUG
-					printf("STAT ALREADY CAPPED\n");
-					#endif
-					break;
+			case 2:
+				//TODO: ERROR MSG - STAT ALREADY CAPPED
+				#if DEBUG
+				printf("STAT ALREADY CAPPED\n");
+				#endif
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_F))
@@ -218,12 +238,8 @@ void DayStage::update(float dt) {
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_P))
 		{
-			World::inst->getConsumable(VEST);
+			World::inst->getConsumable(consumable_selected);
 		}
 		#endif
-		//to navigate with the mouse fixed in the middle
-		if (mouse_locked)
-			Input::centerMouse();
 	}
-
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "entity.h"
 #include "player.h"
 
 class World {

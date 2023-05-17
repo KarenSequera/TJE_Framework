@@ -1,8 +1,4 @@
 #include "world.h"
-#include "mesh.h"
-#include "texture.h"
-#include "shader.h"
-#include "entity.h"
 #include "utils.h"
 
 #include <fstream>
@@ -34,10 +30,12 @@ void World::parseStats(const char* filename) {
 		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
 		exit(-1);
 	}
-	std::string data;
+	std::string dump, data;
 	int sizes[] = {NUM_CONSUMABLES, NUM_WEAPONS, NUM_WEAPONS, NUM_DEF, NUM_DEF };
 	int* array_ptr[] = { consumable_stats , weapon_dmg , weapon_use_pts, defensive_stats, defensive_use_pts };
 	int line = 0;
+
+	file >> dump;
 	while (file >> data && line < 5)
 	{
 		// Get all information.
@@ -46,6 +44,8 @@ void World::parseStats(const char* filename) {
 			array_ptr[line][t] = (int)atoi(tokens[t + 1].c_str());
 		}
 		line++;
+		file >> dump;
+		file.ignore(1, '\n');
 	}
 
 }
@@ -182,10 +182,6 @@ void World::getConsumable(consumableType consumable)
 	// otherwise add one consumable of that type
 	else player->consumables[consumable]++;
 
-	#if DEBUG
-	printf("%d\n", player->consumables[VEST]);
-	printf("%d\n", player->consumables[HELMET]);
-	#endif // DEBUG
 }
 
 //	Adds weapon uses of a specific type

@@ -5,6 +5,11 @@ Player::Player() {
 	shield = 0;
 	hunger = MAX_HUNGER;
 
+	// Render related
+	mesh = Mesh::Get("data/pruebas/advanced.obj");
+	texture = Texture::Get("data/pruebas/skin.tga");
+	shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
+
 	//All the inventory is set to zero
 	int i;
 	for (i = 0; i < NUM_DEF; ++i) {

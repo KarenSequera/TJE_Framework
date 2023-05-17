@@ -2,9 +2,9 @@
 #include "includes.h"
 #include "utils.h"
 
-class Mesh;
-class Texture;
-class Shader;
+#include "mesh.h"
+#include "texture.h"
+#include "shader.h"
 
 #include <vector> 
 

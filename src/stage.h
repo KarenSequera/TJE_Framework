@@ -38,4 +38,6 @@ public:
 	void render();
 	void renderConsumableMenu();
 	void update(float dt);
+	void updateMovement(float dt);
+	void updateItemsAndStats(float dt);
 };
