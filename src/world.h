@@ -48,7 +48,7 @@ public:
 	void getDefItemUses(defensiveType def);
 	void getItem(const Vector3& ray);
 
-	bool checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>collisions);
 	bool checkItemCollisions(const Vector3& ray_dir);
+	bool checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
 
 };

@@ -278,4 +278,30 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 	return false;
 }
 
+bool World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
+{
+	Vector3 center = target_pos - Vector3(0.f, 0.5f, 0.f);
+	float sphere_rad = 5.f;
+	Vector3 colPoint, colNormal;
+
+	for (auto& entity : day_root->children)
+	{
+		EntityCollision* collision = dynamic_cast<EntityCollision*>(entity);
+		if (!collision)
+			continue;
+		for (auto& model : collision->models)
+		{
+			if (!collision->mesh->testSphereCollision(model, center, sphere_rad, colPoint, colNormal))
+				continue;
+
+			#if DEBUG
+			printf("player collided\n");
+			#endif
+
+			collisions->push_back({ colPoint, colNormal.length() > 0.01 ? colNormal.normalize() : colNormal});
+		}
+	}
+	return !collisions->empty();
+}
+
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

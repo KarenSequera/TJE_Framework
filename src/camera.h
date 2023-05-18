@@ -23,6 +23,9 @@ public:
 	Vector3 center; //where is it pointing
 	Vector3 up; //the up pointing up
 
+	Vector3 front;
+	Vector3 v_right;
+
 	//properties of the projection of the camera
 	float fov;			//view angle in degrees (1/zoom)
 	float aspect;		//aspect ratio (width/height)

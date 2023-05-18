@@ -25,13 +25,6 @@ DayStage::DayStage() : Stage() {
 	SDL_ShowCursor(false); //hide or show the mouse
 };
 
-float right_analog_x_disp;
-float right_analog_y_disp;
-float left_analog_x_disp;
-float left_analog_y_disp;
-float speed;
-vec3 move_dir = vec3(0.0);
-
 void DayStage::render() {
 	World::inst->player->position = Camera::current->eye;
 
@@ -59,8 +52,20 @@ void DayStage::update(float dt) {
 	updateItemsAndStats();
 }
 
+
+float right_analog_x_disp;
+float right_analog_y_disp;
+float left_analog_x_disp;
+float left_analog_y_disp;
+float speed;
+Vector3 move_dir = Vector3(0.0);
+std::vector<sCollisionData> collisions;
+
+int collided = 0;
+
 void DayStage::updateMovement(float dt){
-	speed = dt * mouse_speed * 550.f; //the speed is defined by the seconds_elapsed so it goes constant
+	collisions.clear();
+	speed = dt * mouse_speed * 500.f; //the speed is defined by the seconds_elapsed so it goes constant
 
 	//example
 	angle += (float)dt * 10.0f;
@@ -98,28 +103,28 @@ void DayStage::updateMovement(float dt){
 
 		if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP))
 		{
-			move_dir = move_dir + Vector3(0.0f, 0.0f, 1.0f);
+			move_dir = move_dir + camera->front;//Vector3(0.0f, 0.0f, 1.0f);
 			if (move_dir.length() > 0.01)
 				move_dir.normalize();
 		}
 
 		if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN))
 		{
-			move_dir = move_dir + Vector3(0.0f, 0.0f, -1.0f);
+			move_dir = move_dir - camera->front;
 			if (move_dir.length() > 0.01)
 				move_dir.normalize();
 		}
 
 		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT))
 		{
-			move_dir = move_dir + Vector3(1.0f, 0.0f, 0.0f);
+			move_dir = move_dir + camera->v_right;
 			if (move_dir.length() > 0.01)
 				move_dir.normalize();
 		}
 
 		if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT))
 		{
-			move_dir = move_dir + Vector3(-1.0f, 0.0f, 0.0f);
+			move_dir = move_dir - camera->v_right;
 			if (move_dir.length() > 0.01)
 				move_dir.normalize();
 		}
@@ -130,7 +135,28 @@ void DayStage::updateMovement(float dt){
 		printf("%f %f %f\n", World::inst->player->velocity.x, World::inst->player->velocity.y, World::inst->player->velocity.z);
 		#endif*/
 
-		camera->moveXZ(World::inst->player->velocity * dt);
+
+		if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions))
+		{
+			Vector3 new_dir;
+			Vector3 velocity;
+
+			sCollisionData collision = collisions[0];
+				
+			velocity = World::inst->player->velocity;
+				
+			new_dir = World::inst->player->velocity.dot(collision.colNormal);
+			printf("%f %f %f\n", collision.colNormal.x, collision.colNormal.y, collision.colNormal.z);
+
+			new_dir = new_dir * collision.colNormal;
+			World::inst->player->velocity.x -= new_dir.x;
+			World::inst->player->velocity.z -= new_dir.z;
+		}
+		World::inst->player->velocity.y = 0.f;
+
+		World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
+		camera->eye = World::inst->player->position;
+
 
 		World::inst->player->velocity *= 0.15f;
 		move_dir *= 0.15f;
