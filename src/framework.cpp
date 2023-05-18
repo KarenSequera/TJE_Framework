@@ -442,6 +442,20 @@ Matrix44 Matrix44::operator*(const Matrix44& matrix) const
 	return ret;
 }
 
+bool Matrix44::operator==(const Matrix44& matrix) const
+{
+	// Check element by element
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (M[i][j] != matrix.M[i][j]) {
+				return false;  // Elements differ, not equal
+			}
+		}
+	}
+	return true;  // All elements are equal
+}
+
+
 //Multiplies a vector by a matrix and returns the new vector
 Vector3 operator * (const Matrix44& matrix, const Vector3& v) 
 {   

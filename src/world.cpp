@@ -204,32 +204,20 @@ void World::getDefItemUses(defensiveType def) {
 }
 
 //	Tries to get an item from the world and add it to the player's inventory
-void World::getItem(const Vector3& ray) {
-	if (!checkItemCollisions(ray))
-		return;
+void World::getItem(ItemEntity* item) {
 
-	// if collided with item mesh:
-	itemType type = rand() % 2 == 0 ? WEAPON : DEFENSIVE;
-	#if DEBUG
-	printf("%s: ", type ? "def" : "weapon");
-	#endif
-	weaponType weapon_type = KNIFE;
-	defensiveType def_type = WOODEN_DOOR;
-	consumableType consumable_type = AID_KIT;
-
-
-	switch (type) {
+	switch (item->item_type) {
 		case WEAPON:
 			// get type from entity
-			getWeaponUses(weapon_type);
+			getWeaponUses(item->weapon_type);
 			break;
 
 		case DEFENSIVE:
-			getDefItemUses(def_type);
+			getDefItemUses(item->defensive_type);
 			break;
 
 		case CONSUMABLE:
-			getConsumable(consumable_type);
+			getConsumable(item->consumable_type);
 			break;
 	}
 }
@@ -278,7 +266,7 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 	return false;
 }
 
-bool World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
+int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
 	Vector3 center = target_pos - Vector3(0.f, 0.5f, 0.f);
 	float sphere_rad = 5.f;
@@ -287,21 +275,37 @@ bool World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollis
 	for (auto& entity : day_root->children)
 	{
 		EntityCollision* collision = dynamic_cast<EntityCollision*>(entity);
+		 
+
 		if (!collision)
 			continue;
+
+
 		for (auto& model : collision->models)
 		{
 			if (!collision->mesh->testSphereCollision(model, center, sphere_rad, colPoint, colNormal))
 				continue;
 
-			#if DEBUG
-			printf("player collided\n");
-			#endif
+			ItemEntity* item = dynamic_cast<ItemEntity*>(collision);
+			if (item) {
+				getItem(item);
 
-			collisions->push_back({ colPoint, colNormal.length() > 0.01 ? colNormal.normalize() : colNormal});
+				// We need to erase the model matrix
+				//So we find the position of the model of the object in the vector
+				auto to_delete = std::find(item->models.begin(), item->models.end(), model);
+				item->models.erase(to_delete);
+
+				return 2;
+			}
+			else
+				collisions->push_back({ colPoint, colNormal.length() > 0.01 ? colNormal.normalize() : colNormal});
+				
 		}
 	}
-	return !collisions->empty();
+	if (collisions->empty())
+		return 0;
+
+	return 1;
 }
 
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

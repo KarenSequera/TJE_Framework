@@ -259,6 +259,7 @@ class Matrix44
 		void loadGL();
 
 		Matrix44 operator * (const Matrix44& matrix) const;
+		bool operator == (const Matrix44& other) const;
 };
 
 //Operators, they are our friends

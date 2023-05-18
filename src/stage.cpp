@@ -146,7 +146,7 @@ void DayStage::updateMovement(float dt){
 			velocity = World::inst->player->velocity;
 				
 			new_dir = World::inst->player->velocity.dot(collision.colNormal);
-			printf("%f %f %f\n", collision.colNormal.x, collision.colNormal.y, collision.colNormal.z);
+			//printf("%f %f %f\n", collision.colNormal.x, collision.colNormal.y, collision.colNormal.z);
 
 			new_dir = new_dir * collision.colNormal;
 			World::inst->player->velocity.x -= new_dir.x;
@@ -197,10 +197,6 @@ void DayStage::updateItemsAndStats() {
 				break;
 			}
 		}
-		else if (Input::wasButtonPressed(Y_BUTTON))
-		{
-			World::inst->getConsumable(consumable_selected);
-		}
 		#if DEBUG
 		else if (Input::wasPadPressed(PAD_UP))
 		{
@@ -249,19 +245,6 @@ void DayStage::updateItemsAndStats() {
 			default:
 				break;
 			}
-		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_F))
-		{
-			Vector3 ray = camera->getRayDirection(
-				Input::mouse_position.x, Input::mouse_position.y,
-				Game::instance->window_width, Game::instance->window_height);
-
-			if(ray.length())
-				ray.normalize();
-
-			printf("%f %f %f\n", ray.x, ray.y, ray.z);
-			
-			World::inst->getItem(ray);
 		}
 		#if DEBUG
 		else if (Input::wasKeyPressed(SDL_SCANCODE_J))

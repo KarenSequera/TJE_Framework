@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\src\our_utils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\worldEntities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="..\..\src\our_utils.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\worldEntities.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">

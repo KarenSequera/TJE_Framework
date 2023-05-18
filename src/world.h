@@ -1,6 +1,7 @@
 #pragma once
 
-#include "player.h"
+#include "worldEntities.h"
+
 #define MAX_ITEM_DIST 1000
 
 struct sCollisionData {
@@ -46,9 +47,9 @@ public:
 	void getConsumable(consumableType consumable);
 	void getWeaponUses(weaponType weapon);
 	void getDefItemUses(defensiveType def);
-	void getItem(const Vector3& ray);
+	void getItem(ItemEntity* item);
 
 	bool checkItemCollisions(const Vector3& ray_dir);
-	bool checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
+	int checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
 
 };
