@@ -11,8 +11,18 @@ public:
 
 	ItemEntity(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, itemType stat, int type);
 
-
 };
 
+struct EntitySpawner {
+	itemType type;
+	Matrix44 model;
+};
+
+struct WorldItem {
+	EntitySpawner* spawner;
+	weaponType weapon_type;
+	consumableType consumable_type;
+	defensiveType defensive_type;
+};
 
 

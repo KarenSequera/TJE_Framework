@@ -40,6 +40,8 @@ public:
 	//array containing the inventory of defensive items
 	int def_uses[NUM_DEF];
 
+
+
 	Player();
 	void addWeaponUses(weaponType type, int uses);
 	void addDefUses(defensiveType type, int uses);

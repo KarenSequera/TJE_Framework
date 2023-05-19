@@ -3,6 +3,9 @@
 
 #include <fstream>
 #include <map>
+#include <unordered_map>
+#include <iostream>
+#include <random>
 
 World* World::inst = NULL;
 
@@ -21,6 +24,8 @@ World::World() {
 	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
 	parseScene("data/myscene.scene");
+	parseSpawns("data/spawner.scene");
+	spawnerInit();
 }
 
 //	Parses the stats from a specific file
@@ -307,5 +312,91 @@ int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisi
 
 	return 1;
 }
+
+// spawns related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+bool  World::parseSpawns(const char* filename)
+{
+	//Hash map to map the spawns
+	std::unordered_map<std::string, itemType> myHashMap;
+	myHashMap["spawn/weapon.obj"] = WEAPON;
+	myHashMap["spawn/defensive.obj"] = DEFENSIVE;
+	myHashMap["spawn/consumable.obj"] = CONSUMABLE;
+	
+	std::cout << " + Spawns loading: " << filename << "..." << std::endl;
+
+	std::ifstream file(filename);
+
+	if (!file.good()) {
+		std::cerr << "Spawns [ERROR]" << " File not found!" << std::endl;
+		return false;
+	}
+
+	std::string scene_info, spawn_type, model_data;
+	for (int i = 0; i < 2; i++) {
+		file >> scene_info;
+	}
+
+	int spawn_count = 0;
+	// Read file line by line and store mesh path and model info in separated variables
+	while (file >> spawn_type >> model_data)
+	{
+		// Get all 16 matrix floats
+		std::vector<std::string> tokens = tokenize(model_data, ",");
+
+		// Fill matrix converting chars to floats
+		Matrix44 model;
+		for (int t = 0; t < tokens.size(); ++t) {
+			model.m[t] = (float)atof(tokens[t].c_str());
+		}
+
+		EntitySpawner* itemSpawn = new EntitySpawner{ myHashMap[spawn_type], model };
+		item_spawns.push_back(itemSpawn);
+		spawn_count++;
+	}
+
+	std::cout << "Spawns [OK]" << " Spawns added: " << spawn_count << std::endl;
+	return true;
+}
+
+
+// Function that selects an object based on the provided probabilities
+int selectObject(const float* probabilities, int numObjects) {
+
+	// Obtain a random seed from the hardware
+	std::random_device rd;
+	// Seed the random number engine
+	std::mt19937 eng(rd());
+
+	// Create a discrete distribution based on probabilities
+	std::discrete_distribution<int> dist(probabilities, probabilities + numObjects);
+
+	// Generate a random object index based on the probabilities
+	return dist(eng);
+}
+
+
+void  World::spawnerInit(){
+	for (auto spawn : item_spawns) {
+		WorldItem* item = new WorldItem;
+		item->spawner = spawn;
+		switch (spawn->type) {
+			case WEAPON:
+				item->weapon_type = weaponType(selectObject(weapon_probabilities, NUM_WEAPONS));
+				break;
+			case DEFENSIVE:
+				item->defensive_type = defensiveType(selectObject(defensive_probabilities, NUM_DEF));
+				break;
+			case  CONSUMABLE:
+				item->consumable_type = consumableType(selectObject(consumable_probabilities, NUM_CONSUMABLES));
+				break;
+		}
+		world_items.push_back(item);
+	}
+}
+
+
+
+
 
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
