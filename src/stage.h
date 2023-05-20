@@ -47,10 +47,10 @@ public:
 
 class NightStage : public Stage {
 public:
-	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
 	NightStage();
 
+	int number_nights;
 	void onEnter();
 	void render();
 	void update(float dt);

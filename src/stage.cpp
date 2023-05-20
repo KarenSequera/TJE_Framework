@@ -287,13 +287,15 @@ void DayStage::updateItemsAndStats() {
 
 NightStage::NightStage() : Stage()
 {
-	parse_zombie_info("data/zombies/zombie_info.txt", z_info);
 	finished = false;
+	number_nights = 0;
 }
 
 
 void NightStage::onEnter() {
-	//generateZombies();
+	World::inst->generateZombies(number_nights);
+	number_nights++;
+
 }
 
 void NightStage::render()

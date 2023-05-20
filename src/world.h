@@ -5,6 +5,8 @@
 
 
 #define MAX_ITEM_DIST 1000
+#define DIFICULTY_LEVELS 4
+#define NUM_ZOMBIES_WAVE 3
 
 struct sCollisionData {
 	Vector3 colPoint;
@@ -29,6 +31,12 @@ public:
 	float consumable_probabilities[NUM_CONSUMABLES] = {0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
 	float defensive_probabilities[NUM_DEF] = {0.0,0.666,0.333};
 
+	float zombies_probabilities[DIFICULTY_LEVELS][NUM_ZOMBIE_TYPES] = {
+		{1,0,0,0},
+		{0,1,0,0},
+		{0,0,1,0},
+		{0,0,0,1}
+	};
 
 	//Night variables 
 	Entity* night_root;
@@ -40,6 +48,9 @@ public:
 	int weapon_use_pts[NUM_WEAPONS];
 	int defensive_stats[NUM_DEF];
 	int defensive_use_pts[NUM_DEF];
+
+	zombieInfo z_info[NUM_ZOMBIE_TYPES];
+
 
 	World();
 	
@@ -66,5 +77,8 @@ public:
 
 	bool checkItemCollisions(const Vector3& ray_dir);
 	int checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
+	
+	//Nigt Logic
+	void generateZombies(int num_night);
 
 };

@@ -18,12 +18,16 @@ World::World() {
 	day_root = new Entity();
 	day_entities.push_back(day_root);
 
+	night_root = new Entity();
+	night_entities.push_back(night_root);
+
 	Entity* entity;
 	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
 	parseScene("data/myscene.scene");
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
+	parse_zombie_info("data/zombies/zombie_info.txt", z_info);
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -452,3 +456,18 @@ void  World::spawnerInit()
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+void World::generateZombies(int num_night) {
+
+	night_root->children.clear();
+	ZombieEntity* zombie;
+
+	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) {
+		float* probability = zombies_probabilities[min(num_night, DIFICULTY_LEVELS)];
+		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
+		zombie = new ZombieEntity(type, z_info);
+		if (type == STANDARD) {
+			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
+		}
+		night_root->addChild(zombie);
+	}
+};
