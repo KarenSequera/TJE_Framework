@@ -96,10 +96,6 @@ void EntityMesh::render_simple() {
 	Entity::render();
 }
 
-void EntityMesh::update(float dt) {
-
-}
-
 void EntityMesh::addInstance(Matrix44 model) {
 	models.push_back(model);
 }

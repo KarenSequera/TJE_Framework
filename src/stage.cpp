@@ -287,7 +287,13 @@ void DayStage::updateItemsAndStats() {
 
 NightStage::NightStage() : Stage()
 {
-	
+	parse_zombie_info("data/zombies/zombie_info.txt", z_info);
+	finished = false;
+}
+
+
+void NightStage::onEnter() {
+	//generateZombies();
 }
 
 void NightStage::render()
@@ -304,3 +310,4 @@ void NightStage::update(float dt)
 	}
 	#endif
 }
+

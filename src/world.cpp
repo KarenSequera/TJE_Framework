@@ -9,7 +9,6 @@
 World* World::inst = NULL;
 
 World::World() {
-	//TODO: maybe parse the stats from files.
 	inst = this;
 
 	parseStats("data/items/info/stats.txt");
@@ -272,14 +271,6 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 {
 	for (auto& entity : day_root->children)
 	{
-		//TODO: uncomment when itemEntity is implemented
-		/*
-		* ItemEntity* item = dynamic_cast< ItemEntity* > (entity);
-		* if(item)
-		* {
-		*	//replace by the code in "if collision"
-		* }
-		*/
 		EntityCollision* collision = dynamic_cast<EntityCollision*>(entity);
 		if (!collision)
 			continue;
@@ -459,3 +450,5 @@ void  World::spawnerInit()
 }
 
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+

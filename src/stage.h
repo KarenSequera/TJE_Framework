@@ -25,7 +25,6 @@ public:
 };
 
 class DayStage : public Stage {
-
 public:
 
 	float gamepad_sensitivity;
@@ -47,10 +46,12 @@ public:
 };
 
 class NightStage : public Stage {
-
 public:
+	zombieInfo z_info[NUM_ZOMBIE_TYPES];
+
 	NightStage();
 
+	void onEnter();
 	void render();
 	void update(float dt);
 };

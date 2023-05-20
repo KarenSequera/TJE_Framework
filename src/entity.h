@@ -50,8 +50,6 @@ public:
 	void render_instanced();
 
 	void addInstance(Matrix44 model);
-
-	void update(float dt);
 };
 
 class EntityCollision : public EntityMesh {
