@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <map>
-#include <unordered_map>
 #include <iostream>
 #include <random>
 
@@ -13,7 +12,7 @@ World::World() {
 	//TODO: maybe parse the stats from files.
 	inst = this;
 
-	parseStats("data/stats.txt");
+	parseStats("data/items/info/stats.txt");
 
 	player = new Player();
 	
@@ -25,9 +24,10 @@ World::World() {
 
 	parseScene("data/myscene.scene");
 	parseSpawns("data/spawner.scene");
-	spawnerInit();
+	parseItemEntities("data/items/info/items.txt");
 }
 
+// Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
 //	Parses the stats from a specific file
 void World::parseStats(const char* filename) {
 	std::ifstream file(filename);
@@ -35,6 +35,7 @@ void World::parseStats(const char* filename) {
 		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
 		exit(-1);
 	}
+
 	std::string dump, data;
 	int sizes[] = {NUM_CONSUMABLES, NUM_WEAPONS, NUM_WEAPONS, NUM_DEF, NUM_DEF };
 	int* array_ptr[] = { consumable_stats , weapon_dmg , weapon_use_pts, defensive_stats, defensive_use_pts };
@@ -55,7 +56,48 @@ void World::parseStats(const char* filename) {
 
 }
 
-// render related --------------------------------------------------------------------------------------------------------------------------------------------------
+void World::parseItemEntities(const char* filename)
+{
+	int i;
+	for (i = 0; i < NUM_ITEMS; i++)
+	{
+		std::vector<ItemEntity*> item;
+		items.push_back(item);
+	}
+
+	int arrs[] = { WEAPON, DEFENSIVE, CONSUMABLE };
+	int sizes[] = { NUM_WEAPONS, NUM_DEF, NUM_CONSUMABLES };
+
+	
+	std::ifstream file(filename);
+	if (!file.good()) {
+		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
+		exit(-1);
+	}
+
+	std::string data;
+	for (auto item_type : arrs)
+	{
+		for (int subtype = 0; subtype < sizes[item_type]; subtype++)
+		{
+			file >> data;
+			std::vector<std::string> tokens = tokenize(data, ",");
+
+			ItemEntity* item = new ItemEntity(
+				Mesh::Get(tokens[1].c_str()),
+				Texture::Get(tokens[2].c_str()),
+				Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"),
+				itemType(item_type),
+				subtype);
+
+			items[item_type].push_back(item);
+			day_root->addChild(item);
+		}
+		file.ignore(1, '\n');
+	}
+
+}
+
 struct sRenderData {
 	Texture* texture = nullptr;
 	Shader* shader = nullptr;
@@ -65,7 +107,7 @@ struct sRenderData {
 std::map<std::string, sRenderData> meshes_to_load;
 
 //	Parses a scene from a .scene file
-bool World::parseScene(const char* filename)
+void World::parseScene(const char* filename)
 {
 	// You could fill the map manually to add shader and texture for each mesh
 	// If the mesh is not in the map, you can use the MTL file to render its colors
@@ -77,7 +119,6 @@ bool World::parseScene(const char* filename)
 
 	if (!file.good()) {
 		std::cerr << "Scene [ERROR]" << " File not found!" << std::endl;
-		return false;
 	}
 
 	std::string scene_info, mesh_name, model_data;
@@ -140,7 +181,6 @@ bool World::parseScene(const char* filename)
 	}
 
 	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
-	return true;
 }
 
 // behaviour related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -223,6 +263,7 @@ void World::getItem(ItemEntity* item) {
 
 		case CONSUMABLE:
 			getConsumable(item->consumable_type);
+
 			break;
 	}
 }
@@ -271,6 +312,15 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 	return false;
 }
 
+/*
+* Function that checks the collisions of the player with the object in the scene
+* @param target_pos: the position the playe wants to move to
+* @param collisions: vector where we will store the collisions
+* @returns: an int that indicates the following
+* 0: no collisions
+* 1: collision with an object that is not an item
+* 2: collision with an item (the player collects it)
+*/
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
 	Vector3 center = target_pos - Vector3(0.f, 0.5f, 0.f);
@@ -315,7 +365,7 @@ int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisi
 
 // spawns related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool  World::parseSpawns(const char* filename)
+void  World::parseSpawns(const char* filename)
 {
 	//Hash map to map the spawns
 	std::unordered_map<std::string, itemType> myHashMap;
@@ -329,7 +379,6 @@ bool  World::parseSpawns(const char* filename)
 
 	if (!file.good()) {
 		std::cerr << "Spawns [ERROR]" << " File not found!" << std::endl;
-		return false;
 	}
 
 	std::string scene_info, spawn_type, model_data;
@@ -356,12 +405,12 @@ bool  World::parseSpawns(const char* filename)
 	}
 
 	std::cout << "Spawns [OK]" << " Spawns added: " << spawn_count << std::endl;
-	return true;
 }
 
 
 // Function that selects an object based on the provided probabilities
-int selectObject(const float* probabilities, int numObjects) {
+int selectObject(const float* probabilities, int numObjects) 
+{
 
 	// Obtain a random seed from the hardware
 	std::random_device rd;
@@ -375,28 +424,38 @@ int selectObject(const float* probabilities, int numObjects) {
 	return dist(eng);
 }
 
+void World::clearItems() 
+{
+	int arrs[] = { WEAPON, DEFENSIVE, CONSUMABLE };
+	int sizes[] = { NUM_WEAPONS, NUM_DEF, NUM_CONSUMABLES };
 
-void  World::spawnerInit(){
-	for (auto spawn : item_spawns) {
-		WorldItem* item = new WorldItem;
-		item->spawner = spawn;
-		switch (spawn->type) {
-			case WEAPON:
-				item->weapon_type = weaponType(selectObject(weapon_probabilities, NUM_WEAPONS));
-				break;
-			case DEFENSIVE:
-				item->defensive_type = defensiveType(selectObject(defensive_probabilities, NUM_DEF));
-				break;
-			case  CONSUMABLE:
-				item->consumable_type = consumableType(selectObject(consumable_probabilities, NUM_CONSUMABLES));
-				break;
+	for (auto& item_type : arrs)
+	{	
+		for (int subtype = 0; subtype < sizes[item_type]; subtype++)
+		{
+				items[item_type][subtype]->models.clear();
 		}
-		world_items.push_back(item);
 	}
+	int i;
 }
 
+void  World::spawnerInit()
+{
+	clearItems();
 
-
-
+	for (auto spawn : item_spawns) {
+		switch (spawn->type) {
+			case WEAPON:
+				items[WEAPON][selectObject(weapon_probabilities, NUM_WEAPONS)]->models.push_back(spawn->model);
+				break;
+			case DEFENSIVE:
+				items[DEFENSIVE][selectObject(defensive_probabilities, NUM_DEF)]->models.push_back(spawn->model);
+				break;
+			case  CONSUMABLE:
+				items[CONSUMABLE][selectObject(consumable_probabilities, NUM_CONSUMABLES)]->models.push_back(spawn->model);
+				break;
+		}
+	}
+}
 
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -5,9 +5,10 @@
 
 #define DEBUG 1
 
+#define NUM_ITEMS 3
 #define NUM_WEAPONS 4
 #define NUM_CONSUMABLES 8
-#define NUM_SHILED_ITEMS 2
+#define NUM_SHIELD_ITEMS 2
 #define NUM_DEF 3
 #define MAX_HUNGER 100
 #define MAX_HEALTH 100
@@ -15,7 +16,7 @@
 
 enum itemType { WEAPON, DEFENSIVE, CONSUMABLE };
 enum weaponType { FISTS, BAT, KNIFE, GUN };
-enum consumableType { BURGER, CANNED_BEANS, APPLE, AID_KIT, PAINKILLER, BANDAGES, VEST, HELMET };
+enum consumableType { APPLE, CANNED_BEANS, BURGER, BANDAGES, PAINKILLER, AID_KIT, VEST, HELMET };
 enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD };
 enum affectingStat { HUNGER, HEALTH, SHIELD };
 

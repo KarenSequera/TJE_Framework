@@ -112,7 +112,8 @@ void EntityMesh::render_instanced() {
 
 	Camera* camera = Camera::current;
 
-	if (shader)
+	// if there are no models, then we do not need to do anything
+	if (shader && models.size())
 	{
 		//enable shader
 		shader->enable();

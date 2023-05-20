@@ -1,6 +1,8 @@
 #pragma once
 
 #include "worldEntities.h"
+#include <unordered_map>
+
 
 #define MAX_ITEM_DIST 1000
 
@@ -8,7 +10,6 @@ struct sCollisionData {
 	Vector3 colPoint;
 	Vector3 colNormal;
 };
-
 
 class World {
 public:
@@ -20,12 +21,13 @@ public:
 	Entity* day_root;
 	std::vector<Entity*> day_entities;
 	std::vector<EntitySpawner*> item_spawns;
-	std::vector<WorldItem*> world_items;
+
+	std::vector<std::vector<ItemEntity*>> items;
 
 	//arrays containing the probabilities
-	float weapon_probabilities[NUM_WEAPONS] = { 0.25, 0.25 ,0.25, 0.25 };
-	float consumable_probabilities[NUM_CONSUMABLES] = {0.125,0.125 ,0.125 ,0.125 ,0.125 ,0.125 ,0.125 ,0.125};
-	float defensive_probabilities[NUM_DEF] = {0.3333,0.333,0.333};
+	float weapon_probabilities[NUM_WEAPONS] = { 0.0, 0.4, 0.4, 0.2 };
+	float consumable_probabilities[NUM_CONSUMABLES] = {0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
+	float defensive_probabilities[NUM_DEF] = {0.0,0.666,0.333};
 
 
 	//Night variables 
@@ -41,10 +43,11 @@ public:
 
 	World();
 	
-	// function to parse stats
+	// functions to parse
 	void parseStats(const char* filename);
-	bool parseScene(const char* filename);
-	bool parseSpawns(const char* filename);
+	void parseScene(const char* filename);
+	void parseSpawns(const char* filename);
+	void parseItemEntities(const char* filename);
 
 	// General logic
 	void hurtPlayer(weaponType weapon);
@@ -52,6 +55,7 @@ public:
 
 	int getConsumableQuant(consumableType consumable);
 	int useConsumable(consumableType consumable);
+	void clearItems();
 	void spawnerInit();
 
 	// Day logic

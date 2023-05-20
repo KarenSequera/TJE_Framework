@@ -1,0 +1,17 @@
+fists,data/items/item.obj,data/texture.tga
+bat,data/items/item.obj,data/texture.tga
+knife,data/items/item.obj,data/texture.tga
+gun,data/items/item.obj,data/texture.tga
+
+burger,data/items/item.obj,data/texture.tga
+canned_beans,data/items/item.obj,data/texture.tga
+apple,data/items/item.obj,data/texture.tga
+aid_kit,data/items/item.obj,data/texture.tga
+painkillers,data/items/item.obj,data/texture.tga
+bandages,data/items/item.obj,data/texture.tga
+vest,data/items/item.obj,data/texture.tga
+helmet,data/items/item.obj,data/texture.tga
+
+arms,data/items/item.obj,data/texture.tga
+wooden_door,data/items/item.obj,data/texture.tga
+metal_shield,data/items/item.obj,data/texture.tga

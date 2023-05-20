@@ -11,6 +11,7 @@ public:
 
 	Camera* camera;
 	
+	bool finished;
 	bool mouse_locked;
 
 	//ctor
@@ -18,6 +19,7 @@ public:
 	//~Stage();
 
 	// Functions that will be overwritten
+	virtual void onEnter() {};
 	virtual void render() {};
 	virtual void update(float dt) {};
 };
@@ -28,16 +30,27 @@ public:
 
 	float gamepad_sensitivity;
 
-	const char* consumable_names[NUM_CONSUMABLES - NUM_SHILED_ITEMS] = 
+	const char* consumable_names[NUM_CONSUMABLES - NUM_SHIELD_ITEMS] = 
 		{"Burger ", "Canned Beans ", "Apple ", "First-aid Kit ", "Painkillers ", "Bandages "};
 
 	consumableType consumable_selected;
+	float time_remaining;
 
 	DayStage();
 
+	void onEnter();
 	void render();
 	void renderConsumableMenu();
 	void update(float dt);
 	void updateMovement(float dt);
 	void updateItemsAndStats();
+};
+
+class NightStage : public Stage {
+
+public:
+	NightStage();
+
+	void render();
+	void update(float dt);
 };

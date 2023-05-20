@@ -43,10 +43,11 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	camera->enable();
 
-	stage_manager = new StageManager();
+	Matrix44 matrix1;
+	Matrix44 matrix2; 
 
 	new World();
-
+	stage_manager = new StageManager();
 }
 
 //what to do when the image has to be draw

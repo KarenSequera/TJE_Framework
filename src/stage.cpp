@@ -12,6 +12,8 @@ float mouse_speed = 100.0f;
 Stage::Stage() {
 	camera = Camera::current;
 	mouse_locked = false;
+
+	finished = false;
 }
 
 DayStage::DayStage() : Stage() {
@@ -20,10 +22,20 @@ DayStage::DayStage() : Stage() {
 	gamepad_sensitivity = 0.05f;
 
 	consumable_selected = BURGER;
+	#if DEBUG
+	time_remaining = 5.f;
+	#else
+	time_remaining = 45.f;
+	#endif
 
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
 };
+
+void DayStage::onEnter()
+{
+	World::inst->spawnerInit();
+}
 
 void DayStage::render() {
 	World::inst->player->position = Camera::current->eye;
@@ -48,6 +60,12 @@ void DayStage::renderConsumableMenu() {
 }
 
 void DayStage::update(float dt) {
+	time_remaining -= dt;
+	if (time_remaining <= 0.f) 
+	{
+		finished = true;
+		return;
+	}
 	updateMovement(dt);
 	updateItemsAndStats();
 }
@@ -136,7 +154,7 @@ void DayStage::updateMovement(float dt){
 		#endif*/
 
 
-		if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions))
+		if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions) == 1)
 		{
 			Vector3 new_dir;
 			Vector3 velocity;
@@ -173,11 +191,11 @@ void DayStage::updateItemsAndStats() {
 		// MENU
 		if (Input::wasPadPressed(HATState::PAD_RIGHT))
 		{
-			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHILED_ITEMS));
+			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
 		}
 		else if (Input::wasPadPressed(HATState::PAD_LEFT))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHILED_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
 		else if (Input::wasButtonPressed(X_BUTTON))
 		{
@@ -216,11 +234,11 @@ void DayStage::updateItemsAndStats() {
 	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 		{
-			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHILED_ITEMS));
+			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_E))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHILED_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
 
 		// use consumable
@@ -259,6 +277,30 @@ void DayStage::updateItemsAndStats() {
 		{
 			World::inst->getConsumable(consumable_selected);
 		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
+		{
+			finished = true;
+		}
 		#endif
 	}
+}
+
+NightStage::NightStage() : Stage()
+{
+	
+}
+
+void NightStage::render()
+{
+	drawText(5, 45, "IN THE NIGHT IN THE NIGHT, IN THE NIGHT NO NAI NO NIGHT", Vector3(1.0f, 0.75f, 0.0f), 2);
+}
+
+void NightStage::update(float dt)
+{
+	#if DEBUG
+	if (Input::wasKeyPressed(SDL_SCANCODE_D))
+	{
+		finished = true;
+	}
+	#endif
 }

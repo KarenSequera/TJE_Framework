@@ -447,7 +447,7 @@ bool Matrix44::operator==(const Matrix44& matrix) const
 	// Check element by element
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			if (M[i][j] != matrix.M[i][j]) {
+			if (abs(M[i][j] - matrix.M[i][j]) > 0.01) {
 				return false;  // Elements differ, not equal
 			}
 		}
