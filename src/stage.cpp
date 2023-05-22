@@ -23,7 +23,7 @@ DayStage::DayStage() : Stage() {
 
 	consumable_selected = BURGER;
 	#if DEBUG
-	time_remaining = 5.f;
+	time_remaining = 60.f;
 	#else
 	time_remaining = 45.f;
 	#endif
@@ -289,11 +289,15 @@ NightStage::NightStage() : Stage()
 {
 	finished = false;
 	number_nights = 0;
+	is_player_turn = true;
 }
 
 
 void NightStage::onEnter() {
 	World::inst->generateZombies(number_nights);
+	World::inst->player->health = 100;
+	is_player_turn = true;
+	number_turns = 0;
 	number_nights++;
 
 }
@@ -305,11 +309,67 @@ void NightStage::render()
 
 void NightStage::update(float dt)
 {
-	#if DEBUG
+	/*#if DEBUG
 	if (Input::wasKeyPressed(SDL_SCANCODE_D))
 	{
 		finished = true;
 	}
-	#endif
+	#endif*/
+	if (is_player_turn)
+	{
+		player_turn();
+	}
+	else
+	{
+		zombies_turn();
+	}
 }
 
+void NightStage::player_turn() {
+
+	//TODO
+	std::cout << " || ";
+	std::cout << "player turn";
+	std::cout << " || ";
+
+	is_player_turn = false;
+	
+
+
+};
+
+void NightStage::zombies_turn() {
+	std::cout << " || ";
+	std::cout << "zombie turn";
+	std::cout << " || ";
+
+	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) 
+	{
+
+		//In the turn of the zombies 
+		// The zombies only hurt the player
+
+		weaponType weapon = World::inst->wave[i]->info.weapon;
+
+		std::cout << " || ";
+		std::cout << "zombie hurt player with ";
+		std::cout << weapon;
+		std::cout << " || ";
+
+		World::inst->hurtPlayer(weapon);
+
+		if (!World::inst->isPlayerAlive()) 
+		{
+			std::cout << " || ";
+			std::cout << "game over";
+			std::cout << " || \n";
+
+			//for now, when the player is out of live, we will go to day;
+			finished = true;
+			return;
+		}
+		
+	}
+	is_player_turn = true;
+	return;
+}

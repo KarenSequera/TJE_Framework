@@ -41,6 +41,7 @@ public:
 	//Night variables 
 	Entity* night_root;
 	std::vector<Entity*> night_entities;
+	std::vector<ZombieEntity*> wave;
 
 
 	int consumable_stats[NUM_CONSUMABLES];
@@ -68,6 +69,8 @@ public:
 	int useConsumable(consumableType consumable);
 	void clearItems();
 	void spawnerInit();
+	
+	bool isPlayerAlive();
 
 	// Day logic
 	void getConsumable(consumableType consumable);

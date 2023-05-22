@@ -51,7 +51,17 @@ public:
 	NightStage();
 
 	int number_nights;
+	int number_turns; 
+	bool is_player_turn;
+
+	//Variable that contains the index of the selected zombie
+	// -1 if we are not in target selection
+	int selected_target;
+
 	void onEnter();
 	void render();
 	void update(float dt);
+	void player_turn();
+	void zombies_turn();
+
 };

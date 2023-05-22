@@ -195,6 +195,10 @@ void World::hurtPlayer(weaponType weapon)
 	player->affectPlayerStat(HEALTH, weapon_dmg[weapon], false);
 }
 
+bool World::isPlayerAlive() {
+	return player->health > 0;
+}
+
 //	Consumes a specific hunger from the user
 void World::consumeHunger(int quant)
 {
@@ -459,15 +463,24 @@ void  World::spawnerInit()
 void World::generateZombies(int num_night) {
 
 	night_root->children.clear();
+	wave.clear();
 	ZombieEntity* zombie;
+	
+	int idx = min(num_night, DIFICULTY_LEVELS-1);
+	float probability[NUM_ZOMBIE_TYPES];
+	memcpy(probability, zombies_probabilities[idx], sizeof(probability));
 
-	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) {
-		float* probability = zombies_probabilities[min(num_night, DIFICULTY_LEVELS)];
+	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) 
+	{
+		
 		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
+
 		zombie = new ZombieEntity(type, z_info);
+
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
 		}
 		night_root->addChild(zombie);
+		wave.push_back(zombie);
 	}
 };
