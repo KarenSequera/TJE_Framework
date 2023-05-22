@@ -460,7 +460,8 @@ void  World::spawnerInit()
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-void World::generateZombies(int num_night) {
+void World::generateZombies(int num_night) 
+{
 
 	night_root->children.clear();
 	wave.clear();
@@ -484,3 +485,40 @@ void World::generateZombies(int num_night) {
 		wave.push_back(zombie);
 	}
 };
+
+
+int World::zombie_attacked(weaponType weapon, int zombie_idx)
+{
+	ZombieEntity* zombie = wave[zombie_idx];
+	if (weapon == zombie->info.invulnerable_to)
+	{
+		std::cout << "The zombie is invulnerable, better luck next time (if u survive ;) )";
+		return 0;
+	}
+	else if (weapon == zombie->info.weakness)
+	{
+		std::cout << "THAT was super effective, DO IT AGAIN!";
+		zombie->info.health -= weapon_dmg[weapon] * 2;
+		if (!zombie->zombie_alive())
+			zombie_killed(zombie_idx);
+		return 2;
+	}
+	else
+	{
+		std::cout << "Kinda dull...  The zombie took some damage tho";
+		zombie->info.health -= weapon_dmg[weapon];
+		if (!zombie->zombie_alive())
+			zombie_killed(zombie_idx);
+		return 1;
+	}
+}
+
+void World::zombie_killed(int zombie_idx)
+{
+	if (zombie_idx >= 0 && zombie_idx < wave.size())
+	{
+		wave.erase(std::next(wave.begin(), zombie_idx));
+	}
+}
+
+

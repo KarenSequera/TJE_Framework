@@ -42,4 +42,6 @@ public:
 
 	ZombieEntity(zombieType z_type, zombieInfo* z_info);
 
+	
+	bool zombie_alive();
 };

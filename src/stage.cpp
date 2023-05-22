@@ -305,6 +305,14 @@ void NightStage::onEnter() {
 void NightStage::render()
 {
 	drawText(5, 45, "IN THE NIGHT IN THE NIGHT, IN THE NIGHT NO NAI NO NIGHT", Vector3(1.0f, 0.75f, 0.0f), 2);
+	if (is_player_turn)
+	{
+		player_turn_render();
+	}
+	else
+	{
+		zombies_turn_render();
+	}
 }
 
 void NightStage::update(float dt)
@@ -317,15 +325,15 @@ void NightStage::update(float dt)
 	#endif*/
 	if (is_player_turn)
 	{
-		player_turn();
+		player_turn_update();
 	}
 	else
 	{
-		zombies_turn();
+		zombies_turn_update();
 	}
 }
 
-void NightStage::player_turn() {
+void NightStage::player_turn_update() {
 
 	//TODO
 	std::cout << " || ";
@@ -333,12 +341,19 @@ void NightStage::player_turn() {
 	std::cout << " || ";
 
 	is_player_turn = false;
-	
 
+	//TODO
+	//int weakness = World::zombie_attacked(weapon, World::inst->wave[selected_target]);
+	//if (weakness != 2)
+	// Unless, it is super effective, it is zombies turn 
+	//	is_player_turn = false;
+
+	//We also need to check the size of the wave. If the size of tha wave is 0. the player 
+	//survives the night.
 
 };
 
-void NightStage::zombies_turn() {
+void NightStage::zombies_turn_update() {
 	std::cout << " || ";
 	std::cout << "zombie turn";
 	std::cout << " || ";
@@ -372,4 +387,12 @@ void NightStage::zombies_turn() {
 	}
 	is_player_turn = true;
 	return;
+}
+
+void NightStage::player_turn_render() {
+	//TODO
+}
+
+void NightStage::zombies_turn_render() {
+	//TODO
 }

@@ -55,3 +55,11 @@ ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info)
 	texture = Texture::Get(z_info->texture_path.c_str());
 
 }
+
+
+
+
+bool ZombieEntity::zombie_alive()
+{
+	return (info.health > 0);
+} 

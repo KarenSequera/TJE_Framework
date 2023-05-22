@@ -84,4 +84,15 @@ public:
 	//Nigt Logic
 	void generateZombies(int num_night);
 
+	// This function is called when the player atacks a zombie
+		//Depends on the vulnerabilities will return 0,1,2
+		// 0 -> invulnerable (no damage)
+		// 1 -> normal damage
+		// 2 -> attack was super efective (x2 damage), player has 
+
+	int zombie_attacked(weaponType weapon, int zombie_idx);
+	void zombie_killed(int zombie_idx);
+
+	
+
 };

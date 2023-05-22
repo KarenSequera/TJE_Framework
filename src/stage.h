@@ -61,7 +61,9 @@ public:
 	void onEnter();
 	void render();
 	void update(float dt);
-	void player_turn();
-	void zombies_turn();
+	void player_turn_update();
+	void zombies_turn_update();
+	void player_turn_render();
+	void zombies_turn_render();
 
 };
