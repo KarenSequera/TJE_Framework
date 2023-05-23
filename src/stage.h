@@ -11,7 +11,6 @@ public:
 
 	Camera* camera;
 	
-	bool finished;
 	bool mouse_locked;
 
 	//ctor
@@ -64,4 +63,14 @@ public:
 	void player_turn();
 	void zombies_turn();
 
+};
+
+class GameOver : public Stage{
+public:
+
+	GameOver() {};
+
+	void onEnter() {};
+	void render();
+	void update(float dt) {};
 };
