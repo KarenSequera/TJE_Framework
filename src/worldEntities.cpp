@@ -38,7 +38,7 @@ void parseZombieInfo(const char* filename, zombieInfo* z_info)
 		z_info[z_type].health = std::stoi(tokens[1]);
 		z_info[z_type].weapon = weaponType(std::stoi(tokens[2]));
 		z_info[z_type].weakness = weaponType(std::stoi(tokens[3]));
-		z_info[z_type].invulnerable_to = weaponType(std::stoi(tokens[3]));
+		z_info[z_type].invulnerable_to = weaponType(std::stoi(tokens[4]));
 		z_info[z_type].texture_path = tokens[5];
 	}
 }

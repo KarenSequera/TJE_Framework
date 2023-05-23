@@ -483,6 +483,9 @@ void World::generateZombies(int num_night)
 		night_root->addChild(zombie);
 		wave.push_back(zombie);
 	}
+
+	zombies_alive = NUM_ZOMBIES_WAVE;
+
 };
 
 
@@ -497,14 +500,18 @@ int World::hurtZombie(weaponType weapon, int zombie_idx)
 		killZombie(zombie_idx);
 	
 
+		
+
 	return multiplier;
 }
 
 void World::killZombie(int zombie_idx)
 {
-	if (zombie_idx >= 0 && zombie_idx < wave.size())
+	if (zombie_idx >= 0 && zombie_idx < zombies_alive )
 	{
+		printf("|| zombie killed \n");
 		wave.erase(std::next(wave.begin(), zombie_idx));
+		zombies_alive--;
 	}
 }
 

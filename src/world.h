@@ -42,7 +42,7 @@ public:
 	Entity* night_root;
 	std::vector<Entity*> night_entities;
 	std::vector<ZombieEntity*> wave;
-
+	int zombies_alive;
 
 	int consumable_stats[NUM_CONSUMABLES];
 	int weapon_dmg[NUM_WEAPONS];

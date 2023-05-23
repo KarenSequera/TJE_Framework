@@ -308,6 +308,7 @@ void NightStage::resetParams()
 void NightStage::onEnter() {
 	World::inst->generateZombies(cur_night);
 	World::inst->player->health = 100;
+
 	is_player_turn = true;
 
 	//TODO: set num_turns properly (in terms of the number of nights)
@@ -336,6 +337,11 @@ void NightStage::playerTurnRender() {
 	//TODO
 	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 85, "Selected target: " + std::to_string(selected_target), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 105, "Health target: " + std::to_string(World::inst->wave[selected_target]->info.health), Vector3(1.0f, 0.75f, 0.0f), 2);
+
+	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
+
+
 }
 
 void NightStage::zombieTurnRender() {
@@ -363,7 +369,9 @@ void NightStage::update(float dt)
 	}
 }
 
-void NightStage::playerTurnUpdate() {
+void NightStage::playerTurnUpdate() 
+{
+
 
 	//TODO
 	/*std::cout << " || ";
@@ -371,13 +379,24 @@ void NightStage::playerTurnUpdate() {
 	std::cout << " || ";*/
 
 	if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
-		selected_target = ourMod(selected_target - 1, NUM_ZOMBIES_WAVE);
+		selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
 	
 	else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
-		selected_target = ourMod(selected_target + 1, NUM_ZOMBIES_WAVE);
+		selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_Q)) {
+		World::inst->hurtZombie(GUN, selected_target);
+		if (World::inst->zombies_alive<=0) {
+			finished = true;
+		}
+		
+	}
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 		is_player_turn = false;
+
+
+
 
 	//TODO
 	//int weakness = World::zombie_attacked(weapon, World::inst->wave[selected_target]);
@@ -390,12 +409,15 @@ void NightStage::playerTurnUpdate() {
 
 };
 
-void NightStage::zombieTurnUpdate() {
+void NightStage::zombieTurnUpdate() 
+{
 	std::cout << " || ";
 	std::cout << "zombie turn";
 	std::cout << " || ";
 
-	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) 
+	int num_zombies = World::inst->wave.size();
+
+	for (int i = 0; i < num_zombies; i++)
 	{
 
 		//In the turn of the zombies 
@@ -427,7 +449,8 @@ void NightStage::zombieTurnUpdate() {
 	return;
 }
 
-void NightStage::newTurn() {
+void NightStage::newTurn() 
+{
 	cur_turn++;
 
 	if (cur_turn >= turns_to_day)
