@@ -1,28 +1,31 @@
 #include "stageManager.h"
 
-StageManager* StageManager::inst = NULL;
-
-
 StageManager::StageManager() {
-	inst = this;
+	day = new DayStage();
+	night = new NightStage();
+	
+	cur_stage = day;
 
-	stage["day"] = new DayStage();
-	stage["night"] = new NightStage();
-	stage["game over"] = new GameOver();
+	next_stage[day] = night;
+	next_stage[night] = day;
 
-	changeStage("day");
+	day->onEnter();
 }
 
 void StageManager::render() {
 	cur_stage->render();
 }
 
-void StageManager::changeStage(std::string go_to)
+void StageManager::changeStage()
 {
-	cur_stage = stage[go_to];
+	cur_stage->finished = false;
+	cur_stage = next_stage[cur_stage];
 	cur_stage->onEnter();
 }
 
 void StageManager::update(float dt) {
 	cur_stage->update(dt);
+
+	if (cur_stage->finished)
+		changeStage();
 }

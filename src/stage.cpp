@@ -3,7 +3,6 @@
 #include "camera.h"
 #include "our_utils.h"
 #include "game.h"
-#include "stageManager.h"
 
 #include <algorithm>
  
@@ -13,6 +12,8 @@ float mouse_speed = 100.0f;
 Stage::Stage() {
 	camera = Camera::current;
 	mouse_locked = false;
+
+	finished = false;
 }
 
 DayStage::DayStage() : Stage() {
@@ -62,7 +63,7 @@ void DayStage::update(float dt) {
 	time_remaining -= dt;
 	if (time_remaining <= 0.f) 
 	{
-		StageManager::inst->changeStage("night");
+		finished = true;
 		return;
 	}
 	updateMovement(dt);
@@ -278,7 +279,7 @@ void DayStage::updateItemsAndStats() {
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		{
-			StageManager::inst->changeStage("night");
+			finished = true;
 		}
 		#endif
 	}
@@ -286,6 +287,7 @@ void DayStage::updateItemsAndStats() {
 
 NightStage::NightStage() : Stage()
 {
+	finished = false;
 	number_nights = 0;
 	is_player_turn = true;
 }
@@ -363,16 +365,11 @@ void NightStage::zombies_turn() {
 			std::cout << " || \n";
 
 			//for now, when the player is out of live, we will go to day;
-			StageManager::inst->changeStage("game over");
+			finished = true;
 			return;
 		}
 		
 	}
 	is_player_turn = true;
 	return;
-}
-
-void GameOver::render()
-{
-	drawText(5, 25, "oops, you died!", Vector3(1.0f, 0.0f, 0.0f), 2);
 }
