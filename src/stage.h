@@ -12,7 +12,6 @@ public:
 
 	Camera* camera;
 	
-	bool finished;
 	bool mouse_locked;
 
 	//ctor
@@ -75,4 +74,12 @@ public:
 
 	void newTurn();
 
+};
+
+class GameOverStage : public Stage
+{
+public:
+	GameOverStage() {};
+	void render();
+	void update(float dt) {};
 };

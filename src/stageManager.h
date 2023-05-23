@@ -5,6 +5,8 @@
 class StageManager {
 public:
 	
+	static StageManager* inst;
+
 	DayStage* day;
 	NightStage* night;
 
@@ -13,9 +15,9 @@ public:
 	StageManager();
 	//~StageManager();
 
-	std::unordered_map<Stage*, Stage*> next_stage;
+	std::unordered_map<std::string, Stage*> stage;
 
 	void render();
 	void update(float dt);
-	void changeStage();
+	void changeStage(std::string go_to);
 };

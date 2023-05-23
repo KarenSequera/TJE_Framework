@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "our_utils.h"
 #include "game.h"
+#include "StageManager.h"
 
 #include <algorithm>
  
@@ -12,8 +13,6 @@ float mouse_speed = 100.0f;
 Stage::Stage() {
 	camera = Camera::current;
 	mouse_locked = false;
-
-	finished = false;
 }
 
 DayStage::DayStage() : Stage() {
@@ -71,7 +70,7 @@ void DayStage::update(float dt) {
 	time_remaining -= dt;
 	if (time_remaining <= 0.f) 
 	{
-		finished = true;
+		StageManager::inst->changeStage("night");
 		return;
 	}
 	updateMovement(dt);
@@ -286,7 +285,7 @@ void DayStage::updateItemsAndStats() {
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		{
-			finished = true;
+			StageManager::inst->changeStage("night");
 		}
 		#endif
 	}
@@ -294,7 +293,6 @@ void DayStage::updateItemsAndStats() {
 
 NightStage::NightStage() : Stage()
 {
-	finished = false;
 	cur_night = 0;
 	cur_turn = 0;
 	is_player_turn = true;
@@ -387,7 +385,7 @@ void NightStage::playerTurnUpdate()
 	else if (Input::wasKeyPressed(SDL_SCANCODE_Q)) {
 		World::inst->hurtZombie(GUN, selected_target);
 		if (World::inst->zombies_alive<=0) {
-			finished = true;
+			StageManager::inst->changeStage("day");
 		}
 		
 	}
@@ -438,8 +436,7 @@ void NightStage::zombieTurnUpdate()
 			std::cout << "game over";
 			std::cout << " || \n";
 
-			//for now, when the player is out of live, we will go to day;
-			finished = true;
+			StageManager::inst->changeStage("game over");
 			return;
 		}
 		
@@ -454,8 +451,12 @@ void NightStage::newTurn()
 	cur_turn++;
 
 	if (cur_turn >= turns_to_day)
-		finished = true;
+		StageManager::inst->changeStage("day");
 
 	resetParams();
+}
+
+void GameOverStage::render() {
+	drawText(5, 25, "oops, you died!", Vector3(1.0f, 0.0f, 0.0f), 2);
 }
 
