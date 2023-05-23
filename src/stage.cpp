@@ -23,9 +23,9 @@ DayStage::DayStage() : Stage() {
 
 	consumable_selected = BURGER;
 	#if DEBUG
-	time_remaining = 60.f;
+	time_remaining = 5.f;
 	#else
-	time_remaining = 45.f;
+	time_remaining = DAY_TIME;
 	#endif
 
 	//hide the cursor
@@ -34,7 +34,14 @@ DayStage::DayStage() : Stage() {
 
 void DayStage::onEnter()
 {
+	Camera::current->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
+	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
+	#if DEBUG
+	time_remaining = 5.f;
+	#else
+	time_remaining = DAY_TIME;
+	#endif
 }
 
 void DayStage::render() {
@@ -43,6 +50,7 @@ void DayStage::render() {
 	for (auto& entity : World::inst->day_entities) {
 		entity->render();
 	}
+
 	drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
 	drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
@@ -75,7 +83,7 @@ float right_analog_x_disp;
 float right_analog_y_disp;
 float left_analog_x_disp;
 float left_analog_y_disp;
-float speed;
+float speed = 500.f;
 Vector3 move_dir = Vector3(0.0);
 std::vector<sCollisionData> collisions;
 
@@ -83,7 +91,6 @@ int collided = 0;
 
 void DayStage::updateMovement(float dt){
 	collisions.clear();
-	speed = dt * mouse_speed * 500.f; //the speed is defined by the seconds_elapsed so it goes constant
 
 	//example
 	angle += (float)dt * 10.0f;
@@ -288,18 +295,28 @@ void DayStage::updateItemsAndStats() {
 NightStage::NightStage() : Stage()
 {
 	finished = false;
-	number_nights = 0;
+	cur_night = 0;
+	cur_turn = 0;
 	is_player_turn = true;
 }
 
+void NightStage::resetParams()
+{
+	selected_target = 0;
+}
 
 void NightStage::onEnter() {
-	World::inst->generateZombies(number_nights);
+	World::inst->generateZombies(cur_night);
 	World::inst->player->health = 100;
 	is_player_turn = true;
-	number_turns = 0;
-	number_nights++;
 
+	//TODO: set num_turns properly (in terms of the number of nights)
+	turns_to_day = 5;
+	cur_turn = 0;
+
+	cur_night++;
+
+	resetParams();
 }
 
 void NightStage::render()
@@ -307,13 +324,24 @@ void NightStage::render()
 	drawText(5, 45, "IN THE NIGHT IN THE NIGHT, IN THE NIGHT NO NAI NO NIGHT", Vector3(1.0f, 0.75f, 0.0f), 2);
 	if (is_player_turn)
 	{
-		player_turn_render();
+		playerTurnRender();
 	}
 	else
 	{
-		zombies_turn_render();
+		zombieTurnRender();
 	}
 }
+
+void NightStage::playerTurnRender() {
+	//TODO
+	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 85, "Selected target: " + std::to_string(selected_target), Vector3(1.0f, 0.75f, 0.0f), 2);
+}
+
+void NightStage::zombieTurnRender() {
+	//TODO
+}
+
 
 void NightStage::update(float dt)
 {
@@ -323,24 +351,33 @@ void NightStage::update(float dt)
 		finished = true;
 	}
 	#endif*/
+	
+
 	if (is_player_turn)
 	{
-		player_turn_update();
+		playerTurnUpdate();
 	}
 	else
 	{
-		zombies_turn_update();
+		zombieTurnUpdate();
 	}
 }
 
-void NightStage::player_turn_update() {
+void NightStage::playerTurnUpdate() {
 
 	//TODO
-	std::cout << " || ";
+	/*std::cout << " || ";
 	std::cout << "player turn";
-	std::cout << " || ";
+	std::cout << " || ";*/
 
-	is_player_turn = false;
+	if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
+		selected_target = ourMod(selected_target - 1, NUM_ZOMBIES_WAVE);
+	
+	else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
+		selected_target = ourMod(selected_target + 1, NUM_ZOMBIES_WAVE);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
+		is_player_turn = false;
 
 	//TODO
 	//int weakness = World::zombie_attacked(weapon, World::inst->wave[selected_target]);
@@ -353,7 +390,7 @@ void NightStage::player_turn_update() {
 
 };
 
-void NightStage::zombies_turn_update() {
+void NightStage::zombieTurnUpdate() {
 	std::cout << " || ";
 	std::cout << "zombie turn";
 	std::cout << " || ";
@@ -386,13 +423,16 @@ void NightStage::zombies_turn_update() {
 		
 	}
 	is_player_turn = true;
+	newTurn();
 	return;
 }
 
-void NightStage::player_turn_render() {
-	//TODO
+void NightStage::newTurn() {
+	cur_turn++;
+
+	if (cur_turn >= turns_to_day)
+		finished = true;
+
+	resetParams();
 }
 
-void NightStage::zombies_turn_render() {
-	//TODO
-}

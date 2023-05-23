@@ -1,6 +1,7 @@
 #pragma once
 
 #define DRIFT_THRESHOLD 0.01
+#define DAY_TIME 60.f
 
 #include <vector>
 #include "world.h"
@@ -50,20 +51,28 @@ public:
 
 	NightStage();
 
-	int number_nights;
-	int number_turns; 
+
+	int cur_night;
+	int turns_to_day; 
+	int cur_turn;
 	bool is_player_turn;
 
 	//Variable that contains the index of the selected zombie
 	// -1 if we are not in target selection
 	int selected_target;
 
+	
+
+	void resetParams();
 	void onEnter();
 	void render();
 	void update(float dt);
-	void player_turn_update();
-	void zombies_turn_update();
-	void player_turn_render();
-	void zombies_turn_render();
+
+	void playerTurnUpdate();
+	void zombieTurnUpdate();
+	void playerTurnRender();
+	void zombieTurnRender();
+
+	void newTurn();
 
 };

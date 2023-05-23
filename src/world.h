@@ -90,8 +90,8 @@ public:
 		// 1 -> normal damage
 		// 2 -> attack was super efective (x2 damage), player has 
 
-	int zombie_attacked(weaponType weapon, int zombie_idx);
-	void zombie_killed(int zombie_idx);
+	int hurtZombie(weaponType weapon, int zombie_idx);
+	void killZombie(int zombie_idx);
 
 	
 

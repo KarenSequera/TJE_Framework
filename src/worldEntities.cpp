@@ -20,7 +20,7 @@ ItemEntity::ItemEntity(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, it
 	}
 };
 
-void parse_zombie_info(const char* filename, zombieInfo* z_info)
+void parseZombieInfo(const char* filename, zombieInfo* z_info)
 {
 
 	std::ifstream file(filename);
@@ -56,10 +56,26 @@ ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info)
 
 }
 
+int ZombieEntity::getMultiplier(weaponType weapon) 
+{
+	if (weapon == info.invulnerable_to)
+	{
+		std::cout << "The zombie is invulnerable, better luck next time (if u survive ;) )";
+		return 0;
+	}
+	else if (weapon == info.weakness)
+	{
+		std::cout << "THAT was super effective, DO IT AGAIN!";
+		return 2;
+	}
+	else
+	{
+		std::cout << "Kinda dull...  The zombie took some damage tho";
+		return 1;
+	}
+}
 
-
-
-bool ZombieEntity::zombie_alive()
+bool ZombieEntity::alive()
 {
 	return (info.health > 0);
 } 

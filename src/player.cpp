@@ -30,7 +30,7 @@ void Player::addWeaponUses(weaponType type, int uses)
 {
 	weapon_uses[type] += uses;
 	#if DEBUG
-	printf("%d %d\n", type, weapon_uses[type]);
+	printf("weapon %d %d\n", type, weapon_uses[type]);
 	#endif
 }
 
@@ -39,7 +39,7 @@ void Player::addDefUses(defensiveType type, int uses)
 {
 	def_uses[type] += uses;
 	#if DEBUG
-	printf("%d %d\n", type, def_uses[type]);
+	printf("defensive %d %d\n", type, def_uses[type]);
 	#endif
 }
 

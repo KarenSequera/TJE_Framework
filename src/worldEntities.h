@@ -30,7 +30,7 @@ struct zombieInfo
 	std::string texture_path;
 };
 
-void parse_zombie_info(const char* filename, zombieInfo* z_info);
+void parseZombieInfo(const char* filename, zombieInfo* z_info);
 
 class ZombieEntity : public EntityMesh {
 public:
@@ -42,6 +42,6 @@ public:
 
 	ZombieEntity(zombieType z_type, zombieInfo* z_info);
 
-	
-	bool zombie_alive();
+	int getMultiplier(weaponType weapon);
+	bool alive();
 };
