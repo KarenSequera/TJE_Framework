@@ -137,6 +137,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\worldEntities.h" />
+    <ClInclude Include="..\..\src\extra\bass.h">
+      <Filter>extra</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
