@@ -14,11 +14,11 @@
 #define MAX_HEALTH 100
 #define MAX_SHIELD 50
 
-enum itemType { WEAPON, DEFENSIVE, CONSUMABLE };
-enum weaponType { FISTS, BAT, KNIFE, GUN };
-enum consumableType { APPLE, CANNED_BEANS, BURGER, BANDAGES, PAINKILLER, AID_KIT, VEST, HELMET };
-enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD };
-enum affectingStat { HUNGER, HEALTH, SHIELD };
+enum itemType { WEAPON, DEFENSIVE, CONSUMABLE};
+enum weaponType { FISTS, BAT, KNIFE, GUN};
+enum consumableType { APPLE, CANNED_BEANS, BURGER, BANDAGES, PAINKILLER, AID_KIT, VEST, HELMET};
+enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD};
+enum affectingStat { HUNGER, HEALTH, SHIELD};
 
 // all classes related to stages
 class Player : public EntityMesh{

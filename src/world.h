@@ -1,6 +1,7 @@
 #pragma once
 
 #include "worldEntities.h"
+#include "nightMenu.h"
 #include <unordered_map>
 
 
@@ -15,9 +16,15 @@ struct sCollisionData {
 
 class World {
 public:
-	
+	// General variables
 	static World* inst;
 	Player* player;
+
+	int consumable_stats[NUM_CONSUMABLES];
+	int weapon_dmg[NUM_WEAPONS];
+	int weapon_use_pts[NUM_WEAPONS];
+	int defensive_stats[NUM_DEF];
+	int defensive_use_pts[NUM_DEF];
 
 	// Day variables
 	Entity* day_root;
@@ -44,14 +51,11 @@ public:
 	std::vector<ZombieEntity*> wave;
 	int zombies_alive;
 
-	int consumable_stats[NUM_CONSUMABLES];
-	int weapon_dmg[NUM_WEAPONS];
-	int weapon_use_pts[NUM_WEAPONS];
-	int defensive_stats[NUM_DEF];
-	int defensive_use_pts[NUM_DEF];
-
 	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
+	std::unordered_map<std::string, Menu*> menus;
+	Menu* cur_menu;
+	int selected_option;
 
 	World();
 	
@@ -72,7 +76,7 @@ public:
 	
 	bool isPlayerAlive();
 
-	// Day logic
+	// DAY  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	void getConsumable(consumableType consumable);
 	void getWeaponUses(weaponType weapon);
 	void getDefItemUses(defensiveType def);
@@ -81,18 +85,19 @@ public:
 	bool checkItemCollisions(const Vector3& ray_dir);
 	int checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
 	
-	//Nigt Logic
+	// NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	void generateZombies(int num_night);
 
+	// ZOMBIE RELATED
 	// This function is called when the player atacks a zombie
 		//Depends on the vulnerabilities will return 0,1,2
 		// 0 -> invulnerable (no damage)
 		// 1 -> normal damage
 		// 2 -> attack was super efective (x2 damage), player has 
-
 	int hurtZombie(weaponType weapon, int zombie_idx);
 	void killZombie(int zombie_idx);
 
-	
-
+	// MENU RELATED
+	void changeMenu(std::string go_to);
+	void selectOption();
 };

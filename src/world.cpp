@@ -21,6 +21,8 @@ World::World() {
 	night_root = new Entity();
 	night_entities.push_back(night_root);
 
+	selected_option = 0;
+
 	Entity* entity;
 	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
@@ -515,4 +517,14 @@ void World::killZombie(int zombie_idx)
 	}
 }
 
+// MENU RELATED
+void World::changeMenu(std::string go_to)
+{
+	cur_menu = menus[go_to];
+	selected_option = 0;
+}
 
+void World::selectOption()
+{
+	cur_menu->onSelect(selected_option);
+}

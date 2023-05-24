@@ -70,6 +70,7 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\worldEntities.cpp" />
+    <ClCompile Include="..\..\src\nightMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -140,6 +141,7 @@
     <ClInclude Include="..\..\src\extra\bass.h">
       <Filter>extra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\nightMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
