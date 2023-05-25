@@ -53,6 +53,7 @@ public:
 
 	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
+	weaponType weapon;
 	std::unordered_map<std::string, Menu*> menus;
 	Menu* cur_menu;
 	int selected_option;
@@ -94,10 +95,17 @@ public:
 		// 0 -> invulnerable (no damage)
 		// 1 -> normal damage
 		// 2 -> attack was super efective (x2 damage), player has 
-	int hurtZombie(weaponType weapon, int zombie_idx);
+	int hurtZombie(int zombie_idx);
 	void killZombie(int zombie_idx);
 
 	// MENU RELATED
 	void changeMenu(std::string go_to);
-	void selectOption();
+	void changeOption(int to_add);
+
+	bool selectOption();
+	void createMenus(std::string filename);
+	void createGeneralMenu();
+	void createConsumableMenu();
+	void createAttackMenu();
+	void createDefendMenu();
 };

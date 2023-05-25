@@ -45,6 +45,8 @@ public:
 	void updateItemsAndStats();
 };
 
+
+
 class NightStage : public Stage {
 public:
 
@@ -59,8 +61,6 @@ public:
 	//Variable that contains the index of the selected zombie
 	// -1 if we are not in target selection
 	int selected_target;
-
-	
 
 	void resetParams();
 	void onEnter();

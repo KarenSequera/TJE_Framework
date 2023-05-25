@@ -1,9 +1,7 @@
-#include "stage.h"
+#include "StageManager.h"
 #include "input.h"
 #include "camera.h"
 #include "our_utils.h"
-#include "game.h"
-#include "StageManager.h"
 
 #include <algorithm>
  
@@ -272,21 +270,16 @@ void DayStage::updateItemsAndStats() {
 		}
 		#if DEBUG
 		else if (Input::wasKeyPressed(SDL_SCANCODE_J))
-		{
 			World::inst->hurtPlayer(KNIFE);
-		}
+
 		else if (Input::wasKeyPressed(SDL_SCANCODE_K))
-		{
 			World::inst->consumeHunger(10);
-		}
+
 		else if (Input::wasKeyPressed(SDL_SCANCODE_P))
-		{
 			World::inst->getConsumable(consumable_selected);
-		}
+
 		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
-		{
 			StageManager::inst->changeStage("night");
-		}
 		#endif
 	}
 }
@@ -296,6 +289,9 @@ NightStage::NightStage() : Stage()
 	cur_night = 0;
 	cur_turn = 0;
 	is_player_turn = true;
+
+	selected_target = 0;
+	turns_to_day = 0;
 }
 
 void NightStage::resetParams()
@@ -320,7 +316,11 @@ void NightStage::onEnter() {
 
 void NightStage::render()
 {
-	drawText(5, 45, "IN THE NIGHT IN THE NIGHT, IN THE NIGHT NO NAI NO NIGHT", Vector3(1.0f, 0.75f, 0.0f), 2);
+	// render what must be rendered always
+	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
+
+
 	if (is_player_turn)
 	{
 		playerTurnRender();
@@ -337,9 +337,17 @@ void NightStage::playerTurnRender() {
 	drawText(5, 85, "Selected target: " + std::to_string(selected_target), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 105, "Health target: " + std::to_string(World::inst->wave[selected_target]->info.health), Vector3(1.0f, 0.75f, 0.0f), 2);
 
-	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
+	// Render menus -> prep options
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
+	//menu render
+	World::inst->cur_menu->render(World::inst->selected_option);
 
+	// Render menus -> prep options
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void NightStage::zombieTurnRender() {
@@ -369,42 +377,52 @@ void NightStage::update(float dt)
 
 void NightStage::playerTurnUpdate() 
 {
+	// if null pointer, the user has chosen to attack
+	if (World::inst->cur_menu == nullptr)
+	{
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
+			selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
 
+		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
+			selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
 
-	//TODO
-	/*std::cout << " || ";
-	std::cout << "player turn";
-	std::cout << " || ";*/
-
-	if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
-		selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
-	
-	else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
-		selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
-
-	else if (Input::wasKeyPressed(SDL_SCANCODE_Q)) {
-		World::inst->hurtZombie(GUN, selected_target);
-		if (World::inst->zombies_alive<=0) {
-			StageManager::inst->changeStage("day");
-		}
+		//TODO
+		//int weakness = World::zombie_attacked(weapon, World::inst->wave[selected_target]);
 		
+		else if (Input::wasKeyPressed(SDL_SCANCODE_Q)) {
+			int result = World::inst->hurtZombie(selected_target);
+			
+			if (World::inst->zombies_alive <= 0) {
+				StageManager::inst->changeStage("day");
+			}
+
+			// if the attack is not super effective then we move onto the zombie's turn
+			if(result != 2)
+				is_player_turn = false;
+						
+			// otherwise we give the player another action
+			// TODO: message of super efective, perhaps -> with a bool and a specific UI element for it, for example
+			World::inst->changeMenu("general");
+		}
 	}
 
+	if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
+		World::inst->changeOption(-1);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
+		World::inst->changeOption(1);
+
 	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
-		is_player_turn = false;
+		if(World::inst->selectOption())
+			is_player_turn = false;
 
+	#if DEBUG	
+	else if (Input::wasKeyPressed(SDL_SCANCODE_J))
+		World::inst->hurtPlayer(KNIFE);
 
-
-
-	//TODO
-	//int weakness = World::zombie_attacked(weapon, World::inst->wave[selected_target]);
-	//if (weakness != 2)
-	// Unless, it is super effective, it is zombies turn 
-	//	is_player_turn = false;
-
-	//We also need to check the size of the wave. If the size of tha wave is 0. the player 
-	//survives the night.
-
+	else if (Input::wasKeyPressed(SDL_SCANCODE_K))
+		World::inst->consumeHunger(10);
+	#endif
 };
 
 void NightStage::zombieTurnUpdate() 
@@ -459,4 +477,3 @@ void NightStage::newTurn()
 void GameOverStage::render() {
 	drawText(5, 25, "oops, you died!", Vector3(1.0f, 0.0f, 0.0f), 2);
 }
-

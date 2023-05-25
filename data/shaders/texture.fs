@@ -1,4 +1,3 @@
-
 varying vec3 v_position;
 varying vec3 v_world_position;
 varying vec3 v_normal;
