@@ -15,6 +15,8 @@ public:
 	Texture* selected_texture;
 
 	void render(bool selected);
+
+	//Returns whether the option selected triggers a change of turn from player to zombie
 	virtual bool onSelect() { return false; };
 };
 
@@ -64,6 +66,7 @@ public:
 	void render(int selected);
 	bool onSelect(int selected);
 };
+
 //
 //class ConsumableMenu : public Menu
 //{

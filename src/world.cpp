@@ -564,134 +564,71 @@ void World::createMenus(std::string filename)
 				tokens[7]
 			)
 		);
-		
 	}
 
-	createConsumableMenu();
-	createAttackMenu();
-	createDefendMenu();
-}
+	file.ignore(1, '\n');
 
-void World::createGeneralMenu()
-{
-	// TODO: do this with a parsing tool
-	Menu* general = new Menu();
-	menus["general"] = general;
-
-	menus["general"] = general;
-
-	general->options.push_back(
-		new GeneralMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, 450),
-			Vector2(350.0, 100.0),
-			"consumables"
-		)
-	);
-
-	general->options.push_back(
-		new GeneralMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, 300),
-			Vector2(350.0, 100.0),
-			"weapon"
-		)
-	);
-
-	general->options.push_back(
-		new GeneralMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, 150),
-			Vector2(350.0, 100.0),
-			"defensive"
-		)
-	);
-
-}
-
-void World::createConsumableMenu()
-{
+	//Consumable menu 
 	Menu* consumables = new Menu();
-
-	//TODO: actually fill the things haha
 	menus["consumables"] = consumables;
-	consumables->options.push_back(
-		new ConsumableMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, Game::instance->window_height / 2),
-			Vector2(350.0, 100.0),
-			BURGER
-		)
-	);
 
-	consumables->options.push_back(
-		new ConsumableMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, Game::instance->window_height / 2 + 100),
-			Vector2(350.0, 100.0),
-			APPLE
-		)
-	);
-}
+	for (int option = 0; option < NUM_CONSUMABLES; option++)
+	{
+		file >> data;
+		std::vector<std::string> tokens = tokenize(data, ",");
 
-void World::createAttackMenu()
-{
+		consumables->options.push_back(
+			new ConsumableMenuEntity(
+				Texture::Get(tokens[1].c_str()),
+				Texture::Get(tokens[2].c_str()),
+				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
+				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
+				consumableType(std::stoi(tokens[7]))
+			)
+		);
+	}
+
+	file.ignore(1, '\n');
+
+	//Weapon menu 
 	Menu* weapon = new Menu();
-
-	//TODO: actually fill the things haha
 	menus["weapon"] = weapon;
 
-	weapon->options.push_back(
-		new WeaponMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, Game::instance->window_height / 2),
-			Vector2(350.0, 100.0),
-			KNIFE
-		)
-	);
+	for (int option = 0; option < NUM_WEAPONS; option++)
+	{
+		file >> data;
+		std::vector<std::string> tokens = tokenize(data, ",");
 
-	weapon->options.push_back(
-		new WeaponMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, Game::instance->window_height / 2 + 100),
-			Vector2(350.0, 100.0),
-			GUN
-		)
-	);
-}
+		weapon->options.push_back(
+			new WeaponMenuEntity(
+				Texture::Get(tokens[1].c_str()),
+				Texture::Get(tokens[2].c_str()),
+				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
+				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
+				weaponType(std::stoi(tokens[7]))
+			)
+		);
+	}
 
-void World::createDefendMenu()
-{
+	file.ignore(1, '\n');
+
+	//Defend menu
 	Menu* defensive = new Menu();
-
-	//TODO: actually fill the things haha
 	menus["defensive"] = defensive;
 
-	defensive->options.push_back(
-		new DefensiveMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, Game::instance->window_height / 2),
-			Vector2(350.0, 100.0),
-			WOODEN_DOOR
-		)
-	);
+	for (int option = 0; option < NUM_DEF; option++)
+	{
+		file >> data;
+		std::vector<std::string> tokens = tokenize(data, ",");
 
-	defensive->options.push_back(
-		new DefensiveMenuEntity(
-			Texture::Get("data/menus/dummy.tga"),
-			Texture::Get("data/menus/dummy_sel.tga"),
-			Vector2(Game::instance->window_width / 2, Game::instance->window_height / 2 + 100),
-			Vector2(350.0, 100.0),
-			METAL_SHIELD
-		)
-	);
+		defensive->options.push_back(
+			new DefensiveMenuEntity(
+				Texture::Get(tokens[1].c_str()),
+				Texture::Get(tokens[2].c_str()),
+				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
+				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
+				defensiveType(std::stoi(tokens[7]))
+			)
+		);
+	}
 }
-

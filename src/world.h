@@ -104,8 +104,4 @@ public:
 
 	bool selectOption();
 	void createMenus(std::string filename);
-	void createGeneralMenu();
-	void createConsumableMenu();
-	void createAttackMenu();
-	void createDefendMenu();
 };
