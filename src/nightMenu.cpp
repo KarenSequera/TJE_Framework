@@ -5,19 +5,20 @@
 
 Matrix44 model;
 
+Vector2 positions[3] = { Vector2(1000.f, 450.f), Vector2(1000.f, 300.f) , Vector2(1000.f, 150.f) };
 
-MenuEntity::MenuEntity(Texture* normal_texture, Texture* selected, Vector2 position, Vector2 size)
+MenuEntity::MenuEntity(Texture* normal_texture, Texture* selected)
 {
-	mesh = new Mesh();
-	mesh->createQuad(position.x, position.y, size.x, size.y, true);
-
 	texture = normal_texture;
 	selected_texture = selected;
 	shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 }
 
-void MenuEntity::render(bool selected)
+void MenuEntity::render(bool selected, int menu_pos)
 {
+	mesh = new Mesh();
+	mesh->createQuad(positions[menu_pos].x, positions[menu_pos].y, OPTION_SIZE_X, OPTION_SIZE_Y, true);
+
 	shader->enable();
 
 	shader->setUniform("u_viewprojection", Game::instance->camera2D->viewprojection_matrix);
@@ -29,8 +30,8 @@ void MenuEntity::render(bool selected)
 	shader->disable();
 }
 
-ConsumableMenuEntity::ConsumableMenuEntity(Texture* normal_texture, Texture* selected, Vector2 position, Vector2 size, consumableType type)
-	: MenuEntity(normal_texture, selected, position, size)
+ConsumableMenuEntity::ConsumableMenuEntity(Texture* normal_texture, Texture* selected, consumableType type)
+	: MenuEntity(normal_texture, selected)
 {
 	c_type = type;
 }
@@ -43,8 +44,8 @@ bool ConsumableMenuEntity::onSelect()
 
 
 
-WeaponMenuEntity::WeaponMenuEntity(Texture* normal_texture, Texture* selected, Vector2 position, Vector2 size, weaponType type)
-	: MenuEntity(normal_texture, selected, position, size)
+WeaponMenuEntity::WeaponMenuEntity(Texture* normal_texture, Texture* selected, weaponType type)
+	: MenuEntity(normal_texture, selected)
 {
 	w_type = type;
 }
@@ -56,8 +57,8 @@ bool WeaponMenuEntity::onSelect()
 	return true;
 }
 
-DefensiveMenuEntity::DefensiveMenuEntity(Texture* normal_texture, Texture* selected, Vector2 position, Vector2 size, defensiveType type)
-	: MenuEntity(normal_texture, selected, position, size)
+DefensiveMenuEntity::DefensiveMenuEntity(Texture* normal_texture, Texture* selected, defensiveType type)
+	: MenuEntity(normal_texture, selected)
 {
 	d_type = type;
 }
@@ -68,8 +69,8 @@ bool DefensiveMenuEntity::onSelect()
 	return true;
 }
 
-GeneralMenuEntity::GeneralMenuEntity(Texture* normal_texture, Texture* selected, Vector2 position, Vector2 size, std::string in_goto)
-	: MenuEntity(normal_texture, selected, position, size)
+GeneralMenuEntity::GeneralMenuEntity(Texture* normal_texture, Texture* selected, std::string in_goto)
+	: MenuEntity(normal_texture, selected)
 {
 	go_to = in_goto;
 }
@@ -80,13 +81,22 @@ bool GeneralMenuEntity::onSelect()
 	return false;
 }
 
+Menu::Menu()
+{
+	start_visible = 0;
+	end_visible = 2;
+}
+
 void Menu::render(int selected)
 {
 	MenuEntity* option;
-	for (int i = 0; i < options.size(); i++)
+	int pos = 0;
+
+	for (int i = start_visible; i <= end_visible; i++)
 	{
 		option = options[i];
-		option->render(i == selected);
+		option->render(i == selected, pos);
+		pos++;
 	}
 }
 

@@ -559,9 +559,7 @@ void World::createMenus(std::string filename)
 			new GeneralMenuEntity(
 				Texture::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
-				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
-				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
-				tokens[7]
+				tokens[3]
 			)
 		);
 	}
@@ -581,9 +579,7 @@ void World::createMenus(std::string filename)
 			new ConsumableMenuEntity(
 				Texture::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
-				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
-				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
-				consumableType(std::stoi(tokens[7]))
+				consumableType(std::stoi(tokens[3]))
 			)
 		);
 	}
@@ -603,9 +599,7 @@ void World::createMenus(std::string filename)
 			new WeaponMenuEntity(
 				Texture::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
-				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
-				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
-				weaponType(std::stoi(tokens[7]))
+				weaponType(std::stoi(tokens[3]))
 			)
 		);
 	}
@@ -625,9 +619,7 @@ void World::createMenus(std::string filename)
 			new DefensiveMenuEntity(
 				Texture::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
-				Vector2(std::stof(tokens[3]), std::stof(tokens[4])),
-				Vector2(std::stof(tokens[5]), std::stof(tokens[6])),
-				defensiveType(std::stoi(tokens[7]))
+				defensiveType(std::stoi(tokens[3]))
 			)
 		);
 	}
