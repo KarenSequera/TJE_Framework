@@ -319,6 +319,9 @@ void NightStage::render()
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 165, "Option: " + std::to_string(World::inst->selected_option), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 185, "start: " + std::to_string(World::inst->cur_menu->start_visible), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 205, "end: " + std::to_string(World::inst->cur_menu->end_visible), Vector3(1.0f, 0.75f, 0.0f), 2);
 
 
 	if (is_player_turn)
@@ -412,9 +415,14 @@ void NightStage::playerTurnUpdate()
 	else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
 		World::inst->changeOption(1);
 
-	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
-		if(World::inst->selectOption())
+	else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
+		if (World::inst->selectOption()) {
 			is_player_turn = false;
+		}
+	}
+		
+	else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+		World::inst->changeMenu("general");
 
 	#if DEBUG	
 	else if (Input::wasKeyPressed(SDL_SCANCODE_J))

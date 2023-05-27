@@ -1,21 +1,21 @@
-general_cons,data/menus/dummy.tga,data/menus/dummy_sel.tga,consumables
-general_weapon,data/menus/dummy.tga,data/menus/dummy_sel.tga,weapon
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,defensive
+general_cons,data/menus/general/consumables.tga,data/menus/general/consumables_sel.tga,consumables
+general_weapon,data/menus/general/attack.tga,data/menus/general/attack_sel.tga,weapon
+general_def,data/menus/general/defend.tga,data/menus/general/defend_sel.tga,defensive
 
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,0
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,1
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,2
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,3
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,4
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,5
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,6
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,7
+bandages,data/menus/consumables/bandages.tga,data/menus/consumables/bandages_sel.tga,0
+painkillers,data/menus/consumables/painkillers.tga,data/menus/consumables/painkillers_sel.tga,1
+aidkit,data/menus/consumables/aidkit.tga,data/menus/consumables/aidkit_sel.tga,2
+apple,data/menus/consumables/apple.tga,data/menus/consumables/apple_sel.tga,3
+beans,data/menus/consumables/beans.tga,data/menus/consumables/beans_sel.tga,4
+burger,data/menus/consumables/burger.tga,data/menus/consumables/burger_sel.tga,5
+helmet,data/menus/consumables/helmet.tga,data/menus/consumables/helmet_sel.tga,6
+vest,data/menus/consumables/vest.tga,data/menus/consumables/vest_sel.tga,7
 
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,0
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,1
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,2
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,3
+fists,data/menus/weapon/fists.tga,data/menus/weapon/fists_sel.tga,0
+bat,data/menus/weapon/bat.tga,data/menus/weapon/bat_sel.tga,1
+knife,data/menus/weapon/knife.tga,data/menus/weapon/knife_sel.tga,2
+gun,data/menus/weapon/gun.tga,data/menus/weapon/gun_sel.tga,3
 
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,0
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,1
-general_def,data/menus/dummy.tga,data/menus/dummy_sel.tga,2
+arms,data/menus/defensive/arms.tga,data/menus/defensive/arms_sel.tga,0
+door,data/menus/defensive/door.tga,data/menus/defensive/door_sel.tga,1
+shield,data/menus/defensive/shield.tga,data/menus/defensive/shield_sel.tga,2

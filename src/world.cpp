@@ -530,7 +530,36 @@ void World::changeMenu(std::string go_to)
 
 void World::changeOption(int to_add)
 {
-	selected_option = ourMod(selected_option + to_add, cur_menu->options.size());
+	int start = cur_menu->start_visible;
+	int end = cur_menu->end_visible;
+	int num_options = cur_menu->options.size();
+
+	// Change the visible options, sliding the window accordingly
+	selected_option = ourMod(selected_option + to_add, num_options);
+
+	if (num_options == 3)
+		return;
+
+	if (selected_option == 0)
+	{
+		cur_menu->start_visible = 0;
+		cur_menu->end_visible = 2;
+	}
+	else if (selected_option == num_options - 1)
+	{
+		cur_menu->start_visible = selected_option - 2;
+		cur_menu->end_visible = selected_option;
+	}
+	else if (selected_option > end) {
+		cur_menu->start_visible++;
+		cur_menu->end_visible++;
+	}
+	else if (selected_option < start)
+	{
+		cur_menu->start_visible--;
+		cur_menu->end_visible--;
+	}
+	
 }
 
 bool World::selectOption()

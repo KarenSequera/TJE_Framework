@@ -5,7 +5,9 @@
 
 Matrix44 model;
 
+//TODO: do it in terms of the resolution of the screen
 Vector2 positions[3] = { Vector2(1000.f, 450.f), Vector2(1000.f, 300.f) , Vector2(1000.f, 150.f) };
+Vector2 size = Vector2(350.f, 100.f);
 
 MenuEntity::MenuEntity(Texture* normal_texture, Texture* selected)
 {
@@ -17,7 +19,7 @@ MenuEntity::MenuEntity(Texture* normal_texture, Texture* selected)
 void MenuEntity::render(bool selected, int menu_pos)
 {
 	mesh = new Mesh();
-	mesh->createQuad(positions[menu_pos].x, positions[menu_pos].y, OPTION_SIZE_X, OPTION_SIZE_Y, true);
+	mesh->createQuad(positions[menu_pos].x, positions[menu_pos].y, size.x, size.y, true);
 
 	shader->enable();
 
@@ -41,7 +43,6 @@ bool ConsumableMenuEntity::onSelect()
 	World::inst->useConsumable(c_type);
 	return true;
 }
-
 
 
 WeaponMenuEntity::WeaponMenuEntity(Texture* normal_texture, Texture* selected, weaponType type)

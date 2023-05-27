@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 	//prepare SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	bool fullscreen = true; //change this to go fullscreen
+	bool fullscreen = false; //change this to go fullscreen
 	Vector2 size(800, 600);
 
 	if (fullscreen)

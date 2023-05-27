@@ -1,16 +1,12 @@
 #pragma once
 #include "player.h"
 #define NUM_GENERAL_OPTIONS 3
-#define OPTION_SIZE_X 350.f
-#define OPTION_SIZE_Y 100.f
 
 class Camera;
 
 class MenuEntity : public EntityMesh
 {
 public:
-	Vector2 position;
-	Vector2 size;
 
 	MenuEntity(Texture* normal_texture, Texture* selected);
 
