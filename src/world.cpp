@@ -39,6 +39,18 @@ World::World() {
 	changeMenu("general");
 	//ParseNight 
 	parseSceneNight("data/nightScene.scene");
+	
+	camera2D = new Camera();
+	camera2D->view_matrix = Matrix44();
+	camera2D->setOrthographic(0, Game::instance->window_width, 0, Game::instance->window_height, -1, 1);
+
+	for(int i = 0; i < NUM_OPTIONS; i++)
+		option_quads[i] = new Mesh();
+
+	resizeOptions(Game::instance->window_width, Game::instance->window_height);
+
+	ready_to_attack = false;
+	unlimited_everything = false;
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -280,7 +292,19 @@ void World::parseSceneNight(const char* filename)
 //	Hurts the player according to a specific weapon type
 void World::hurtPlayer(weaponType weapon)
 {
-	player->affectPlayerStat(HEALTH, weapon_dmg[weapon], false);
+	int damage = weapon_dmg[weapon];
+
+	if (player->mitigates)
+	{
+		damage -= player->mitigates;
+		player->mitigates = 0;
+	}
+
+	int diff = player->shield - damage;
+	player->affectPlayerStat(SHIELD, damage, false);
+
+	if (diff < 0)
+		player->affectPlayerStat(HEALTH, -1 * diff, false);
 }
 
 bool World::isPlayerAlive() {
@@ -293,7 +317,23 @@ void World::consumeHunger(int quant)
 	player->affectPlayerStat(HUNGER, quant, false);
 }
 
-/* 
+//	Returns the number of consumables we have of a specific type
+int World::getConsumableQuant(consumableType consumable)
+{
+	return player->consumables[consumable];
+}
+
+int World::getWeaponUses(weaponType weapon)
+{
+	return player->weapon_uses[weapon];
+}
+
+int World::getDefItemUses(defensiveType def)
+{
+	return player->def_uses[def];
+}
+
+/*
 	Function that tries to use a specific consumable.
 	@param consumable: type of consumable we want to use.
 	@return: an int indicating whether the consumable could be used or not
@@ -301,18 +341,12 @@ void World::consumeHunger(int quant)
 	1 if there are no consumables of that type
 	2 if the stat the consumable affects is already at the maximum
 */
-
-//	Returns the number of consumables we have of a specific type
-int World::getConsumableQuant(consumableType consumable)
-{
-	return player->consumables[consumable];
-}
-
 int World::useConsumable(consumableType consumable)
 {
-	if (player->consumables[consumable])
+	if (unlimited_everything || player->consumables[consumable])
 	{
 		int to_add = consumable_stats[consumable];
+
 		if(!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true)) return 2;
 		player->consumables[consumable]--;
 		return 0;
@@ -334,12 +368,12 @@ void World::getConsumable(consumableType consumable)
 }
 
 //	Adds weapon uses of a specific type
-void World::getWeaponUses(weaponType weapon) {
+void World::addWeaponUses(weaponType weapon) {
 	player->addWeaponUses(weapon, weapon_use_pts[weapon]);
 }
 
 //	Adds uses to a specific type of defensive items
-void World::getDefItemUses(defensiveType def) {
+void World::addDefItemUses(defensiveType def) {
 	player->addDefUses(def, defensive_use_pts[def]);
 }
 
@@ -349,11 +383,11 @@ void World::getItem(ItemEntity* item) {
 	switch (item->item_type) {
 		case WEAPON:
 			// get type from entity
-			getWeaponUses(item->weapon_type);
+			addWeaponUses(item->weapon_type);
 			break;
 
 		case DEFENSIVE:
-			getDefItemUses(item->defensive_type);
+			addDefItemUses(item->defensive_type);
 			break;
 
 		case CONSUMABLE:
@@ -583,6 +617,7 @@ int World::hurtZombie(int zombie_idx)
 	int multiplier = zombie->getMultiplier(weapon);
 	zombie->info.health -= weapon_dmg[weapon] * multiplier;
 
+	player->addWeaponUses(weapon, -1);
 
 	if (!zombie->alive())
 		killZombie(zombie_idx);
@@ -600,11 +635,21 @@ void World::killZombie(int zombie_idx)
 	}
 }
 
+void World::defend(defensiveType type)
+{
+	player->mitigates = defensive_stats[type];
+	player->def_uses[type]--;
+}
+
+
 // MENU RELATED ---------------------------------------------------------------------------------------
 void World::changeMenu(std::string go_to)
 {
 	cur_menu = menus[go_to];
 	selected_option = 0;
+
+	cur_menu->start_visible = 0;
+	cur_menu->end_visible = 2;
 }
 
 void World::changeOption(int to_add)
@@ -648,6 +693,7 @@ bool World::selectOption()
 
 void World::createMenus(std::string filename)
 {
+
 	Menu* general = new Menu();
 	menus["general"] = general;
 
@@ -731,4 +777,16 @@ void World::createMenus(std::string filename)
 			)
 		);
 	}
+}
+
+void World::resizeOptions(float width, float height)
+{
+	float size_x = 0.25 * width;
+	float size_y = size_x * 100.f / 350.f;
+
+	float offset = 0.05 * height;
+
+	option_quads[0]->createQuad(3 * size_x, 3*size_y + 2*offset, size_x, size_y, true);
+	option_quads[1]->createQuad(3 * size_x, 2*size_y + offset, size_x, size_y, true);
+	option_quads[2]->createQuad(3 * size_x, size_y, size_x, size_y, true);
 }

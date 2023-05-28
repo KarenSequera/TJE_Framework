@@ -4,6 +4,7 @@ Player::Player() {
 	health = MAX_HEALTH;
 	shield = 0;
 	hunger = MAX_HUNGER;
+	mitigates = 0;
 
 	// Render related
 	mesh = Mesh::Get("data/pruebas/advanced.obj");

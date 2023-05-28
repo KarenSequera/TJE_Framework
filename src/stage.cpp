@@ -19,11 +19,8 @@ DayStage::DayStage() : Stage() {
 	gamepad_sensitivity = 0.05f;
 
 	consumable_selected = BURGER;
-	#if DEBUG
-	time_remaining = 5.f;
-	#else
+	
 	time_remaining = DAY_TIME;
-	#endif
 
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
@@ -34,11 +31,7 @@ void DayStage::onEnter()
 	Camera::current->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
-	#if DEBUG
-	time_remaining = 5.f;
-	#else
 	time_remaining = DAY_TIME;
-	#endif
 }
 
 void DayStage::render() {
@@ -54,7 +47,7 @@ void DayStage::render() {
 	
 	renderConsumableMenu();
 	#if DEBUG
-	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, P: getCons"
+	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
 		, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
 }
@@ -252,31 +245,28 @@ void DayStage::updateItemsAndStats() {
 			switch (res) {
 			case 1:
 				//TODO: ERROR MSG - NO CONSUMABLES OF THAT TYPE
-				#if DEBUG
+#if DEBUG
 				printf("NO CONSUMABLES OF THAT TYPE\n");
-				#endif
+#endif
 				break;
 
 			case 2:
 				//TODO: ERROR MSG - STAT ALREADY CAPPED
-				#if DEBUG
+#if DEBUG
 				printf("STAT ALREADY CAPPED\n");
-				#endif
+#endif
 				break;
 
 			default:
 				break;
 			}
 		}
-		#if DEBUG
+#if DEBUG
 		else if (Input::wasKeyPressed(SDL_SCANCODE_J))
 			World::inst->hurtPlayer(KNIFE);
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_K))
 			World::inst->consumeHunger(10);
-
-		else if (Input::wasKeyPressed(SDL_SCANCODE_P))
-			World::inst->getConsumable(consumable_selected);
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 			StageManager::inst->changeStage("night");
@@ -287,31 +277,22 @@ void DayStage::updateItemsAndStats() {
 NightStage::NightStage() : Stage()
 {
 	cur_night = 0;
-	cur_turn = 0;
 	is_player_turn = true;
 
 	selected_target = 0;
 	turns_to_day = 0;
 }
 
-void NightStage::resetParams()
-{
-	selected_target = 0;
-}
-
 void NightStage::onEnter() {
 	World::inst->generateZombies(cur_night);
-	World::inst->player->health = 100;
 
 	is_player_turn = true;
 
-	//TODO: set num_turns properly (in terms of the number of nights)
-	turns_to_day = 5;
-	cur_turn = 0;
+	//TODO: adjust formula so that it is enjoyable
+	turns_to_day = 10 + (cur_night % 5) * 10;
 
 	cur_night++;
 
-	resetParams();
 }
 
 void NightStage::render()
@@ -319,14 +300,15 @@ void NightStage::render()
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 165, "Option: " + std::to_string(World::inst->selected_option), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
+	/*drawText(5, 165, "Option: " + std::to_string(World::inst->selected_option), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 185, "start: " + std::to_string(World::inst->cur_menu->start_visible), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 205, "end: " + std::to_string(World::inst->cur_menu->end_visible), Vector3(1.0f, 0.75f, 0.0f), 2);
-
+	drawText(5, 205, "end: " + std::to_string(World::inst->cur_menu->end_visible), Vector3(1.0f, 0.75f, 0.0f), 2);*/
 
 	if (is_player_turn)
 	{
 		playerTurnRender();
+		debugZombies();
 	}
 	else
 	{
@@ -334,11 +316,37 @@ void NightStage::render()
 	}
 }
 
+void NightStage::debugZombies()
+{
+	if (World::inst->ready_to_attack) {
+		for (int i = 0; i < World::inst->zombies_alive; i++)
+		{
+			drawText(50 + i * 250, 200, "Z health: " + std::to_string(World::inst->wave[i]->info.health), (selected_target == i) ? Vector3(1.0f, 1.0f, 1.0f) : Vector3(1.0f, 0.75f, 0.0f), 2);
+			drawText(50 + i * 250, 230, "Invulnerable to: " + std::to_string(World::inst->wave[i]->info.invulnerable_to), Vector3(1.0f, 0.75f, 0.0f), 2);
+			drawText(50 + i * 250, 260, "Weak to: " + std::to_string(World::inst->wave[i]->info.weakness), Vector3(1.0f, 0.75f, 0.0f), 2);
+
+		}
+	}
+	else
+	{
+		for (int i = 0; i < World::inst->zombies_alive; i++)
+		{
+			drawText(50 + i * 250, 200, "Z health: " + std::to_string(World::inst->wave[i]->info.health), Vector3(1.0f, 0.75f, 0.0f), 2);
+			drawText(50 + i * 250, 230, "Invulnerable to: " + std::to_string(World::inst->wave[i]->info.invulnerable_to), Vector3(1.0f, 0.75f, 0.0f), 2);
+			drawText(50 + i * 250, 260, "Weak to: " + std::to_string(World::inst->wave[i]->info.weakness), Vector3(1.0f, 0.75f, 0.0f), 2);
+		}
+	}
+
+	drawText(50, 300, "WEAPONS: -1 nothing, 0 fists, 1 bat, 2 knife, 3 gun", Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(50, 330, "W & S: navigate, C: confirm, Z: go back", Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(50, 360, "U:unlimited, N:to day", Vector3(1.0f, 0.75f, 0.0f), 2);
+	
+}
+
 void NightStage::playerTurnRender() {
 	//TODO
 	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 85, "Selected target: " + std::to_string(selected_target), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 105, "Health target: " + std::to_string(World::inst->wave[selected_target]->info.health), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
 
 	// Render menus -> prep options
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -347,7 +355,7 @@ void NightStage::playerTurnRender() {
 
 	//menu render
 	World::inst->cur_menu->render(World::inst->selected_option);
-
+	
 	// Render menus -> prep options
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -360,13 +368,14 @@ void NightStage::zombieTurnRender() {
 
 void NightStage::update(float dt)
 {
-	/*#if DEBUG
-	if (Input::wasKeyPressed(SDL_SCANCODE_D))
-	{
-		finished = true;
-	}
-	#endif*/
 	
+#if DEBUG
+	if (Input::wasKeyPressed(SDL_SCANCODE_N))
+		StageManager::inst->changeStage("day");
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_U))
+		World::inst->unlimited_everything = !World::inst->unlimited_everything;
+#endif
 
 	if (is_player_turn)
 	{
@@ -381,7 +390,7 @@ void NightStage::update(float dt)
 void NightStage::playerTurnUpdate() 
 {
 	// if null pointer, the user has chosen to attack
-	if (World::inst->cur_menu == nullptr)
+	if (World::inst->ready_to_attack)
 	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
 			selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
@@ -389,10 +398,7 @@ void NightStage::playerTurnUpdate()
 		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
 			selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
 
-		//TODO
-		//int weakness = World::zombie_attacked(weapon, World::inst->wave[selected_target]);
-		
-		else if (Input::wasKeyPressed(SDL_SCANCODE_Q)) {
+		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 			int result = World::inst->hurtZombie(selected_target);
 			
 			if (World::inst->zombies_alive <= 0) {
@@ -405,27 +411,33 @@ void NightStage::playerTurnUpdate()
 						
 			// otherwise we give the player another action
 			// TODO: message of super efective, perhaps -> with a bool and a specific UI element for it, for example
+			World::inst->ready_to_attack = false;
 			World::inst->changeMenu("general");
+			selected_target = 0;
 		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+			World::inst->ready_to_attack = false;
 	}
+	else
+	{
+		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
+			World::inst->changeOption(-1);
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
-		World::inst->changeOption(-1);
+		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
+			World::inst->changeOption(1);
 
-	else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
-		World::inst->changeOption(1);
-
-	else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
-		if (World::inst->selectOption()) {
-			is_player_turn = false;
+		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
+			if (World::inst->selectOption()) {
+				is_player_turn = false;
+			}
 		}
+
+		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+			World::inst->changeMenu("general");
 	}
-		
-	else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
-		World::inst->changeMenu("general");
 
 	#if DEBUG	
-	else if (Input::wasKeyPressed(SDL_SCANCODE_J))
+	if (Input::wasKeyPressed(SDL_SCANCODE_J))
 		World::inst->hurtPlayer(KNIFE);
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_K))
@@ -449,37 +461,39 @@ void NightStage::zombieTurnUpdate()
 
 		weaponType weapon = World::inst->wave[i]->info.weapon;
 
+#if DEBUG
 		std::cout << " || ";
 		std::cout << "zombie hurt player with ";
 		std::cout << weapon;
 		std::cout << " || ";
+#endif
 
 		World::inst->hurtPlayer(weapon);
 
 		if (!World::inst->isPlayerAlive()) 
 		{
-			std::cout << " || ";
-			std::cout << "game over";
-			std::cout << " || \n";
-
 			StageManager::inst->changeStage("game over");
 			return;
 		}
 		
 	}
 	is_player_turn = true;
+	World::inst->changeMenu("general");
 	newTurn();
 	return;
 }
 
 void NightStage::newTurn() 
 {
-	cur_turn++;
+	turns_to_day--;
 
-	if (cur_turn >= turns_to_day)
+	if (turns_to_day == 0)
 		StageManager::inst->changeStage("day");
 
-	resetParams();
+	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
+	World::inst->consumeHunger(10);
+
+	selected_target = 0;
 }
 
 void GameOverStage::render() {

@@ -41,16 +41,10 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
-	camera2D = new Camera();
-	camera2D->view_matrix = Matrix44(); 
-	camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1);
-
 	camera->enable();
 
-	Matrix44 matrix1;
-	Matrix44 matrix2; 
-
 	new World();
+
 	stage_manager = new StageManager();
 }
 
@@ -132,7 +126,9 @@ void Game::onResize(int width, int height)
 	window_width = width;
 	window_height = height;
 	
-	camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1); 
-	camera2D->aspect = width / (float)height;
+	World::inst->camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1); 
+	World::inst->camera2D->aspect = width / (float)height;
+
+	World::inst->resizeOptions(window_width, window_height);
 }
 

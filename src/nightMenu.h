@@ -1,15 +1,19 @@
 #pragma once
 #include "player.h"
 #define NUM_GENERAL_OPTIONS 3
+#define NUM_OPTIONS 3
 
 class Camera;
 
-class MenuEntity : public EntityMesh
+
+class MenuEntity
 {
 public:
 
-	MenuEntity(Texture* normal_texture, Texture* selected);
+	MenuEntity(Texture* normal, Texture* selected);
 
+	Shader* shader;
+	Texture* normal_texture;
 	Texture* selected_texture;
 
 	void render(bool selected, int menu_pos);

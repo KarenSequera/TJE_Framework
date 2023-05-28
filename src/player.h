@@ -18,7 +18,7 @@ enum itemType { WEAPON, DEFENSIVE, CONSUMABLE};
 enum weaponType { FISTS, BAT, KNIFE, GUN};
 enum consumableType { BANDAGES, PAINKILLER, AID_KIT, APPLE, CANNED_BEANS, BURGER, HELMET, VEST};
 enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD};
-enum affectingStat { HUNGER, HEALTH, SHIELD};
+enum affectingStat { HEALTH, HUNGER, SHIELD};
 
 // all classes related to stages
 class Player : public EntityMesh{
@@ -31,6 +31,7 @@ public:
 	int health;
 	int shield;
 	int hunger;
+	int mitigates;
 	
 	//array containing the uses 
 	int weapon_uses[NUM_WEAPONS];
@@ -40,8 +41,6 @@ public:
 
 	//array containing the inventory of defensive items
 	int def_uses[NUM_DEF];
-
-
 
 	Player();
 	void addWeaponUses(weaponType type, int uses);

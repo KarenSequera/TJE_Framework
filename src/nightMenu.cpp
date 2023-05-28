@@ -1,34 +1,29 @@
 #include "nightMenu.h"
 #include "camera.h"
 #include "world.h"
-#include "game.h"
 
 Matrix44 model;
 
 //TODO: do it in terms of the resolution of the screen
-Vector2 positions[3] = { Vector2(1000.f, 450.f), Vector2(1000.f, 300.f) , Vector2(1000.f, 150.f) };
 Vector2 size = Vector2(350.f, 100.f);
 
-MenuEntity::MenuEntity(Texture* normal_texture, Texture* selected)
+MenuEntity::MenuEntity(Texture* normal, Texture* selected)
 {
-	texture = normal_texture;
+	normal_texture = normal;
 	selected_texture = selected;
 	shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 }
 
 void MenuEntity::render(bool selected, int menu_pos)
 {
-	mesh = new Mesh();
-	mesh->createQuad(positions[menu_pos].x, positions[menu_pos].y, size.x, size.y, true);
-
 	shader->enable();
 
-	shader->setUniform("u_viewprojection", Game::instance->camera2D->viewprojection_matrix);
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_model", model);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	shader->setUniform("u_texture", selected ? selected_texture : texture, 0);
+	shader->setUniform("u_texture", selected ? selected_texture : normal_texture, 0);
 
-	mesh->render(GL_TRIANGLES);
+	World::inst->option_quads[menu_pos]->render(GL_TRIANGLES);
 	shader->disable();
 }
 
@@ -40,7 +35,8 @@ ConsumableMenuEntity::ConsumableMenuEntity(Texture* normal_texture, Texture* sel
 
 bool ConsumableMenuEntity::onSelect()
 {
-	World::inst->useConsumable(c_type);
+	if(World::inst->useConsumable(c_type))
+		return false;
 	return true;
 }
 
@@ -53,9 +49,17 @@ WeaponMenuEntity::WeaponMenuEntity(Texture* normal_texture, Texture* selected, w
 
 bool WeaponMenuEntity::onSelect()
 {
-	World::inst->weapon = w_type;
-	World::inst->cur_menu = nullptr;
-	return true;
+	if(World::inst->unlimited_everything || w_type == FISTS || World::inst->getWeaponUses(w_type))
+	{
+		World::inst->weapon = w_type;
+		World::inst->ready_to_attack = true;
+	}
+	else {
+		//TODO -> make a function or something that resets a timer in the world, when it is not 0 a message will be shown.
+		//World::inst->errorMessage("You don't have enough of that item!");
+	}
+
+	return false;
 }
 
 DefensiveMenuEntity::DefensiveMenuEntity(Texture* normal_texture, Texture* selected, defensiveType type)
@@ -66,7 +70,15 @@ DefensiveMenuEntity::DefensiveMenuEntity(Texture* normal_texture, Texture* selec
 
 bool DefensiveMenuEntity::onSelect()
 {
-	//TODO
+	if (World::inst->unlimited_everything || World::inst->getDefItemUses(d_type))
+	{
+		//TODO:
+		World::inst->defend(d_type);
+	}
+	else {
+		//TODO -> make a function or something that resets a timer in the world, when it is not 0 a message will be shown.
+		//World::inst->errorMessage("You don't have enough of that item!");
+	}
 	return true;
 }
 

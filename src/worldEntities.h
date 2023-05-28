@@ -39,7 +39,6 @@ public:
 	zombieInfo info;
 	bool selected;
 	
-
 	ZombieEntity(zombieType z_type, zombieInfo* z_info);
 
 	int getMultiplier(weaponType weapon);

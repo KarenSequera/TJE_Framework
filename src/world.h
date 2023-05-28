@@ -20,6 +20,8 @@ public:
 	static World* inst;
 	Player* player;
 
+	bool unlimited_everything;
+
 	int consumable_stats[NUM_CONSUMABLES];
 	int weapon_dmg[NUM_WEAPONS];
 	int weapon_use_pts[NUM_WEAPONS];
@@ -54,9 +56,15 @@ public:
 	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
 	weaponType weapon;
+
+	// Menus
+	Mesh* option_quads[3];
+	Camera* camera2D;
+
 	std::unordered_map<std::string, Menu*> menus;
 	Menu* cur_menu;
 	int selected_option;
+	bool ready_to_attack;
 
 	World();
 	
@@ -72,6 +80,9 @@ public:
 	void consumeHunger(int quant);
 
 	int getConsumableQuant(consumableType consumable);
+	int getWeaponUses(weaponType weapon);
+	int getDefItemUses(defensiveType def);
+
 	int useConsumable(consumableType consumable);
 	void clearItems();
 	void spawnerInit();
@@ -80,8 +91,8 @@ public:
 
 	// DAY  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	void getConsumable(consumableType consumable);
-	void getWeaponUses(weaponType weapon);
-	void getDefItemUses(defensiveType def);
+	void addWeaponUses(weaponType weapon);
+	void addDefItemUses(defensiveType def);
 	void getItem(ItemEntity* item);
 
 	bool checkItemCollisions(const Vector3& ray_dir);
@@ -98,10 +109,12 @@ public:
 		// 2 -> attack was super efective (x2 damage), player has 
 	int hurtZombie(int zombie_idx);
 	void killZombie(int zombie_idx);
+	void defend(defensiveType type);
 
 	// MENU RELATED
 	void changeMenu(std::string go_to);
 	void changeOption(int to_add);
+	void resizeOptions(float width, float height);
 
 	bool selectOption();
 	void createMenus(std::string filename);
