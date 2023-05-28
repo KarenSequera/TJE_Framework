@@ -62,7 +62,8 @@ public:
 	
 	// functions to parse
 	void parseStats(const char* filename);
-	void parseScene(const char* filename);
+	void parseSceneDay(const char* filename);
+	void parseSceneNight(const char* filename);
 	void parseSpawns(const char* filename);
 	void parseItemEntities(const char* filename);
 

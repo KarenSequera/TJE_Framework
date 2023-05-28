@@ -30,13 +30,15 @@ World::World() {
 	Entity* entity;
 	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
 
-	parseScene("data/myscene.scene");
+	parseSceneDay("data/myscene.scene");
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/zombies/zombie_info.txt", z_info);
 
 	createMenus("data/menus/menus.txt");
 	changeMenu("general");
+	//ParseNight 
+	parseSceneNight("data/nightScene.scene");
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -119,7 +121,7 @@ struct sRenderData {
 std::map<std::string, sRenderData> meshes_to_load;
 
 //	Parses a scene from a .scene file
-void World::parseScene(const char* filename)
+void World::parseSceneDay(const char* filename)
 {
 	// You could fill the map manually to add shader and texture for each mesh
 	// If the mesh is not in the map, you can use the MTL file to render its colors
@@ -190,6 +192,83 @@ void World::parseScene(const char* filename)
 			day_root->addChild(new_entity);
 		}
 		
+	}
+
+	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
+}
+
+//	Parses a scene from a .scene file
+void World::parseSceneNight(const char* filename)
+{
+	// You could fill the map manually to add shader and texture for each mesh
+	// If the mesh is not in the map, you can use the MTL file to render its colors
+	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
+
+	std::cout << " + Scene loading: " << filename << "..." << std::endl;
+
+	std::ifstream file(filename);
+
+	if (!file.good()) {
+		std::cerr << "Scene [ERROR]" << " File not found!" << std::endl;
+	}
+
+	std::string scene_info, mesh_name, model_data;
+	for (int i = 0; i < 2; i++) {
+		file >> scene_info;
+	}
+
+	int mesh_count = 0;
+
+	// Read file line by line and store mesh path and model info in separated variables
+	while (file >> mesh_name >> model_data)
+	{
+		// Get all 16 matrix floats
+		std::vector<std::string> tokens = tokenize(model_data, ",");
+
+		// Fill matrix converting chars to floats
+		Matrix44 model;
+		for (int t = 0; t < tokens.size(); ++t) {
+			model.m[t] = (float)atof(tokens[t].c_str());
+		}
+
+		// Add model to mesh list (might be instanced!)
+		sRenderData& render_data = meshes_to_load[mesh_name];
+		render_data.models.push_back(model);
+		mesh_count++;
+	}
+
+	// Iterate through meshes loaded and create corresponding entities
+	for (auto data : meshes_to_load) {
+
+		mesh_name = "data/" + data.first;
+		sRenderData& render_data = data.second;
+
+		// No transforms, anything to do here
+		if (render_data.models.empty())
+			continue;
+
+		// Create instanced entity
+		if (render_data.models.size() > 1) {
+			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"), true, false, false);
+
+			// Add all instances
+			new_entity->models = render_data.models;
+			// Add entity to scene root
+			night_root->addChild(new_entity);
+		}
+		else {
+			// Create normal entity
+			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"), false, false, false);
+
+			new_entity->model_matrix = render_data.models[0];
+			new_entity->models.push_back(render_data.models[0]);
+
+			// Add entity to scene root
+			night_root->addChild(new_entity);
+		}
+
 	}
 
 	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
