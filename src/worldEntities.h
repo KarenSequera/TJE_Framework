@@ -38,8 +38,10 @@ public:
 	zombieType type;
 	zombieInfo info;
 	bool selected;
+
 	
-	ZombieEntity(zombieType z_type, zombieInfo* z_info);
+
+	ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model);
 
 	int getMultiplier(weaponType weapon);
 	bool alive();

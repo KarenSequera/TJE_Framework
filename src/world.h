@@ -66,6 +66,10 @@ public:
 	int selected_option;
 	bool ready_to_attack;
 
+	//Night model information 
+	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
+
+
 	World();
 	
 	// functions to parse
@@ -74,6 +78,7 @@ public:
 	void parseSceneNight(const char* filename);
 	void parseSpawns(const char* filename);
 	void parseItemEntities(const char* filename);
+	
 
 	// General logic
 	void hurtPlayer(weaponType weapon);

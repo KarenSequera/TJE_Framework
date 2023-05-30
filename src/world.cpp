@@ -36,6 +36,7 @@ World::World() {
 
 	createMenus("data/menus/menus.txt");
 	changeMenu("general");
+
 	//ParseNight 
 	parseSceneNight("data/nightScene.scene");
 	
@@ -228,8 +229,7 @@ void World::parseSceneNight(const char* filename)
 		file >> scene_info;
 	}
 
-	int mesh_count = 0;
-
+	int idx = 0;
 	// Read file line by line and store mesh path and model info in separated variables
 	while (file >> mesh_name >> model_data)
 	{
@@ -238,52 +238,16 @@ void World::parseSceneNight(const char* filename)
 
 		// Fill matrix converting chars to floats
 		Matrix44 model;
-		for (int t = 0; t < tokens.size(); ++t) {
+		for (int t = 0; t < tokens.size(); ++t) 
+		{
 			model.m[t] = (float)atof(tokens[t].c_str());
 		}
-
-		// Add model to mesh list (might be instanced!)
-		sRenderData& render_data = meshes_to_load[mesh_name];
-		render_data.models.push_back(model);
-		mesh_count++;
+		night_models[idx] = model;
+		idx++;
 	}
-
-	// Iterate through meshes loaded and create corresponding entities
-	for (auto data : meshes_to_load) {
-
-		mesh_name = "data/" + data.first;
-		sRenderData& render_data = data.second;
-
-		// No transforms, anything to do here
-		if (render_data.models.empty())
-			continue;
-
-		// Create instanced entity
-		if (render_data.models.size() > 1) {
-			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
-				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"), true, false, false);
-
-			// Add all instances
-			new_entity->models = render_data.models;
-			// Add entity to scene root
-			night_root->addChild(new_entity);
-		}
-		else {
-			// Create normal entity
-			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
-				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"), false, false, false);
-
-			new_entity->model_matrix = render_data.models[0];
-			new_entity->models.push_back(render_data.models[0]);
-
-			// Add entity to scene root
-			night_root->addChild(new_entity);
-		}
-
-	}
-
-	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
+	player->model_matrix = night_models[2];
 }
+
 
 // behaviour related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -584,6 +548,7 @@ void World::generateZombies(int num_night)
 {
 
 	night_root->children.clear();
+	night_root->addChild(player);
 	wave.clear();
 	ZombieEntity* zombie;
 	
@@ -596,7 +561,7 @@ void World::generateZombies(int num_night)
 		
 		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
 
-		zombie = new ZombieEntity(type, z_info);
+		zombie = new ZombieEntity(type, z_info, night_models[3+i]);
 
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);

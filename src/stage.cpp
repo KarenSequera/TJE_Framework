@@ -52,6 +52,7 @@ void DayStage::render() {
 	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
 		, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
+
 }
 
 //	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
@@ -288,6 +289,10 @@ NightStage::NightStage() : Stage()
 void NightStage::onEnter() {
 	World::inst->generateZombies(cur_night);
 
+	World::inst->player->model_matrix = World::inst->night_models[2];
+	World::inst->player->health = 100;
+	World::inst->generateZombies(cur_night);
+	World* inst = World::inst;
 	is_player_turn = true;
 
 	//TODO: adjust formula so that it is enjoyable
@@ -295,10 +300,19 @@ void NightStage::onEnter() {
 
 	cur_night++;
 
+	resetParams();
+	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
+	camera->lookAt(World::inst->night_models[0].getTranslation() ,World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
+
 }
 
 void NightStage::render()
 {
+	for (auto& entity : World::inst->night_entities)
+	{
+		entity->render();
+	}
+
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -307,7 +321,6 @@ void NightStage::render()
 	if (is_player_turn)
 	{
 		playerTurnRender();
-		debugZombies();
 	}
 	else
 	{
@@ -360,7 +373,7 @@ void NightStage::playerTurnRender() {
 }
 
 void NightStage::zombieTurnRender() {
-	//TODO
+
 }
 
 

@@ -1,7 +1,7 @@
 # Blender v3.5.0 OBJ File: 'nightScene.blend'
 # www.blender.org
-mtllib Cube.002.mtl
-o CameraLookAt.001_Cube.002
+mtllib position.mtl
+o Cube_position
 v -1.000000 -1.000000 1.000000
 v -1.000000 1.000000 1.000000
 v -1.000000 -1.000000 -1.000000
