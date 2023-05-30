@@ -68,6 +68,7 @@ void EntityMesh::render_simple() {
 
 	Camera* camera = Camera::current;
 	
+	//TODO: ACTIVATE FOR FINAL DELIVERY
 	/*Vector3 sphere_center = model_matrix * mesh->box.center;
 	float sphere_radius = mesh->radius;
 

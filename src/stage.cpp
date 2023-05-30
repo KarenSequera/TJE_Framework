@@ -20,7 +20,7 @@ DayStage::DayStage() : Stage() {
 
 	consumable_selected = BURGER;
 	#if DEBUG
-	time_remaining = 5.f;
+	time_remaining = 100.f;
 	#else
 	time_remaining = DAY_TIME;
 	#endif
@@ -34,8 +34,13 @@ void DayStage::onEnter()
 	Camera::current->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
+
+	/*camera->eye = World::inst->night_models[0].getTranslation();
+	camera->center = *new Vector3(419.407, 196.135, 502.756);*/
+	//World::inst->generateZombies(1);
+
 	#if DEBUG
-	time_remaining = 5.f;
+	time_remaining = 100.f;
 	#else
 	time_remaining = DAY_TIME;
 	#endif
@@ -57,6 +62,7 @@ void DayStage::render() {
 	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, P: getCons"
 		, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
+
 }
 
 //	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
@@ -300,11 +306,12 @@ void NightStage::resetParams()
 }
 
 void NightStage::onEnter() {
-	World::inst->generateZombies(cur_night);
+	World::inst->player->model_matrix = World::inst->night_models[2];
 	World::inst->player->health = 100;
-
+	World::inst->generateZombies(cur_night);
+	World* inst = World::inst;
 	is_player_turn = true;
-
+	
 	//TODO: set num_turns properly (in terms of the number of nights)
 	turns_to_day = 5;
 	cur_turn = 0;
@@ -312,10 +319,18 @@ void NightStage::onEnter() {
 	cur_night++;
 
 	resetParams();
+	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
+	camera->lookAt(World::inst->night_models[0].getTranslation() ,World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
+
 }
 
 void NightStage::render()
 {
+	for (auto& entity : World::inst->night_entities)
+	{
+		entity->render();
+	}
+
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -334,7 +349,8 @@ void NightStage::render()
 	}
 }
 
-void NightStage::playerTurnRender() {
+void NightStage::playerTurnRender() 
+{
 	//TODO
 	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 85, "Selected target: " + std::to_string(selected_target), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -354,7 +370,7 @@ void NightStage::playerTurnRender() {
 }
 
 void NightStage::zombieTurnRender() {
-	//TODO
+
 }
 
 

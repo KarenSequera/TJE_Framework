@@ -44,13 +44,13 @@ void parseZombieInfo(const char* filename, zombieInfo* z_info)
 }
 
 // ZombieEntity------------------------------------------------------------------------------------------------------------------------------
-ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info)
+ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model)
 {
 	mesh = Mesh::Get("data/zombies/zombie.obj");
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	type = z_type;
 	selected = false;
-
+	model_matrix = model;
 	info = z_info[z_type];
 	texture = Texture::Get(z_info->texture_path.c_str());
 
