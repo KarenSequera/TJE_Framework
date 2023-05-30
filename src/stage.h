@@ -30,7 +30,7 @@ public:
 	float gamepad_sensitivity;
 
 	const char* consumable_names[NUM_CONSUMABLES - NUM_SHIELD_ITEMS] = 
-		{"Burger ", "Canned Beans ", "Apple ", "First-aid Kit ", "Painkillers ", "Bandages "};
+		{ "Bandages ", "Painkillers ", "First-aid Kit ", "Apple ", "Canned Beans ", "Burger "};
 
 	consumableType consumable_selected;
 	float time_remaining;

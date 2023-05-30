@@ -2,7 +2,6 @@
 #include "utils.h"
 #include "our_utils.h"
 
-//TODO: REMOVE THIS IF UNNECESSARY
 #include "game.h"
 
 #include <fstream>

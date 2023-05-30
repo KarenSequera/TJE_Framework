@@ -28,6 +28,8 @@ DayStage::DayStage() : Stage() {
 
 void DayStage::onEnter()
 {
+	// TODO: add the shield that has been left off from the night
+
 	Camera::current->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
@@ -301,10 +303,7 @@ void NightStage::render()
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
-	/*drawText(5, 165, "Option: " + std::to_string(World::inst->selected_option), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 185, "start: " + std::to_string(World::inst->cur_menu->start_visible), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 205, "end: " + std::to_string(World::inst->cur_menu->end_visible), Vector3(1.0f, 0.75f, 0.0f), 2);*/
-
+	
 	if (is_player_turn)
 	{
 		playerTurnRender();
@@ -344,7 +343,6 @@ void NightStage::debugZombies()
 }
 
 void NightStage::playerTurnRender() {
-	//TODO
 	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
 
@@ -447,10 +445,6 @@ void NightStage::playerTurnUpdate()
 
 void NightStage::zombieTurnUpdate() 
 {
-	std::cout << " || ";
-	std::cout << "zombie turn";
-	std::cout << " || ";
-
 	int num_zombies = World::inst->wave.size();
 
 	for (int i = 0; i < num_zombies; i++)
@@ -460,13 +454,6 @@ void NightStage::zombieTurnUpdate()
 		// The zombies only hurt the player
 
 		weaponType weapon = World::inst->wave[i]->info.weapon;
-
-#if DEBUG
-		std::cout << " || ";
-		std::cout << "zombie hurt player with ";
-		std::cout << weapon;
-		std::cout << " || ";
-#endif
 
 		World::inst->hurtPlayer(weapon);
 
