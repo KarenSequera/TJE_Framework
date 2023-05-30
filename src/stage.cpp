@@ -299,8 +299,7 @@ void NightStage::onEnter() {
 	turns_to_day = 10 + (cur_night % 5) * 10;
 
 	cur_night++;
-
-	resetParams();
+	
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->lookAt(World::inst->night_models[0].getTranslation() ,World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 
