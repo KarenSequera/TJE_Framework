@@ -2,6 +2,7 @@
 #include "input.h"
 #include "camera.h"
 #include "our_utils.h"
+#include "game.h"
 
 #include <algorithm>
  
@@ -70,7 +71,6 @@ void DayStage::update(float dt) {
 	updateMovement(dt);
 	updateItemsAndStats();
 }
-
 
 float right_analog_x_disp;
 float right_analog_y_disp;
@@ -311,6 +311,7 @@ void NightStage::render()
 	{
 		entity->render();
 	}
+	renderCrosshair();
 
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -325,6 +326,31 @@ void NightStage::render()
 	{
 		zombieTurnRender();
 	}
+}
+
+void NightStage::renderCrosshair()
+{
+	Matrix44 model = World::inst->wave[selected_target]->getGlobalMatrix();
+	Vector4 position = Camera::current->viewprojection_matrix * Vector4(model.getTranslation(), 1.0);
+
+	position.x = (position.x / position.z);// * 0.5 * Game::instance->window_width;
+	position.y = (position.y / position.z);// * 0.5 * Game::instance->window_height;
+	
+	Mesh* quad = new Mesh();
+	quad->createQuad(position.x, position.y, 350.f, 100.f, true);
+
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+
+	shader->enable();
+
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_model", model);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture",Texture::Get("data/texture.tga"), 0);
+
+	//quad->render(GL_TRIANGLES);
+	shader->disable();
+
 }
 
 void NightStage::debugZombies()

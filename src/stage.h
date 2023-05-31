@@ -63,6 +63,8 @@ public:
 
 	void onEnter();
 	void render();
+	void renderCrosshair();
+
 	void update(float dt);
 
 	void playerTurnUpdate();
