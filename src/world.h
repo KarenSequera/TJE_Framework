@@ -59,6 +59,8 @@ public:
 
 	// Menus
 	Mesh* option_quads[3];
+	Vector2 option_uses_pos[3];
+
 	Camera* camera2D;
 
 	std::unordered_map<std::string, Menu*> menus;

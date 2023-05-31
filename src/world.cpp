@@ -259,7 +259,7 @@ void World::hurtPlayer(weaponType weapon)
 
 	if (player->mitigates)
 	{
-		damage -= player->mitigates;
+		damage = max(damage - player->mitigates, 0);
 		player->mitigates = 0;
 	}
 
@@ -310,8 +310,12 @@ int World::useConsumable(consumableType consumable)
 	{
 		int to_add = consumable_stats[consumable];
 
-		if(!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true)) return 2;
-		player->consumables[consumable]--;
+		if(!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true))
+			return 2;
+
+		if(!unlimited_everything)
+			player->consumables[consumable]--;
+
 		return 0;
 	}
 	else return 1;
@@ -745,12 +749,23 @@ void World::createMenus(std::string filename)
 
 void World::resizeOptions(float width, float height)
 {
+	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_x = 0.25 * width;
 	float size_y = size_x * 100.f / 350.f;
 
 	float offset = 0.05 * height;
 
-	option_quads[0]->createQuad(3 * size_x, 3*size_y + 2*offset, size_x, size_y, true);
-	option_quads[1]->createQuad(3 * size_x, 2*size_y + offset, size_x, size_y, true);
-	option_quads[2]->createQuad(3 * size_x, size_y, size_x, size_y, true);
+	option_uses_pos[0] = Vector2(3 * size_x, 3 * size_y + 2 * offset);
+	option_uses_pos[1] = Vector2(3 * size_x, 2 * size_y + offset);
+	option_uses_pos[2] = Vector2(3 * size_x, 1 * size_y);
+
+	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
+	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
+	option_quads[2]->createQuad(option_uses_pos[2].x, option_uses_pos[2].y, size_x, size_y, true);
+
+	for (int i = 0; i < 3; i++)
+	{
+		option_uses_pos[i].x += 0.1 * width;
+		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
+	}
 }

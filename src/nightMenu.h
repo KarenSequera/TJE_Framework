@@ -17,7 +17,8 @@ public:
 	Texture* selected_texture;
 
 	void render(bool selected, int menu_pos);
-
+	virtual void renderUses(float x, float y) {};
+	
 	//Returns whether the option selected triggers a change of turn from player to zombie
 	virtual bool onSelect() { return false; };
 };
@@ -28,6 +29,7 @@ public:
 	consumableType c_type;
 
 	ConsumableMenuEntity(Texture* normal_texture, Texture* selected, consumableType type);
+	void renderUses(float x, float y);
 	bool onSelect();
 };
 
@@ -37,6 +39,7 @@ public:
 	weaponType w_type;
 
 	WeaponMenuEntity(Texture* normal_texture, Texture* selected, weaponType type);
+	void renderUses(float x, float y);
 	bool onSelect();
 };
 
@@ -46,6 +49,7 @@ public:
 	defensiveType d_type;
 
 	DefensiveMenuEntity(Texture* normal_texture, Texture* selected, defensiveType type);
+	void renderUses(float x, float y);
 	bool onSelect();
 };
 

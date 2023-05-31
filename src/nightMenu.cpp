@@ -25,12 +25,22 @@ void MenuEntity::render(bool selected, int menu_pos)
 
 	World::inst->option_quads[menu_pos]->render(GL_TRIANGLES);
 	shader->disable();
+	
+	float x = World::inst->option_uses_pos[menu_pos].x;
+	float y = World::inst->option_uses_pos[menu_pos].y;
+
+	renderUses(x,y);
 }
 
 ConsumableMenuEntity::ConsumableMenuEntity(Texture* normal_texture, Texture* selected, consumableType type)
 	: MenuEntity(normal_texture, selected)
 {
 	c_type = type;
+}
+
+void ConsumableMenuEntity::renderUses(float x, float y)
+{
+	drawText(x, y, std::to_string(World::inst->getConsumableQuant(c_type)), Vector3(1.f, 1.f, 1.f), 2);
 }
 
 bool ConsumableMenuEntity::onSelect()
@@ -46,6 +56,15 @@ WeaponMenuEntity::WeaponMenuEntity(Texture* normal_texture, Texture* selected, w
 {
 	w_type = type;
 }
+
+void WeaponMenuEntity::renderUses(float x, float y)
+{
+	if (w_type == FISTS)
+		return;
+
+	drawText(x, y, std::to_string(World::inst->getWeaponUses(w_type)), Vector3(1.f, 1.f, 1.f), 2);
+}
+
 
 bool WeaponMenuEntity::onSelect()
 {
@@ -68,18 +87,27 @@ DefensiveMenuEntity::DefensiveMenuEntity(Texture* normal_texture, Texture* selec
 	d_type = type;
 }
 
+void DefensiveMenuEntity::renderUses(float x, float y)
+{
+	if (d_type == ARMS)
+		return;
+	
+	drawText(x, y, std::to_string(World::inst->getDefItemUses(d_type)), Vector3(1.f, 1.f, 1.f), 2);
+}
+
 bool DefensiveMenuEntity::onSelect()
 {
-	if (World::inst->unlimited_everything || World::inst->getDefItemUses(d_type))
+	if (World::inst->unlimited_everything || d_type == ARMS || World::inst->getDefItemUses(d_type))
 	{
-		//TODO:
 		World::inst->defend(d_type);
+		return true;
+
 	}
 	else {
 		//TODO -> make a function or something that resets a timer in the world, when it is not 0 a message will be shown.
 		//World::inst->errorMessage("You don't have enough of that item!");
 	}
-	return true;
+	return false;
 }
 
 GeneralMenuEntity::GeneralMenuEntity(Texture* normal_texture, Texture* selected, std::string in_goto)
