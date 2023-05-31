@@ -63,7 +63,8 @@ public:
 
 	void onEnter();
 	void render();
-	void renderCrosshair();
+	void renderCrosshair(Shader* shader);
+	void renderHealthBars(Shader* shader);
 
 	void update(float dt);
 
@@ -72,7 +73,7 @@ public:
 	void playerTurnRender();
 	void zombieTurnRender();
 
-	void renderHealthBar(int zombie_number);
+	
 
 	void debugZombies();
 
