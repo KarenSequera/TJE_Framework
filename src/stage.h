@@ -72,6 +72,8 @@ public:
 	void playerTurnRender();
 	void zombieTurnRender();
 
+	void renderHealthBar(int zombie_number);
+
 	void debugZombies();
 
 	void newTurn();
