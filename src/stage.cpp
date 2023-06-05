@@ -31,7 +31,7 @@ void DayStage::onEnter()
 {
 	// TODO: add the shield that has been left off from the night
 
-	camera->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
+	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
@@ -167,8 +167,8 @@ void DayStage::updateMovement(float dt){
 			//printf("%f %f %f\n", collision.colNormal.x, collision.colNormal.y, collision.colNormal.z);
 
 			new_dir = new_dir * collision.colNormal;
-			World::inst->player->velocity.x -= new_dir.x;
-			World::inst->player->velocity.z -= new_dir.z;
+			World::inst->player->velocity.x = (World::inst->player->velocity.x-new_dir.x)*0.5;
+			World::inst->player->velocity.z = (World::inst->player->velocity.z-new_dir.z)*0;
 		}
 		World::inst->player->velocity.y = 0.f;
 

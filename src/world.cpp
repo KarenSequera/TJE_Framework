@@ -26,10 +26,7 @@ World::World() {
 
 	selected_option = 0;
 
-	Entity* entity;
-	Shader* shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
-
-	parseSceneDay("data/myscene.scene");
+	parseSceneDay("data/dayscene.scene");
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/zombies/zombie_info.txt", z_info);
@@ -411,8 +408,8 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 */
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
-	Vector3 center = target_pos - Vector3(0.f, 0.5f, 0.f);
-	float sphere_rad = 5.f;
+	Vector3 center = target_pos - Vector3(0.f, 7.0f, 0.f);
+	float sphere_rad = 25.f;
 	Vector3 colPoint, colNormal;
 
 	for (auto& entity : day_root->children)
