@@ -49,10 +49,7 @@ void NightStage::render()
 
 	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 	shader->enable();
-	Matrix44 identity;
-	identity.setIdentity();
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_model", identity);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 
 	if(World::inst->ready_to_attack)
