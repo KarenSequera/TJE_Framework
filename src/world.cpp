@@ -112,7 +112,7 @@ void World::parseItemEntities(const char* filename)
 			ItemEntity* item = new ItemEntity(
 				Mesh::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
-				Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"),
+				Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"),
 				itemType(item_type),
 				subtype);
 
@@ -185,7 +185,7 @@ void World::parseSceneDay(const char* filename)
 		// Create instanced entity
 		if (render_data.models.size() > 1) {
 			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
-				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs"), true, false, false);
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"), true, false, false);
 
 			// Add all instances
 			new_entity->models = render_data.models;
@@ -195,7 +195,7 @@ void World::parseSceneDay(const char* filename)
 		else{
 			// Create normal entity
 			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
-			Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"), false, false, false);
+			Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false, false);
 
 			new_entity->model_matrix = render_data.models[0];
 			new_entity->models.push_back(render_data.models[0]);

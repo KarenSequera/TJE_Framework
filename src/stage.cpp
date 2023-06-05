@@ -31,14 +31,14 @@ void DayStage::onEnter()
 {
 	// TODO: add the shield that has been left off from the night
 
-	Camera::current->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
+	camera->lookAt(Vector3(0.0f, 135.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
 }
 
 void DayStage::render() {
-	World::inst->player->position = Camera::current->eye;
+	World::inst->player->position = camera->eye;
 
 	for (auto& entity : World::inst->day_entities) {
 		entity->render();
@@ -331,13 +331,13 @@ void NightStage::render()
 void NightStage::renderCrosshair()
 {
 	Matrix44 model = World::inst->wave[selected_target]->getGlobalMatrix();
-	Vector4 position = Camera::current->viewprojection_matrix * Vector4(model.getTranslation(), 1.0);
+	Vector3 position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_width);
 
-	position.x = (position.x / position.z);// * 0.5 * Game::instance->window_width;
-	position.y = (position.y / position.z);// * 0.5 * Game::instance->window_height;
+	//position.x = (position.x / position.z);// * 0.5 * Game::instance->window_width;
+	//position.y = (position.y / position.z);// * 0.5 * Game::instance->window_height;
 	
-	Mesh* quad = new Mesh();
-	quad->createQuad(position.x, position.y, 350.f, 100.f, true);
+	Mesh quad;
+	quad.createQuad(position.x, position.y, 350.f, 100.f, true);
 
 	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 
