@@ -71,6 +71,8 @@
     </ClCompile>
     <ClCompile Include="..\..\src\worldEntities.cpp" />
     <ClCompile Include="..\..\src\nightMenu.cpp" />
+    <ClCompile Include="..\..\src\dayStage.cpp" />
+    <ClCompile Include="..\..\src\nightStage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -142,6 +144,8 @@
       <Filter>extra</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\nightMenu.h" />
+    <ClInclude Include="..\..\src\dayStage.h" />
+    <ClInclude Include="..\..\src\nightStage.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">

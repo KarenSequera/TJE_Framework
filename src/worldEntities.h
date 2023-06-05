@@ -23,6 +23,7 @@ enum zombieType { STANDARD, THUG, POLICEMAN, SOLDIER, NOTHING = -1 };
 
 struct zombieInfo
 {
+	int max_health;
 	int health;
 	weaponType weapon;
 	weaponType weakness;
@@ -37,10 +38,7 @@ public:
 
 	zombieType type;
 	zombieInfo info;
-	bool selected;
-
 	
-
 	ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model);
 
 	int getMultiplier(weaponType weapon);

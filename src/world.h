@@ -48,8 +48,6 @@ public:
 	};
 
 	//Night variables 
-	Entity* night_root;
-	std::vector<Entity*> night_entities;
 	std::vector<ZombieEntity*> wave;
 	int zombies_alive;
 

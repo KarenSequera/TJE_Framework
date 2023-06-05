@@ -35,6 +35,7 @@ void parseZombieInfo(const char* filename, zombieInfo* z_info)
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
+		z_info[z_type].max_health = std::stoi(tokens[1]);
 		z_info[z_type].health = std::stoi(tokens[1]);
 		z_info[z_type].weapon = weaponType(std::stoi(tokens[2]));
 		z_info[z_type].weakness = weaponType(std::stoi(tokens[3]));
@@ -49,7 +50,6 @@ ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model
 	mesh = Mesh::Get("data/zombies/zombie.obj");
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	type = z_type;
-	selected = false;
 	model_matrix = model;
 	info = z_info[z_type];
 	texture = Texture::Get(z_info->texture_path.c_str());

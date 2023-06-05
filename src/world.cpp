@@ -21,9 +21,6 @@ World::World() {
 	day_root = new Entity();
 	day_entities.push_back(day_root);
 
-	night_root = new Entity();
-	night_entities.push_back(night_root);
-
 	selected_option = 0;
 
 	parseSceneDay("data/dayscene.scene");
@@ -547,9 +544,6 @@ void  World::spawnerInit()
 
 void World::generateZombies(int num_night) 
 {
-
-	night_root->children.clear();
-	night_root->addChild(player);
 	wave.clear();
 	ZombieEntity* zombie;
 	
@@ -567,14 +561,12 @@ void World::generateZombies(int num_night)
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
 		}
-		night_root->addChild(zombie);
 		wave.push_back(zombie);
 	}
 
 	zombies_alive = NUM_ZOMBIES_WAVE;
 
 };
-
 
 int World::hurtZombie(int zombie_idx)
 {
