@@ -294,14 +294,16 @@ void NightStage::onEnter() {
 	World::inst->generateZombies(cur_night);
 	World* inst = World::inst;
 	is_player_turn = true;
+	selected_target = 0;
 
 	//TODO: adjust formula so that it is enjoyable
 	turns_to_day = 10 + (cur_night % 5) * 10;
 
 	cur_night++;
-	
+	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
-	camera->lookAt(World::inst->night_models[0].getTranslation() ,World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
+	camera->Camera::current;
+
 
 }
 
@@ -311,13 +313,27 @@ void NightStage::render()
 	{
 		entity->render();
 	}
-	renderCrosshair();
+	
 
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
-	
+
+
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	Matrix44 identity;
+	identity.setIdentity();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_model", identity);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+	renderCrosshair(shader);
+	renderHealthBars(shader);
+
+	shader->disable();
+
 	if (is_player_turn)
 	{
 		playerTurnRender();
@@ -328,29 +344,79 @@ void NightStage::render()
 	}
 }
 
-void NightStage::renderCrosshair()
+void NightStage::renderCrosshair(Shader* shader)
 {
-	Matrix44 model = World::inst->wave[selected_target]->getGlobalMatrix();
-	Vector3 position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_width);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//position.x = (position.x / position.z);// * 0.5 * Game::instance->window_width;
-	//position.y = (position.y / position.z);// * 0.5 * Game::instance->window_height;
+	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
+
+	Vector3 position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
 	
 	Mesh quad;
-	quad.createQuad(position.x, position.y, 350.f, 100.f, true);
+	quad.createQuad(position.x, position.y + 50, 50.f, 50.f, true);
 
-	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair.tga"), 0);
+	quad.render(GL_TRIANGLES);
+	glDisable(GL_BLEND);
+}
 
-	shader->enable();
 
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_model", model);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	shader->setUniform("u_texture",Texture::Get("data/texture.tga"), 0);
+void NightStage::renderHealthBars(Shader* shader)
+{
+	//TO DO: FUNCTION THAT RENDERS THE QUAD CONTAIING THE HEALTH BAR
+	Mesh quad1;
+	Mesh quad2;
+	Matrix44 model;
+	Vector3 position;
+	//TODO, AN ENUM WITH THE TOTAL HEALTH OF EACH TYPE OF ZOMBIE
+	int total_health = 200;
 
-	//quad->render(GL_TRIANGLES);
-	shader->disable();
 
+
+	//HEALTH BAR OF THE PLAYER
+	model = World::inst->player->model_matrix;
+	position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
+
+	//Creation of the first quad, the background one.
+	quad1.createQuad(position.x, position.y, 50.f, 10.f, true);
+
+	//Creation of the second quad. This one contains the life information. 
+	int actual_health = (World::inst->player->health);
+	float greenBarWidth = 50.f * actual_health / 100;
+	float offset = (50.f - greenBarWidth) * 0.5f;
+	quad2.createQuad(position.x - offset, position.y, +greenBarWidth, 10.f, true);
+
+
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/greenTexture.tga"), 0);
+	quad2.render(GL_TRIANGLES);
+
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/redTexture.tga"), 0);
+	quad1.render(GL_TRIANGLES);
+	
+	//Health bar of the zombies
+	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++){
+
+		model = World::inst->wave[i]->model_matrix;
+		position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
+
+		//Creation of the first quad, the background one.
+		quad1.createQuad(position.x, position.y, 50.f, 10.f, true);
+
+		//Creation of the second quad. This one contains the life information. 
+		int actual_health = (World::inst->wave[i]->info.health);
+		float greenBarWidth = 50.f * actual_health / 100;
+		float offset = (50.f - greenBarWidth) * 0.5f;
+		quad2.createQuad(position.x - offset, position.y, +greenBarWidth, 10.f, true);
+
+
+		shader->setUniform("u_texture", Texture::Get("data/NightTextures/greenTexture.tga"), 0);
+		quad2.render(GL_TRIANGLES);
+
+		shader->setUniform("u_texture", Texture::Get("data/NightTextures/redTexture.tga"), 0);
+		quad1.render(GL_TRIANGLES);
+
+	}
 }
 
 void NightStage::debugZombies()
