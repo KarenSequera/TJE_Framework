@@ -1,7 +1,4 @@
 #pragma once
-
-#define DRIFT_THRESHOLD 0.01
-
 #include <vector>
 #include "world.h"
 
@@ -11,7 +8,6 @@ public:
 
 	Camera* camera;
 	
-	bool finished;
 	bool mouse_locked;
 
 	//ctor
@@ -24,44 +20,10 @@ public:
 	virtual void update(float dt) {};
 };
 
-class DayStage : public Stage {
+class GameOverStage : public Stage
+{
 public:
-
-	float gamepad_sensitivity;
-
-	const char* consumable_names[NUM_CONSUMABLES - NUM_SHIELD_ITEMS] = 
-		{"Burger ", "Canned Beans ", "Apple ", "First-aid Kit ", "Painkillers ", "Bandages "};
-
-	consumableType consumable_selected;
-	float time_remaining;
-
-	DayStage();
-
-	void onEnter();
+	GameOverStage() {};
 	void render();
-	void renderConsumableMenu();
-	void update(float dt);
-	void updateMovement(float dt);
-	void updateItemsAndStats();
-};
-
-class NightStage : public Stage {
-public:
-
-	NightStage();
-
-	int number_nights;
-	int number_turns; 
-	bool is_player_turn;
-
-	//Variable that contains the index of the selected zombie
-	// -1 if we are not in target selection
-	int selected_target;
-
-	void onEnter();
-	void render();
-	void update(float dt);
-	void player_turn();
-	void zombies_turn();
-
+	void update(float dt) {};
 };

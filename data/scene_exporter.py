@@ -47,7 +47,6 @@ with open(filepath, 'w') as f:
         round_val = 5
 
         # Export matrix data (Change Y and Z axis and scale translation by global scale)
-        
         correction_matrix = axis_conversion(to_forward='-Z', to_up='Y',).to_4x4()
         correction_matrix_inv = correction_matrix.inverted()
         

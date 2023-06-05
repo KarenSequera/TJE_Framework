@@ -20,7 +20,7 @@ ItemEntity::ItemEntity(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, it
 	}
 };
 
-void parse_zombie_info(const char* filename, zombieInfo* z_info)
+void parseZombieInfo(const char* filename, zombieInfo* z_info)
 {
 
 	std::ifstream file(filename);
@@ -35,23 +35,49 @@ void parse_zombie_info(const char* filename, zombieInfo* z_info)
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
+		z_info[z_type].max_health = std::stoi(tokens[1]);
 		z_info[z_type].health = std::stoi(tokens[1]);
 		z_info[z_type].weapon = weaponType(std::stoi(tokens[2]));
 		z_info[z_type].weakness = weaponType(std::stoi(tokens[3]));
-		z_info[z_type].invulnerable_to = weaponType(std::stoi(tokens[3]));
+		z_info[z_type].invulnerable_to = weaponType(std::stoi(tokens[4]));
 		z_info[z_type].texture_path = tokens[5];
 	}
 }
 
 // ZombieEntity------------------------------------------------------------------------------------------------------------------------------
-ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info)
+ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model)
 {
 	mesh = Mesh::Get("data/zombies/zombie.obj");
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	type = z_type;
-	selected = false;
-
+	model_matrix = model;
 	info = z_info[z_type];
 	texture = Texture::Get(z_info->texture_path.c_str());
 
 }
+
+int ZombieEntity::getMultiplier(weaponType weapon) 
+{
+	if (weapon == info.invulnerable_to)
+	{
+		std::cout << "The zombie is invulnerable, better luck next time (if u survive ;) )";
+		return 0;
+	}
+	else if (weapon == info.weakness)
+	{
+		std::cout << "THAT was super effective, DO IT AGAIN!";
+		return 2;
+	}
+	else
+	{
+		std::cout << "Kinda dull...  The zombie took some damage tho";
+		return 1;
+	}
+}
+
+
+
+bool ZombieEntity::alive()
+{
+	return (info.health > 0);
+} 

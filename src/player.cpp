@@ -4,11 +4,12 @@ Player::Player() {
 	health = MAX_HEALTH;
 	shield = 0;
 	hunger = MAX_HUNGER;
+	mitigates = 0;
 
 	// Render related
 	mesh = Mesh::Get("data/pruebas/advanced.obj");
 	texture = Texture::Get("data/pruebas/skin.tga");
-	shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
+	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
 	//All the inventory is set to zero
 	int i;
@@ -30,7 +31,7 @@ void Player::addWeaponUses(weaponType type, int uses)
 {
 	weapon_uses[type] += uses;
 	#if DEBUG
-	printf("%d %d\n", type, weapon_uses[type]);
+	printf("weapon %d %d\n", type, weapon_uses[type]);
 	#endif
 }
 
@@ -39,7 +40,7 @@ void Player::addDefUses(defensiveType type, int uses)
 {
 	def_uses[type] += uses;
 	#if DEBUG
-	printf("%d %d\n", type, def_uses[type]);
+	printf("defensive %d %d\n", type, def_uses[type]);
 	#endif
 }
 

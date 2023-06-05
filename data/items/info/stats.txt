@@ -1,5 +1,5 @@
-burger,beans,apple,aid_kit,painkiller,bandages,vest,helmet
-stat,50,25,10,50,25,10,20,10
+bandages,painkiller,aid_kit,apple,beans,burger,vest,helmet
+stat,10,25,50,10,25,50,10,20
 
 fists,bat,knife,gun
 stat,5,10,25,50

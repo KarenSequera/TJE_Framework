@@ -23,6 +23,7 @@ enum zombieType { STANDARD, THUG, POLICEMAN, SOLDIER, NOTHING = -1 };
 
 struct zombieInfo
 {
+	int max_health;
 	int health;
 	weaponType weapon;
 	weaponType weakness;
@@ -30,16 +31,16 @@ struct zombieInfo
 	std::string texture_path;
 };
 
-void parse_zombie_info(const char* filename, zombieInfo* z_info);
+void parseZombieInfo(const char* filename, zombieInfo* z_info);
 
 class ZombieEntity : public EntityMesh {
 public:
 
 	zombieType type;
 	zombieInfo info;
-	bool selected;
 	
+	ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model);
 
-	ZombieEntity(zombieType z_type, zombieInfo* z_info);
-
+	int getMultiplier(weaponType weapon);
+	bool alive();
 };
