@@ -8,11 +8,16 @@
  
 NightStage::NightStage() : Stage()
 {
+	mouse_locked = true;
+
 	cur_night = 0;
 	is_player_turn = true;
 
 	selected_target = 0;
 	turns_to_day = 0;
+
+	free_cam_enabled = false;
+	n_angle = 0.f;
 }
 
 void NightStage::onEnter() {
@@ -32,8 +37,6 @@ void NightStage::onEnter() {
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
-
-
 }
 
 void NightStage::render()
@@ -197,8 +200,17 @@ void NightStage::update(float dt)
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_U))
 		World::inst->unlimited_everything = !World::inst->unlimited_everything;
-#endif
+	else if (Input::wasKeyPressed(SDL_SCANCODE_G))
+	{
+		if(free_cam_enabled)
+			Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
+		free_cam_enabled = !free_cam_enabled;
+	}
 
+	if (free_cam_enabled)
+		cameraUpdate(dt);
+
+#else
 	if (is_player_turn)
 	{
 		playerTurnUpdate();
@@ -207,9 +219,10 @@ void NightStage::update(float dt)
 	{
 		zombieTurnUpdate();
 	}
+#endif
 }
 
-void NightStage::playerTurnUpdate() 
+void NightStage::playerTurnUpdate(float dt)
 {
 	// if null pointer, the user has chosen to attack
 	if (World::inst->ready_to_attack)
@@ -267,7 +280,7 @@ void NightStage::playerTurnUpdate()
 	#endif
 };
 
-void NightStage::zombieTurnUpdate() 
+void NightStage::zombieTurnUpdate(float dt)
 {
 	int num_zombies = World::inst->wave.size();
 
@@ -292,6 +305,32 @@ void NightStage::zombieTurnUpdate()
 	World::inst->changeMenu("general");
 	newTurn();
 	return;
+}
+
+void NightStage::cameraUpdate(float dt)
+{
+	float speed = dt * 1000.f; //the speed is defined by the seconds_elapsed so it goes constant
+
+	//example
+	n_angle += (float)dt * 10.0f;
+
+	//mouse input to rotate the cam
+	if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked) //is left button pressed?
+	{
+		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
+		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
+	}
+
+	//async input to move the camera around
+	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
+	if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) camera->move(Vector3(0.0f, 0.0f, -1.0f) * speed);
+	if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
+	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) camera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);
+
+	//to navigate with the mouse fixed in the middle
+	if(mouse_locked)
+		Input::centerMouse();
+
 }
 
 void NightStage::newTurn() 

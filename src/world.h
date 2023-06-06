@@ -56,6 +56,8 @@ public:
 	weaponType weapon;
 
 	// Menus
+	float window_width;
+	float window_height;
 	Mesh* option_quads[3];
 	Vector2 option_uses_pos[3];
 

@@ -7,8 +7,8 @@ Player::Player() {
 	mitigates = 0;
 
 	// Render related
-	mesh = Mesh::Get("data/pruebas/advanced.obj");
-	texture = Texture::Get("data/pruebas/skin.tga");
+	mesh = Mesh::Get("data/characters/character.MESH");
+	texture = Texture::Get("data/characters/player.tga");
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
 	//All the inventory is set to zero

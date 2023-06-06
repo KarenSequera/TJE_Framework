@@ -738,6 +738,9 @@ void World::createMenus(std::string filename)
 
 void World::resizeOptions(float width, float height)
 {
+	window_width = width;
+	window_height = height;
+
 	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_x = 0.25 * width;
 	float size_y = size_x * 100.f / 350.f;
