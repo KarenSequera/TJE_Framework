@@ -8,14 +8,20 @@ ItemEntity::ItemEntity(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, it
 	switch (item_type) {
 		case  WEAPON:
 			weapon_type = weaponType(subtype);
+			defensive_type = defensiveType(0);
+			consumable_type = consumableType(0);
 			break;
 
 		case  DEFENSIVE:
+			weapon_type = weaponType(0);
 			defensive_type = defensiveType(subtype);
+			consumable_type = consumableType(0);
 			break;
 
 		case  CONSUMABLE:
+			weapon_type = weaponType(0);
 			consumable_type = consumableType(subtype);
+			defensive_type = defensiveType(0);
 			break;
 	}
 };
@@ -47,13 +53,17 @@ void parseZombieInfo(const char* filename, zombieInfo* z_info)
 // ZombieEntity------------------------------------------------------------------------------------------------------------------------------
 ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model)
 {
-	mesh = Mesh::Get("data/zombies/zombie.obj");
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	mesh = Mesh::Get("data/characters/character.MESH");
+	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
 	type = z_type;
 	model_matrix = model;
 	info = z_info[z_type];
 	texture = Texture::Get(z_info->texture_path.c_str());
+	
+	anim_manager = new AnimationManager();
+	anim_manager->fillZombieAnimations();
 
+	idle_state = ZOMBIE_IDLE;
 }
 
 int ZombieEntity::getMultiplier(weaponType weapon) 
@@ -74,8 +84,6 @@ int ZombieEntity::getMultiplier(weaponType weapon)
 		return 1;
 	}
 }
-
-
 
 bool ZombieEntity::alive()
 {

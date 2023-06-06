@@ -33,12 +33,12 @@ struct zombieInfo
 
 void parseZombieInfo(const char* filename, zombieInfo* z_info);
 
-class ZombieEntity : public EntityMesh {
+class ZombieEntity : public AnimatedEntity {
 public:
 
 	zombieType type;
 	zombieInfo info;
-	
+
 	ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model);
 
 	int getMultiplier(weaponType weapon);

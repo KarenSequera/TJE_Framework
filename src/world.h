@@ -72,7 +72,10 @@ public:
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
 	//Animation
-	AnimationManager* zombie_anim_manager;
+	bool player_idle;
+	bool zombies_idle;
+	
+	int zombie_hurt;
 
 	World();
 	

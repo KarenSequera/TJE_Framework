@@ -1,0 +1,4 @@
+standard,100,0,-1,-1,data/texture.tga
+thug,100,2,3,2,data/texture.tga
+policeman,100,3,2,-1,data/texture.tga
+soldier,100,3,1,3,data/texture.tga

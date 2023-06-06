@@ -27,6 +27,8 @@ Player::Player() {
 	for (i = 0; i < NUM_CONSUMABLES; ++i) {
 		consumables[i] = 0;
 	}
+
+	idle_state = PLAYER_IDLE;
 }
 
 //	Adds weapon uses

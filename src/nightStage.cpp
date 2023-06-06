@@ -19,9 +19,6 @@ NightStage::NightStage() : Stage()
 	free_cam_enabled = false;
 	n_angle = 0.f;
 
-	player_anim_time = 0.f;
-	zombie_anim_time = 0.f;
-
 	to_day = false;
 }
 
@@ -224,14 +221,7 @@ void NightStage::update(float dt)
 	if (free_cam_enabled)
 		cameraUpdate(dt);
 
-	else if(player_anim_time > 0)
-	{
-		player_anim_time -= dt;
-
-		if (player_anim_time <= 0)
-			World::inst->playerToState(PLAYER_IDLE, 1.f);
-	}
-	else
+	else if(World::inst->player_idle || World::inst->zombies_idle)
 	{
 		if (is_player_turn)
 		{
@@ -241,6 +231,9 @@ void NightStage::update(float dt)
 		{
 			zombieTurnUpdate(dt);
 		}
+	}
+	else
+	{
 	}
 
 #else
