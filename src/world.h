@@ -71,6 +71,8 @@ public:
 	//Night model information 
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
+	//Animation
+	AnimationManager* zombie_anim_manager;
 
 	World();
 	
@@ -125,4 +127,7 @@ public:
 
 	bool selectOption();
 	void createMenus(std::string filename);
+
+	// ANIMATION RELATED
+	void updateAnimations(float dt);
 };

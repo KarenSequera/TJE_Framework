@@ -6,6 +6,8 @@
 #include "texture.h"
 #include "shader.h"
 
+#include "animationManager.h"
+
 #include <vector> 
 
 class Entity {
@@ -57,4 +59,12 @@ public:
 	bool is_dynamic;
 
 	EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, bool is_instanced, bool dynamic, bool moves = true);
+};
+
+class AnimatedEntity : public EntityMesh {
+public:
+	AnimationManager* anim_manager;
+	AnimatedEntity() { anim_manager = nullptr; };
+
+	void render();
 };

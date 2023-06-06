@@ -9,7 +9,10 @@ Player::Player() {
 	// Render related
 	mesh = Mesh::Get("data/characters/character.MESH");
 	texture = Texture::Get("data/characters/player.tga");
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
+
+	anim_manager = new AnimationManager();
+	anim_manager->fillPlayerAnimations();
 
 	//All the inventory is set to zero
 	int i;

@@ -23,7 +23,7 @@ World::World() {
 
 	selected_option = 0;
 
-	parseSceneDay("data/dayscene.scene");
+	parseSceneDay("data/myscene.scene");
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/zombies/zombie_info.txt", z_info);
@@ -760,4 +760,11 @@ void World::resizeOptions(float width, float height)
 		option_uses_pos[i].x += 0.1 * width;
 		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
 	}
+}
+
+void World::updateAnimations(float dt)
+{
+	player->anim_manager->update(dt);
+	/*for(auto& zombie : wave)
+		zombie*/
 }

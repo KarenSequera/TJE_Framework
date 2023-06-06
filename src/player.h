@@ -21,7 +21,7 @@ enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD};
 enum affectingStat { HEALTH, HUNGER, SHIELD};
 
 // all classes related to stages
-class Player : public EntityMesh{
+class Player : public AnimatedEntity{
 public:
 	
 	Vector3 position;

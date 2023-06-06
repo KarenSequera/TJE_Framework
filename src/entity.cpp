@@ -136,3 +136,32 @@ EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_
 {
 	is_dynamic = dynamic;
 }
+
+void AnimatedEntity::render()
+{
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	Camera* camera = Camera::current;
+
+	if (shader)
+	{
+		//enable shader
+		shader->enable();
+
+		//upload uniforms
+		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		shader->setUniform("u_texture", texture, 0);
+		shader->setUniform("u_model", getGlobalMatrix());
+		shader->setUniform("u_time", time);
+
+		//do the draw call
+		mesh->renderAnimated(GL_TRIANGLES, &anim_manager->getCurrentSkeleton());
+
+		//disable shader
+		shader->disable();
+	}
+	Entity::render();
+}

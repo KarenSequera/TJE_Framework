@@ -193,7 +193,7 @@ void NightStage::zombieTurnRender() {
 
 void NightStage::update(float dt)
 {
-	
+	World::inst->updateAnimations(dt);
 #if DEBUG
 	if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("day");
