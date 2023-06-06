@@ -130,4 +130,6 @@ public:
 
 	// ANIMATION RELATED
 	void updateAnimations(float dt);
+	void playerToState(int state, float time = 0.f);
+	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
 };

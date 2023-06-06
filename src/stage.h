@@ -27,3 +27,4 @@ public:
 	void render();
 	void update(float dt) {};
 };
+

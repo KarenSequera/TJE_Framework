@@ -165,3 +165,8 @@ void AnimatedEntity::render()
 	}
 	Entity::render();
 }
+
+float AnimatedEntity::toState(int state, float time)
+{
+	anim_manager->goToState(state, time);
+}

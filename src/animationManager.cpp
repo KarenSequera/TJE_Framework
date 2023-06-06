@@ -12,7 +12,14 @@ AnimationManager::AnimationManager()
 
 void AnimationManager::fillPlayerAnimations()
 {
-    addAnimationState("data/characters/idle_player.skanim", PLAYER_IDLE);
+    addAnimationState("data/characters/animations/player/idle.skanim", PLAYER_IDLE);
+    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_PUNCH);
+    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_BAT);
+    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_KNIFE);
+    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_GUN);
+    
+    cur_state = PLAYER_IDLE;
+    //addAnimationState("data/characters/animaciones/player/", PLAYER_PUNCH);
 }
 
 void AnimationManager::addAnimationState(const char* path, int state) {
@@ -29,6 +36,9 @@ void AnimationManager::goToState(int state, float time)
     }
     if (target_state == state)
         return;
+    
+    target_state = state;
+    transition_time = time;
 }
 
 void AnimationManager::update(float dt)
@@ -41,6 +51,7 @@ void AnimationManager::update(float dt)
         transition_counter += dt;
 
         if (transition_counter >= transition_time) {
+            transition_counter = 0.f;
             cur_state = target_state;
             target_state = -1;
             return;

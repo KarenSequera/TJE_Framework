@@ -578,7 +578,7 @@ int World::hurtZombie(int zombie_idx)
 
 	if (!zombie->alive())
 		killZombie(zombie_idx);
-	
+
 	return multiplier;
 }
 
@@ -762,9 +762,15 @@ void World::resizeOptions(float width, float height)
 	}
 }
 
+// Animation related
 void World::updateAnimations(float dt)
 {
 	player->anim_manager->update(dt);
 	/*for(auto& zombie : wave)
 		zombie*/
+}
+
+void World::playerToState(int state, float time)
+{
+	player->toState(state, time);
 }

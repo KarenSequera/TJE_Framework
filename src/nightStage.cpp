@@ -18,6 +18,11 @@ NightStage::NightStage() : Stage()
 
 	free_cam_enabled = false;
 	n_angle = 0.f;
+
+	player_anim_time = 0.f;
+	zombie_anim_time = 0.f;
+
+	to_day = false;
 }
 
 void NightStage::onEnter() {
@@ -79,10 +84,12 @@ void NightStage::renderCrosshair(Shader* shader)
 
 	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
 
-	Vector3 position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
-	
+	Vector3 position = model.getTranslation();
+	position.y += 100.f;
+	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
+
 	Mesh quad;
-	quad.createQuad(position.x, position.y + 50, 50.f, 50.f, true);
+	quad.createQuad(position.x, position.y, 50.f, 50.f, true);
 
 	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair.tga"), 0);
 	quad.render(GL_TRIANGLES);
@@ -122,7 +129,10 @@ void NightStage::renderHealthBars(Shader* shader)
 	float ratio = (float) actual_health / total_health;
 
 	model = World::inst->player->model_matrix;
-	position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
+
+	position = model.getTranslation();
+	position.y -= 25.f;
+	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	renderHealthBar(position, ratio, shader);
 	
@@ -130,7 +140,10 @@ void NightStage::renderHealthBars(Shader* shader)
 	for (auto& zombie : World::inst->wave){
 
 		model = zombie->model_matrix;
-		position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
+
+		position = model.getTranslation();
+		position.y -= 15.f;
+		position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 		total_health = zombie->info.max_health;
 		actual_health = zombie->info.health;
@@ -194,6 +207,7 @@ void NightStage::zombieTurnRender() {
 void NightStage::update(float dt)
 {
 	World::inst->updateAnimations(dt);
+
 #if DEBUG
 	if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("day");
@@ -210,20 +224,43 @@ void NightStage::update(float dt)
 	if (free_cam_enabled)
 		cameraUpdate(dt);
 
-#else
-	if (is_player_turn)
+	else if(player_anim_time > 0)
 	{
-		playerTurnUpdate();
+		player_anim_time -= dt;
+
+		if (player_anim_time <= 0)
+			World::inst->playerToState(PLAYER_IDLE, 1.f);
 	}
 	else
 	{
-		zombieTurnUpdate();
+		if (is_player_turn)
+		{
+			playerTurnUpdate(dt);
+		}
+		else
+		{
+			zombieTurnUpdate(dt);
+		}
+	}
+
+#else
+	if (is_player_turn)
+	{
+		playerTurnUpdate(dt);
+	}
+	else
+	{
+		zombieTurnUpdate(dt);
 	}
 #endif
 }
 
 void NightStage::playerTurnUpdate(float dt)
 {
+
+	if(to_day)
+		StageManager::inst->changeStage("day");
+
 	// if null pointer, the user has chosen to attack
 	if (World::inst->ready_to_attack)
 	{
@@ -235,10 +272,10 @@ void NightStage::playerTurnUpdate(float dt)
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 			int result = World::inst->hurtZombie(selected_target);
-			
-			if (World::inst->zombies_alive <= 0) {
-				StageManager::inst->changeStage("day");
-			}
+
+			if (World::inst->zombies_alive <= 0)
+				// Turn flag on to go to day whenever the animation finishes
+				to_day = true;
 
 			// if the attack is not super effective then we move onto the zombie's turn
 			if(result != 2)

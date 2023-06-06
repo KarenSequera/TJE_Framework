@@ -12,9 +12,13 @@ public:
 	int cur_night;
 	int turns_to_day; 
 	bool is_player_turn;
+	bool to_day;
 
 	bool free_cam_enabled;
 	float n_angle;
+
+	float player_anim_time;
+	float zombie_anim_time;
 
 	//Variable that contains the index of the selected zombie
 	// -1 if we are not in target selection

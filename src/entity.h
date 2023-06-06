@@ -67,4 +67,5 @@ public:
 	AnimatedEntity() { anim_manager = nullptr; };
 
 	void render();
+	float toState(int state, float time = 0.f);
 };

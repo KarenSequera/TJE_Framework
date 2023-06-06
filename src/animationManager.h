@@ -4,7 +4,13 @@
 
 #include <vector>
 
-enum playerStates{PLAYER_IDLE};
+enum playerStates { 
+	PLAYER_PUNCH, 
+	PLAYER_BAT, 
+	PLAYER_KNIFE,
+	PLAYER_GUN, 
+	PLAYER_IDLE };
+
 enum zombieStates{ZOMBIE_IDLE};
 
 // all classes related to stages
