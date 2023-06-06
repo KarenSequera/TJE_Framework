@@ -31,7 +31,7 @@ void DayStage::onEnter()
 {
 	// TODO: add the shield that has been left off from the night
 
-	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
+	camera->lookAt(Vector3(-500.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;

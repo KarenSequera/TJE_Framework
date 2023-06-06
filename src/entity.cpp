@@ -82,11 +82,16 @@ void EntityMesh::render_simple() {
 		shader->enable();
 
 		//upload uniforms
+		shader->setUniform("u_model", model_matrix);
+
 		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
-		shader->setUniform("u_model", getGlobalMatrix());
 		shader->setUniform("u_time", time);
+		shader->setUniform("u_camera_pos", camera->center);
+		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 0.9));
+		shader->setUniform("u_light_dir", Vector3(0.0, 0.1, 0.1));
+		shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
 
 		//do the draw call
 		mesh->render(GL_TRIANGLES);
@@ -120,6 +125,11 @@ void EntityMesh::render_instanced() {
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
 		shader->setUniform("u_time", time);
+		shader->setUniform("u_camera_pos", camera->center);
+		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 1.0));
+		shader->setUniform("u_light_dir", Vector3(0.0, 0.75, 0.75));
+		shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
+		
 
 		//do the draw call
 		mesh->renderInstanced(GL_TRIANGLES, models.data(), models.size());
