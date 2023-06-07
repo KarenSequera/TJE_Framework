@@ -24,7 +24,7 @@ World::World() {
 	selected_option = 0;
 
 
-	parseSceneDay("data/myscene.scene");
+	parseSceneDay("data/dayScene.scene");
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
@@ -475,8 +475,9 @@ void  World::parseSpawns(const char* filename)
 	}
 
 	int spawn_count = 0;
+	int stat_type = 0;
 	// Read file line by line and store mesh path and model info in separated variables
-	while (file >> spawn_type >> model_data)
+	while (file >> spawn_type >> stat_type >> model_data)
 	{
 		// Get all 16 matrix floats
 		std::vector<std::string> tokens = tokenize(model_data, ",");
@@ -487,7 +488,7 @@ void  World::parseSpawns(const char* filename)
 			model.m[t] = (float)atof(tokens[t].c_str());
 		}
 
-		EntitySpawner* itemSpawn = new EntitySpawner{ myHashMap[spawn_type], model };
+		EntitySpawner* itemSpawn = new EntitySpawner{ myHashMap[spawn_type], affectingStat(stat_type), model};
 		item_spawns.push_back(itemSpawn);
 		spawn_count++;
 	}
@@ -540,7 +541,17 @@ void  World::spawnerInit()
 				items[DEFENSIVE][selectObject(defensive_probabilities, NUM_DEF)]->models.push_back(spawn->model);
 				break;
 			case  CONSUMABLE:
-				items[CONSUMABLE][selectObject(consumable_probabilities, NUM_CONSUMABLES)]->models.push_back(spawn->model);
+				float probabilities[3];
+				int offset = spawn->affecting_stat * NUM_CONS_PER_TYPE;
+				for (int i = 0; i < NUM_CONS_PER_TYPE; i++)
+				{
+					if (offset + i >= NUM_CONSUMABLES)
+						probabilities[i] = 0.0;
+					else
+						probabilities[i] = consumable_probabilities[offset + i];
+				}
+				int selected = selectObject(probabilities, NUM_CONS_PER_TYPE);
+				items[CONSUMABLE][selected + offset]->models.push_back(spawn->model);
 				break;
 		}
 	}

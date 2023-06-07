@@ -82,7 +82,7 @@ void NightStage::renderCrosshair(Shader* shader)
 	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
 
 	Vector3 position = model.getTranslation();
-	position.y += 100.f;
+	position.y += 200.f;
 	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	Mesh quad;
@@ -221,7 +221,7 @@ void NightStage::update(float dt)
 	if (free_cam_enabled)
 		cameraUpdate(dt);
 
-	else if(World::inst->player_idle || World::inst->zombies_idle)
+	else if(World::inst->player_idle && World::inst->zombies_idle)
 	{
 		if (is_player_turn)
 		{

@@ -16,6 +16,7 @@ public:
 
 struct EntitySpawner {
 	itemType type;
+	affectingStat affecting_stat;
 	Matrix44 model;
 };
 

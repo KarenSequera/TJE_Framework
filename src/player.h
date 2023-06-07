@@ -8,6 +8,7 @@
 #define NUM_ITEMS 3
 #define NUM_WEAPONS 4
 #define NUM_CONSUMABLES 8
+#define NUM_CONS_PER_TYPE 3
 #define NUM_SHIELD_ITEMS 2
 #define NUM_DEF 3
 #define MAX_HUNGER 100
