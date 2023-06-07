@@ -56,6 +56,8 @@ public:
 	weaponType weapon;
 
 	// Menus
+	float window_width;
+	float window_height;
 	Mesh* option_quads[3];
 	Vector2 option_uses_pos[3];
 
@@ -69,6 +71,11 @@ public:
 	//Night model information 
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
+	//Animation
+	bool player_idle;
+	bool zombies_idle;
+	
+	int zombie_hurt;
 
 	World();
 	
@@ -123,4 +130,9 @@ public:
 
 	bool selectOption();
 	void createMenus(std::string filename);
+
+	// ANIMATION RELATED
+	void updateAnimations(float dt);
+	void playerToState(int state, float time = 0.f);
+	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
 };

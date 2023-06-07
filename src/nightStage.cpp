@@ -8,11 +8,18 @@
  
 NightStage::NightStage() : Stage()
 {
+	mouse_locked = true;
+
 	cur_night = 0;
 	is_player_turn = true;
 
 	selected_target = 0;
 	turns_to_day = 0;
+
+	free_cam_enabled = false;
+	n_angle = 0.f;
+
+	to_day = false;
 }
 
 void NightStage::onEnter() {
@@ -32,8 +39,6 @@ void NightStage::onEnter() {
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
-
-
 }
 
 void NightStage::render()
@@ -49,10 +54,7 @@ void NightStage::render()
 
 	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 	shader->enable();
-	Matrix44 identity;
-	identity.setIdentity();
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_model", identity);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 
 	if(World::inst->ready_to_attack)
@@ -79,10 +81,12 @@ void NightStage::renderCrosshair(Shader* shader)
 
 	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
 
-	Vector3 position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
-	
+	Vector3 position = model.getTranslation();
+	position.y += 100.f;
+	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
+
 	Mesh quad;
-	quad.createQuad(position.x, position.y + 50, 50.f, 50.f, true);
+	quad.createQuad(position.x, position.y, 50.f, 50.f, true);
 
 	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair.tga"), 0);
 	quad.render(GL_TRIANGLES);
@@ -122,7 +126,10 @@ void NightStage::renderHealthBars(Shader* shader)
 	float ratio = (float) actual_health / total_health;
 
 	model = World::inst->player->model_matrix;
-	position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
+
+	position = model.getTranslation();
+	position.y -= 25.f;
+	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	renderHealthBar(position, ratio, shader);
 	
@@ -130,7 +137,10 @@ void NightStage::renderHealthBars(Shader* shader)
 	for (auto& zombie : World::inst->wave){
 
 		model = zombie->model_matrix;
-		position = camera->project(model.getTranslation(), Game::instance->window_width, Game::instance->window_height);
+
+		position = model.getTranslation();
+		position.y -= 15.f;
+		position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 		total_health = zombie->info.max_health;
 		actual_health = zombie->info.health;
@@ -193,27 +203,57 @@ void NightStage::zombieTurnRender() {
 
 void NightStage::update(float dt)
 {
-	
+	World::inst->updateAnimations(dt);
+
 #if DEBUG
 	if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("day");
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_U))
 		World::inst->unlimited_everything = !World::inst->unlimited_everything;
-#endif
-
-	if (is_player_turn)
+	else if (Input::wasKeyPressed(SDL_SCANCODE_G))
 	{
-		playerTurnUpdate();
+		if(free_cam_enabled)
+			Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
+		free_cam_enabled = !free_cam_enabled;
+	}
+
+	if (free_cam_enabled)
+		cameraUpdate(dt);
+
+	else if(World::inst->player_idle || World::inst->zombies_idle)
+	{
+		if (is_player_turn)
+		{
+			playerTurnUpdate(dt);
+		}
+		else
+		{
+			zombieTurnUpdate(dt);
+		}
 	}
 	else
 	{
-		zombieTurnUpdate();
 	}
+
+#else
+	if (is_player_turn)
+	{
+		playerTurnUpdate(dt);
+	}
+	else
+	{
+		zombieTurnUpdate(dt);
+	}
+#endif
 }
 
-void NightStage::playerTurnUpdate() 
+void NightStage::playerTurnUpdate(float dt)
 {
+
+	if(to_day)
+		StageManager::inst->changeStage("day");
+
 	// if null pointer, the user has chosen to attack
 	if (World::inst->ready_to_attack)
 	{
@@ -225,10 +265,10 @@ void NightStage::playerTurnUpdate()
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 			int result = World::inst->hurtZombie(selected_target);
-			
-			if (World::inst->zombies_alive <= 0) {
-				StageManager::inst->changeStage("day");
-			}
+
+			if (World::inst->zombies_alive <= 0)
+				// Turn flag on to go to day whenever the animation finishes
+				to_day = true;
 
 			// if the attack is not super effective then we move onto the zombie's turn
 			if(result != 2)
@@ -270,7 +310,7 @@ void NightStage::playerTurnUpdate()
 	#endif
 };
 
-void NightStage::zombieTurnUpdate() 
+void NightStage::zombieTurnUpdate(float dt)
 {
 	int num_zombies = World::inst->wave.size();
 
@@ -295,6 +335,32 @@ void NightStage::zombieTurnUpdate()
 	World::inst->changeMenu("general");
 	newTurn();
 	return;
+}
+
+void NightStage::cameraUpdate(float dt)
+{
+	float speed = dt * 1000.f; //the speed is defined by the seconds_elapsed so it goes constant
+
+	//example
+	n_angle += (float)dt * 10.0f;
+
+	//mouse input to rotate the cam
+	if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked) //is left button pressed?
+	{
+		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
+		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
+	}
+
+	//async input to move the camera around
+	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
+	if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) camera->move(Vector3(0.0f, 0.0f, -1.0f) * speed);
+	if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
+	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) camera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);
+
+	//to navigate with the mouse fixed in the middle
+	if(mouse_locked)
+		Input::centerMouse();
+
 }
 
 void NightStage::newTurn() 

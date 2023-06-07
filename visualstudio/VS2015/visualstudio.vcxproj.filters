@@ -61,18 +61,39 @@
     <ClCompile Include="..\..\src\animation.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\stageManager.cpp" />
-    <ClCompile Include="..\..\src\stage.cpp" />
-    <ClCompile Include="..\..\src\entity.cpp" />
-    <ClCompile Include="..\..\src\player.cpp" />
-    <ClCompile Include="..\..\src\world.cpp" />
     <ClCompile Include="..\..\src\our_utils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\worldEntities.cpp" />
-    <ClCompile Include="..\..\src\nightMenu.cpp" />
-    <ClCompile Include="..\..\src\dayStage.cpp" />
-    <ClCompile Include="..\..\src\nightStage.cpp" />
+    <ClCompile Include="..\..\src\stage.cpp">
+      <Filter>our game\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\stageManager.cpp">
+      <Filter>our game\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\nightStage.cpp">
+      <Filter>our game\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dayStage.cpp">
+      <Filter>our game\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\entity.cpp">
+      <Filter>our game\entities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\worldEntities.cpp">
+      <Filter>our game\entities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\player.cpp">
+      <Filter>our game\entities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\animationManager.cpp">
+      <Filter>our game\entities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\nightMenu.cpp">
+      <Filter>our game\entities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\world.cpp">
+      <Filter>our game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -131,21 +152,42 @@
     <ClInclude Include="..\..\src\animation.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\stage.h" />
-    <ClInclude Include="..\..\src\stageManager.h" />
-    <ClInclude Include="..\..\src\entity.h" />
-    <ClInclude Include="..\..\src\player.h" />
-    <ClInclude Include="..\..\src\world.h" />
     <ClInclude Include="..\..\src\our_utils.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\worldEntities.h" />
     <ClInclude Include="..\..\src\extra\bass.h">
       <Filter>extra</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\nightMenu.h" />
-    <ClInclude Include="..\..\src\dayStage.h" />
-    <ClInclude Include="..\..\src\nightStage.h" />
+    <ClInclude Include="..\..\src\stageManager.h">
+      <Filter>our game\stages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\stage.h">
+      <Filter>our game\stages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\nightStage.h">
+      <Filter>our game\stages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dayStage.h">
+      <Filter>our game\stages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\entity.h">
+      <Filter>our game\entities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\worldEntities.h">
+      <Filter>our game\entities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\player.h">
+      <Filter>our game\entities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\animationManager.h">
+      <Filter>our game\entities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\nightMenu.h">
+      <Filter>our game\entities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\world.h">
+      <Filter>our game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
@@ -159,6 +201,15 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{feb78646-9d96-43df-8d00-2397429ea3ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="our game">
+      <UniqueIdentifier>{94c17098-49b8-46be-b4a1-dce285c89080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="our game\entities">
+      <UniqueIdentifier>{7f0b4709-d42d-480d-a15a-43db89fb3be6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="our game\stages">
+      <UniqueIdentifier>{ad183ed7-90ba-4293-98e2-b2675e810f8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

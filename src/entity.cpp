@@ -136,3 +136,71 @@ EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_
 {
 	is_dynamic = dynamic;
 }
+
+AnimatedEntity::AnimatedEntity()
+{
+	anim_manager = nullptr;
+	idle = true;
+	animation_time = 0.f;
+	idle_state = 0;
+}
+
+void AnimatedEntity::render()
+{
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	Camera* camera = Camera::current;
+
+	if (shader)
+	{
+		//enable shader
+		shader->enable();
+
+		//upload uniforms
+		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		shader->setUniform("u_texture", texture, 0);
+		shader->setUniform("u_model", getGlobalMatrix());
+		shader->setUniform("u_time", time);
+
+		//do the draw call
+		mesh->renderAnimated(GL_TRIANGLES, &anim_manager->getCurrentSkeleton());
+
+		//disable shader
+		shader->disable();
+	}
+	Entity::render();
+}
+
+// Returns: wheter the entity is idle
+bool AnimatedEntity::updateAnim(float dt)
+{
+	anim_manager->update(dt);
+	
+	if (idle)
+		return true;
+
+	animation_time -= dt;
+
+	if (!idle) {
+
+		if (animation_time <= 0.f)
+		{
+			anim_manager->goToState(idle_state, 1.f);
+			idle = true;
+		}
+		else if((animation_time - anim_manager->states[anim_manager->cur_state]->duration / 2.f) <= 0.f)
+			return true;
+		return false;
+	}
+
+	return false;
+}
+
+void AnimatedEntity::toState(int state, float time)
+{
+	animation_time = anim_manager->goToState(state, time);
+	idle = false;
+}

@@ -19,7 +19,6 @@ void MenuEntity::render(bool selected, int menu_pos)
 	shader->enable();
 
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_model", model);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 	shader->setUniform("u_texture", selected ? selected_texture : normal_texture, 0);
 

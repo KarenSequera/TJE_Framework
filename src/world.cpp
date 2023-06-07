@@ -23,10 +23,11 @@ World::World() {
 
 	selected_option = 0;
 
-	parseSceneDay("data/dayscene.scene");
+
+	parseSceneDay("data/myscene.scene");
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
-	parseZombieInfo("data/zombies/zombie_info.txt", z_info);
+	parseZombieInfo("data/characters/zombie_info.txt", z_info);
 
 	createMenus("data/menus/menus.txt");
 	changeMenu("general");
@@ -45,6 +46,11 @@ World::World() {
 
 	ready_to_attack = false;
 	unlimited_everything = false;
+
+	player_idle = true;
+	zombies_idle = true;
+
+	zombie_hurt = 0;
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -578,7 +584,12 @@ int World::hurtZombie(int zombie_idx)
 
 	if (!zombie->alive())
 		killZombie(zombie_idx);
-	
+
+	player_idle = false;
+	player->toState(weapon, 1.f);
+
+	zombie_hurt = zombie_idx;
+
 	return multiplier;
 }
 
@@ -586,9 +597,11 @@ void World::killZombie(int zombie_idx)
 {
 	if (zombie_idx >= 0 && zombie_idx < zombies_alive )
 	{
-		printf("|| zombie killed \n");
+		ZombieEntity* zombie = wave[zombie_idx];
 		wave.erase(std::next(wave.begin(), zombie_idx));
 		zombies_alive--;
+		delete zombie->anim_manager;
+		delete zombie;
 	}
 }
 
@@ -738,6 +751,9 @@ void World::createMenus(std::string filename)
 
 void World::resizeOptions(float width, float height)
 {
+	window_width = width;
+	window_height = height;
+
 	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_x = 0.25 * width;
 	float size_y = size_x * 100.f / 350.f;
@@ -757,4 +773,32 @@ void World::resizeOptions(float width, float height)
 		option_uses_pos[i].x += 0.1 * width;
 		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
 	}
+}
+
+// Animation related
+void World::updateAnimations(float dt)
+{
+	bool player_gone_idle = player->updateAnim(dt);
+	
+	// if the player was not able, but they are now:
+	if (!player_idle && player_gone_idle)
+	{
+		wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
+		player_idle = true;
+	}
+	
+	bool accumulative = false;
+	bool local;
+	for (auto& zombie : wave)
+	{
+		local = zombie->updateAnim(dt);
+		accumulative = accumulative || local;
+	}
+	if(!zombies_idle && accumulative)
+		zombies_idle = accumulative;
+}
+
+void World::playerToState(int state, float time)
+{
+	player->toState(state, time);
 }
