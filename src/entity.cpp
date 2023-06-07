@@ -214,3 +214,8 @@ void AnimatedEntity::toState(int state, float time)
 	animation_time = anim_manager->goToState(state, time);
 	idle = false;
 }
+
+Skeleton::Bone* AnimatedEntity::getBone(const char* name)
+{
+	return anim_manager->getCurrentSkeleton().getBone(name);
+}

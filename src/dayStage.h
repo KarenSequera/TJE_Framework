@@ -21,6 +21,7 @@ public:
 	DayStage();
 
 	void onEnter();
+	void onExit();
 	void render();
 	void renderConsumableMenu();
 	void update(float dt);

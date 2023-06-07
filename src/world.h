@@ -35,6 +35,8 @@ public:
 
 	std::vector<std::vector<ItemEntity*>> items;
 
+	EntityMesh* weapons[NUM_WEAPONS];
+
 	//arrays containing the probabilities
 	float weapon_probabilities[NUM_WEAPONS] = { 0.0, 0.4, 0.4, 0.2 };
 	float consumable_probabilities[NUM_CONSUMABLES] = {0.5, 0.375, 0.125, 0.5, 0.375, 0.125, 0.6, 0.4};
@@ -135,5 +137,6 @@ public:
 	// ANIMATION RELATED
 	void updateAnimations(float dt);
 	void playerToState(int state, float time = 0.f);
+	void renderNight();
 	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
 };

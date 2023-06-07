@@ -34,6 +34,11 @@ void DayStage::onEnter()
 	time_remaining = DAY_TIME;
 }
 
+void DayStage::onExit()
+{
+	World::inst->clearItems();
+}
+
 void DayStage::render() {
 	World::inst->player->position = camera->eye;
 

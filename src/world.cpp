@@ -147,8 +147,9 @@ void World::parseSceneDay(const char* filename)
 		std::cerr << "Scene [ERROR]" << " File not found!" << std::endl;
 	}
 
+	int i = 0;
 	std::string scene_info, mesh_name, model_data;
-	for (int i = 0; i < 2; i++) {
+	for (i = 0; i < 2; i++) {
 		file >> scene_info;
 	}
 
@@ -173,6 +174,8 @@ void World::parseSceneDay(const char* filename)
 	}
 
 	// Iterate through meshes loaded and create corresponding entities
+	// We have 2 loops with more or less the same code, but this will save us conditions in the end
+	int data_size = meshes_to_load.size();
 	for (auto data : meshes_to_load) {
 
 		mesh_name = "data/" + data.first;
@@ -182,7 +185,6 @@ void World::parseSceneDay(const char* filename)
 		if (render_data.models.empty())
 			continue;
 
-		// Create instanced entity
 		if (render_data.models.size() > 1) {
 			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
 				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"), true, false, false);
@@ -192,10 +194,10 @@ void World::parseSceneDay(const char* filename)
 			// Add entity to scene root
 			day_root->addChild(new_entity);
 		}
-		else{
+		else {
 			// Create normal entity
 			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
-			Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false, false);
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false, false);
 
 			new_entity->model_matrix = render_data.models[0];
 			new_entity->models.push_back(render_data.models[0]);
@@ -208,6 +210,7 @@ void World::parseSceneDay(const char* filename)
 
 	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
 }
+
 
 //	Parses a scene from a .scene file
 void World::parseSceneNight(const char* filename)
@@ -540,8 +543,6 @@ void World::clearItems()
 
 void  World::spawnerInit()
 {
-	clearItems();
-
 	for (auto spawn : item_spawns) {
 		switch (spawn->type) {
 			case WEAPON:
@@ -828,4 +829,16 @@ void World::updateAnimations(float dt)
 void World::playerToState(int state, float time)
 {
 	player->toState(state, time);
+}
+
+void World::renderNight()
+{
+	// Player
+	player->render();
+
+	Skeleton::Bone* right_hand = player->getBone("mixamorig_RightHand");
+
+	// Zombies
+	for (auto& zombie : World::inst->wave)
+		zombie->render();
 }

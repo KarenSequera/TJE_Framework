@@ -74,4 +74,5 @@ public:
 	void render();
 	bool updateAnim(float dt, bool* middle);
 	void toState(int state, float time = 0.f);
+	Skeleton::Bone* getBone(const char* name);
 };

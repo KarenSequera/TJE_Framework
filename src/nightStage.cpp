@@ -52,10 +52,8 @@ void NightStage::render()
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
-
-	World::inst->player->render();
-	for (auto& zombie : World::inst->wave)
-		zombie->render();
+	
+	World::inst->renderNight();
 
 	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 	shader->enable();
