@@ -24,7 +24,7 @@ World::World() {
 	selected_option = 0;
 
 
-	parseSceneDay("data/dayScene.scene");
+	parseSceneDay();
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
@@ -132,13 +132,8 @@ struct sRenderData {
 
 std::map<std::string, sRenderData> meshes_to_load;
 
-//	Parses a scene from a .scene file
-void World::parseSceneDay(const char* filename)
+void World::getMeshesToLoad(const char* filename)
 {
-	// You could fill the map manually to add shader and texture for each mesh
-	// If the mesh is not in the map, you can use the MTL file to render its colors
-	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
-
 	std::cout << " + Scene loading: " << filename << "..." << std::endl;
 
 	std::ifstream file(filename);
@@ -147,9 +142,8 @@ void World::parseSceneDay(const char* filename)
 		std::cerr << "Scene [ERROR]" << " File not found!" << std::endl;
 	}
 
-	int i = 0;
 	std::string scene_info, mesh_name, model_data;
-	for (i = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) {
 		file >> scene_info;
 	}
 
@@ -172,10 +166,23 @@ void World::parseSceneDay(const char* filename)
 		render_data.models.push_back(model);
 		mesh_count++;
 	}
+}
+
+//	Parses a scene from a .scene file
+void World::parseSceneDay()
+{
+	// You could fill the map manually to add shader and texture for each mesh
+	// If the mesh is not in the map, you can use the MTL file to render its colors
+	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
 
 	// Iterate through meshes loaded and create corresponding entities
-	// We have 2 loops with more or less the same code, but this will save us conditions in the end
-	int data_size = meshes_to_load.size();
+	// We have 2 loops with more or less the same code, but this will save us conditionals in the end
+
+	getMeshesToLoad("data/dayScene.scene");
+
+	std::string mesh_name, model_data;
+	EntityMesh* new_entity;
+
 	for (auto data : meshes_to_load) {
 
 		mesh_name = "data/" + data.first;
@@ -185,8 +192,9 @@ void World::parseSceneDay(const char* filename)
 		if (render_data.models.empty())
 			continue;
 
+
 		if (render_data.models.size() > 1) {
-			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+			new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
 				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"), true, false, false);
 
 			// Add all instances
@@ -196,7 +204,7 @@ void World::parseSceneDay(const char* filename)
 		}
 		else {
 			// Create normal entity
-			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+			new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
 				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false, false);
 
 			new_entity->model_matrix = render_data.models[0];
@@ -208,7 +216,38 @@ void World::parseSceneDay(const char* filename)
 		
 	}
 
-	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
+	meshes_to_load.clear();
+	getMeshesToLoad("data/dayFloors.scene");
+	for (auto data : meshes_to_load) {
+
+		mesh_name = "data/" + data.first;
+		sRenderData& render_data = data.second;
+
+		// No transforms, anything to do here
+		if (render_data.models.empty())
+			continue;
+
+		if (render_data.models.size() > 1) {
+			new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"), true, false);
+
+			// Add all instances
+			new_entity->models = render_data.models;
+			// Add entity to scene root
+			day_root->addChild(new_entity);
+		}
+		else {
+			// Create normal entity
+			new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false);
+
+			new_entity->model_matrix = render_data.models[0];
+			new_entity->models.push_back(render_data.models[0]);
+
+			// Add entity to scene root
+			day_root->addChild(new_entity);
+		}
+	}
 }
 
 

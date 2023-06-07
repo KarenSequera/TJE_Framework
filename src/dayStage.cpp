@@ -14,7 +14,7 @@ DayStage::DayStage() : Stage() {
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
 
-	sky_shader = Shader::Get("data/shaders/basic.vs", "data/shaders");
+	//sky_shader = Shader::Get("data/shaders/basic.vs", "data/shaders/");
 
 	consumable_selected = BURGER;
 	
