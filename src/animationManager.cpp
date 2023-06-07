@@ -30,7 +30,7 @@ void AnimationManager::fillPlayerAnimations()
 void AnimationManager::fillZombieAnimations()
 {
     addAnimationState("data/characters/animations/zombie/idle.skanim", ZOMBIE_IDLE);
-    addAnimationState("data/characters/animations/zombie/hit_bat.skanim", ZOMBIE_HURT);
+    addAnimationState("data/characters/animations/zombie/hit.skanim", ZOMBIE_HURT);
     cur_state = ZOMBIE_IDLE;
     std::random_device rd;
     std::mt19937 gen(rd());

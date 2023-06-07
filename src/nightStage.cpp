@@ -41,6 +41,11 @@ void NightStage::onEnter() {
 	camera->Camera::current;
 }
 
+void NightStage::onExit()
+{
+	World::inst->applyShields();
+}
+
 void NightStage::render()
 {
 	// render what must be rendered always

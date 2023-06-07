@@ -72,6 +72,6 @@ public:
 	AnimatedEntity() ;
 
 	void render();
-	bool updateAnim(float dt);
+	bool updateAnim(float dt, bool* middle);
 	void toState(int state, float time = 0.f);
 };

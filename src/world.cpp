@@ -33,7 +33,7 @@ World::World() {
 	changeMenu("general");
 
 	//ParseNight 
-	parseSceneNight("data/nightScene.scene");
+	parseSceneNight("data/nightScenePrueba.scene");
 	
 	camera2D = new Camera();
 	camera2D->view_matrix = Matrix44();
@@ -322,6 +322,17 @@ int World::useConsumable(consumableType consumable)
 
 }
 
+void World::applyShields()
+{
+	if (player->shield < MAX_SHIELD)
+	{
+		while (player->consumables[VEST] > 0 && player->shield + consumable_stats[VEST] <= MAX_SHIELD)
+			useConsumable(VEST);
+
+		while (player->consumables[HELMET] > 0 && player->shield + consumable_stats[HELMET] <= MAX_SHIELD)
+			useConsumable(HELMET);
+	}
+}
 
 // DAY  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //	Function that adds one consumable of a specific type to the player's inventory
@@ -600,6 +611,7 @@ int World::hurtZombie(int zombie_idx)
 	player->toState(weapon, 1.f);
 
 	zombie_hurt = zombie_idx;
+	zombies_idle = false;
 
 	return multiplier;
 }
@@ -762,18 +774,16 @@ void World::createMenus(std::string filename)
 
 void World::resizeOptions(float width, float height)
 {
-	window_width = width;
-	window_height = height;
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
-	float size_x = 0.25 * width;
-	float size_y = size_x * 100.f / 350.f;
+	float size_y = 100.f * height / 1080;
+	float size_x = size_y * 350.f / 100.f;
 
 	float offset = 0.05 * height;
-
-	option_uses_pos[0] = Vector2(3 * size_x, 3 * size_y + 2 * offset);
-	option_uses_pos[1] = Vector2(3 * size_x, 2 * size_y + offset);
-	option_uses_pos[2] = Vector2(3 * size_x, 1 * size_y);
+	
+	option_uses_pos[0] = Vector2(0.85 * width, 3 * size_y + 2 * offset);
+	option_uses_pos[1] = Vector2(0.85 * width, 2 * size_y + offset);
+	option_uses_pos[2] = Vector2(0.85 * width, 1 * size_y);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
@@ -789,22 +799,29 @@ void World::resizeOptions(float width, float height)
 // Animation related
 void World::updateAnimations(float dt)
 {
-	bool player_gone_idle = player->updateAnim(dt);
+	bool middle = false;
+	bool player_gone_idle = player->updateAnim(dt, &middle);
 	
 	// if the player was not able, but they are now:
-	if (!player_idle && player_gone_idle)
+	if (!player_idle)
 	{
-		wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
-		player_idle = true;
+		if (middle)
+		{
+			wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
+			zombies_idle = false;
+			player_idle = true;
+		}else if(player_gone_idle)
+			player_idle = true;
 	}
 	
-	bool accumulative = false;
-	bool local;
+	bool accumulative = true;
+	bool local = false;
 	for (auto& zombie : wave)
 	{
-		local = zombie->updateAnim(dt);
-		accumulative = accumulative || local;
+		local = zombie->updateAnim(dt, &middle);
+		accumulative = accumulative && local;
 	}
+
 	if(!zombies_idle && accumulative)
 		zombies_idle = accumulative;
 }

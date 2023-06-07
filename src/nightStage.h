@@ -22,6 +22,7 @@ public:
 	int selected_target;
 
 	void onEnter();
+	void onExit();
 	void render();
 	void renderCrosshair(Shader* shader);
 	void renderHealthBars(Shader* shader);

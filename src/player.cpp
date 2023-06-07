@@ -82,3 +82,4 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 	}
 	return true;
 }
+

@@ -16,6 +16,7 @@ public:
 
 	// Functions that will be overwritten
 	virtual void onEnter() {};
+	virtual void onExit() {};
 	virtual void render() {};
 	virtual void update(float dt) {};
 };

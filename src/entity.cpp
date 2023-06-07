@@ -185,7 +185,7 @@ void AnimatedEntity::render()
 }
 
 // Returns: wheter the entity is idle
-bool AnimatedEntity::updateAnim(float dt)
+bool AnimatedEntity::updateAnim(float dt, bool* middle)
 {
 	anim_manager->update(dt);
 	
@@ -198,11 +198,11 @@ bool AnimatedEntity::updateAnim(float dt)
 
 		if (animation_time <= 0.f)
 		{
-			anim_manager->goToState(idle_state, 1.f);
+			anim_manager->goToState(idle_state, 0.75f);
 			idle = true;
 		}
 		else if((animation_time - anim_manager->states[anim_manager->cur_state]->duration / 2.f) <= 0.f)
-			return true;
+			*middle = true;
 		return false;
 	}
 

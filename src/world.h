@@ -37,7 +37,7 @@ public:
 
 	//arrays containing the probabilities
 	float weapon_probabilities[NUM_WEAPONS] = { 0.0, 0.4, 0.4, 0.2 };
-	float consumable_probabilities[NUM_CONSUMABLES] = {0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
+	float consumable_probabilities[NUM_CONSUMABLES] = {0.5, 0.375, 0.125, 0.5, 0.375, 0.125, 0.6, 0.4};
 	float defensive_probabilities[NUM_DEF] = {0.0,0.666,0.333};
 
 	float zombies_probabilities[DIFICULTY_LEVELS][NUM_ZOMBIE_TYPES] = {
@@ -96,6 +96,7 @@ public:
 	int getDefItemUses(defensiveType def);
 
 	int useConsumable(consumableType consumable);
+	void applyShields();
 	void clearItems();
 	void spawnerInit();
 	
