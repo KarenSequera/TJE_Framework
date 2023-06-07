@@ -14,6 +14,8 @@ DayStage::DayStage() : Stage() {
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
 
+	sky_shader = Shader::Get("data/shaders/basic.vs", "data/shaders");
+
 	consumable_selected = BURGER;
 	
 	time_remaining = DAY_TIME;
@@ -159,7 +161,6 @@ void DayStage::updateMovement(float dt){
 			velocity = World::inst->player->velocity;
 				
 			new_dir = World::inst->player->velocity.dot(collision.colNormal);
-			//printf("%f %f %f\n", collision.colNormal.x, collision.colNormal.y, collision.colNormal.z);
 
 			new_dir = new_dir * collision.colNormal;
 			World::inst->player->velocity.x = (World::inst->player->velocity.x-new_dir.x)*0.5;

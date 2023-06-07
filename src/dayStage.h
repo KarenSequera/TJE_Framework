@@ -7,6 +7,9 @@
 class DayStage : public Stage {
 public:
 
+	Texture sky;
+	Shader* sky_shader;
+
 	float gamepad_sensitivity;
 
 	const char* consumable_names[NUM_CONSUMABLES - NUM_SHIELD_ITEMS] = 

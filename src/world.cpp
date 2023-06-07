@@ -434,7 +434,6 @@ int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisi
 		if (!collision)
 			continue;
 
-
 		for (auto& model : collision->models)
 		{
 			if (!collision->mesh->testSphereCollision(model, center, sphere_rad, colPoint, colNormal))
