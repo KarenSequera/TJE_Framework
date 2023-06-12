@@ -1,17 +1,17 @@
-fists,data/items/item.obj,data/texture.tga
-bat,data/items/item.obj,data/texture.tga
-knife,data/items/item.obj,data/texture.tga
-gun,data/items/item.obj,data/texture.tga
+fists,data/items/item.obj
+bat,data/items/models/bat.obj
+knife,data/items/models/knife.obj
+gun,data/items/models/gun.obj
+arms,data/items/item.obj
+wooden_door,data/items/models/helmet.obj
+metal_shield,data/items//models/armor.obj
 
-burger,data/items/item.obj,data/texture.tga
-canned_beans,data/items/item.obj,data/texture.tga
-apple,data/items/item.obj,data/texture.tga
-aid_kit,data/items/item.obj,data/texture.tga
-painkillers,data/items/item.obj,data/texture.tga
-bandages,data/items/item.obj,data/texture.tga
-vest,data/items/item.obj,data/texture.tga
-helmet,data/items/item.obj,data/texture.tga
+bandages,data/items/models/syring.obj
+painkillers,data/items/models/pill.obj
+aid_kit,data/items/models/firstaidkit.obj
+apple,data/items/models/apple.obj
+canned_beans,data/items/models/can.obj
+burger,data/items/models/burger.obj
+vest,data/items/models/armor.obj
+helmet,data/items/models/helmet.obj
 
-arms,data/items/item.obj,data/texture.tga
-wooden_door,data/items/item.obj,data/texture.tga
-metal_shield,data/items/item.obj,data/texture.tga

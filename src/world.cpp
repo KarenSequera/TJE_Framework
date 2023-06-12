@@ -111,7 +111,7 @@ void World::parseItemEntities(const char* filename)
 
 			ItemEntity* item = new ItemEntity(
 				Mesh::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
+				Texture::Get("data/texture.tga"),
 				Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"),
 				itemType(item_type),
 				subtype);
