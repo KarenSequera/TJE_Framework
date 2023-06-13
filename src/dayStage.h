@@ -24,6 +24,7 @@ public:
 	void onExit();
 	void render();
 	void renderConsumableMenu();
+	void renderSky();
 	void update(float dt);
 	void updateMovement(float dt);
 	void updateItemsAndStats();

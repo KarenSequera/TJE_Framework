@@ -32,6 +32,9 @@ World::World() {
 	createMenus("data/menus/menus.txt");
 	changeMenu("general");
 
+	// Cubemap
+	loadSky();
+
 	//ParseNight 
 	parseSceneNight("data/nightScenePrueba.scene");
 	
@@ -605,6 +608,21 @@ void  World::spawnerInit()
 				break;
 		}
 	}
+}
+
+void World::loadSky()
+{
+	cubemap = new Texture();
+	cubemap->loadCubemap("sky", {
+			"data/cubemap/right.tga",
+			"data/cubemap/left.tga",
+			"data/cubemap/bottom.tga",
+			"data/cubemap/top.tga",
+			"data/cubemap/front.tga",
+			"data/cubemap/back.tga"
+	
+	});
+
 }
 
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

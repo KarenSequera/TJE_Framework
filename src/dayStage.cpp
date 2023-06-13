@@ -40,8 +40,8 @@ void DayStage::onExit()
 }
 
 void DayStage::render() {
-	World::inst->player->position = camera->eye;
 
+	renderSky();
 	for (auto& entity : World::inst->day_entities) {
 		entity->render();
 	}
@@ -59,8 +59,29 @@ void DayStage::render() {
 }
 
 //	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
-void DayStage::renderConsumableMenu() {
+void DayStage::renderConsumableMenu() 
+{
 	drawText(5, 85, consumable_names[consumable_selected] + std::to_string(World::inst->getConsumableQuant(consumable_selected)), Vector3(0.0f, 0.5f, 0.75f), 2);
+}
+
+
+void DayStage::renderSky() 
+{
+	Matrix44 model;
+	model.setTranslation(camera->eye.x, camera->eye.y, camera->eye.z);
+	glDisable(GL_DEPTH_TEST);
+	Mesh* cubemap = Mesh::Get("data/cubemap/cubemap.ASE");
+	Shader* shader = Shader::Get("data/shaders/basic.vs","data/shaders/cubemap.fs");
+	shader->enable();
+	shader->setUniform("u_model", model);
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_camera_position", camera->eye);
+	shader->setUniform("u_sky_texture", World::inst->cubemap, 0);
+	cubemap->render(GL_TRIANGLES);
+
+	shader->disable();
+	glEnable(GL_DEPTH_TEST);
+
 }
 
 void DayStage::update(float dt) {
@@ -174,8 +195,8 @@ void DayStage::updateMovement(float dt){
 		World::inst->player->velocity.y = 0.f;
 
 		World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
+		World::inst->player->model_matrix.setTranslation(World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
 		camera->eye = World::inst->player->position;
-
 
 		World::inst->player->velocity *= 0.15f;
 		move_dir *= 0.15f;
@@ -183,7 +204,7 @@ void DayStage::updateMovement(float dt){
 		if (mouse_locked)
 			Input::centerMouse();
 	}
-
+	
 }
 
 void DayStage::updateItemsAndStats() {

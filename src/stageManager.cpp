@@ -11,7 +11,7 @@ StageManager::StageManager() {
 	stage["night"] = new NightStage();
 	stage["game over"] = new GameOverStage();
 #if DEBUG
-	changeStage("night");
+	changeStage("day");
 #else
 	changeStage("day");
 #endif
