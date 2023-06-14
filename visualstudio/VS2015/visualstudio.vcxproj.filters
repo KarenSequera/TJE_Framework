@@ -94,6 +94,7 @@
     <ClCompile Include="..\..\src\world.cpp">
       <Filter>our game</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\audio.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -188,6 +189,7 @@
     <ClInclude Include="..\..\src\world.h">
       <Filter>our game</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\audio.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">

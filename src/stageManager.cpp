@@ -10,11 +10,13 @@ StageManager::StageManager() {
 	stage["day"] = new DayStage();
 	stage["night"] = new NightStage();
 	stage["game over"] = new GameOverStage();
-#if DEBUG
-	changeStage("day");
-#else
-	changeStage("day");
-#endif
+	cur_stage = stage["day"];
+	cur_stage->onEnter();
+//#if DEBUG
+//	changeStage("night");
+//#else
+//	changeStage("day");
+//#endif
 }
 
 void StageManager::render() {
@@ -24,6 +26,7 @@ void StageManager::render() {
 
 void StageManager::changeStage(std::string go_to)
 {
+	cur_stage->onExit();
 	cur_stage = stage[go_to];
 	cur_stage->onEnter();
 }

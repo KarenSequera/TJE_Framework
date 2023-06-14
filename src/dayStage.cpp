@@ -3,18 +3,17 @@
 #include "camera.h"
 #include "our_utils.h"
 #include "game.h"
+#include "audio.h"
 
 #include <algorithm>
  
 float angle = 0;
 float mouse_speed = 100.0f;
-
+HCHANNEL channel;
 DayStage::DayStage() : Stage() {
 
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
-
-	//sky_shader = Shader::Get("data/shaders/basic.vs", "data/shaders/");
 
 	consumable_selected = BURGER;
 	
@@ -22,12 +21,14 @@ DayStage::DayStage() : Stage() {
 
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
+	
 };
 
 void DayStage::onEnter()
 {
 	// TODO: add the shield that has been left off from the night
-
+	Audio::Init();
+	channel = Audio::Play("data/audio/intro.wav", 1.0, 1);
 	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
@@ -36,7 +37,11 @@ void DayStage::onEnter()
 
 void DayStage::onExit()
 {
+	bool a = Audio::Stop(channel);
+	std::cout << "|||||||||||||||||||||||||1";
+	std::cout << a;
 	World::inst->clearItems();
+	
 }
 
 void DayStage::render() {

@@ -3,6 +3,7 @@
 #include "our_utils.h"
 
 #include "game.h"
+#include "audio.h"
 
 #include <fstream>
 #include <map>
@@ -54,6 +55,9 @@ World::World() {
 	zombies_idle = true;
 
 	zombie_hurt = 0;
+
+	//init audio
+	Audio::Init();
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
