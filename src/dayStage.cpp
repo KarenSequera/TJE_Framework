@@ -40,7 +40,7 @@ void DayStage::onExit()
 }
 
 void DayStage::render() {
-
+	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
 	renderSky();
 	for (auto& entity : World::inst->day_entities) {
 		entity->render();
@@ -189,16 +189,17 @@ void DayStage::updateMovement(float dt){
 			new_dir = World::inst->player->velocity.dot(collision.colNormal);
 
 			new_dir = new_dir * collision.colNormal;
-			World::inst->player->velocity.x = 0.f;
-			World::inst->player->velocity.z = 0.f;
+			World::inst->player->velocity.x = 0;
+			World::inst->player->velocity.z = 0;
 		}
 		World::inst->player->velocity.y = 0.f;
 
 		World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
 		World::inst->player->model_matrix.setTranslation(World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
+	
+		World::inst->player->velocity *= 0.15f;
 		camera->eye = World::inst->player->position;
 
-		World::inst->player->velocity *= 0.15f;
 		move_dir *= 0.15f;
 		//to navigate with the mouse fixed in the middle
 		if (mouse_locked)
