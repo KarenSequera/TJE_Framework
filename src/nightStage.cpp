@@ -71,10 +71,6 @@ void NightStage::render()
 	{
 		playerTurnRender();
 	}
-	else
-	{
-		zombieTurnRender();
-	}
 }
 
 void NightStage::renderCrosshair(Shader* shader)
@@ -155,33 +151,6 @@ void NightStage::renderHealthBars(Shader* shader)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void NightStage::debugZombies()
-{
-	if (World::inst->ready_to_attack) {
-		for (int i = 0; i < World::inst->zombies_alive; i++)
-		{
-			drawText(50 + i * 250, 200, "Z health: " + std::to_string(World::inst->wave[i]->info.health), (selected_target == i) ? Vector3(1.0f, 1.0f, 1.0f) : Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 230, "Invulnerable to: " + std::to_string(World::inst->wave[i]->info.invulnerable_to), Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 260, "Weak to: " + std::to_string(World::inst->wave[i]->info.weakness), Vector3(1.0f, 0.75f, 0.0f), 2);
-
-		}
-	}
-	else
-	{
-		for (int i = 0; i < World::inst->zombies_alive; i++)
-		{
-			drawText(50 + i * 250, 200, "Z health: " + std::to_string(World::inst->wave[i]->info.health), Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 230, "Invulnerable to: " + std::to_string(World::inst->wave[i]->info.invulnerable_to), Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 260, "Weak to: " + std::to_string(World::inst->wave[i]->info.weakness), Vector3(1.0f, 0.75f, 0.0f), 2);
-		}
-	}
-
-	drawText(50, 300, "WEAPONS: -1 nothing, 0 fists, 1 bat, 2 knife, 3 gun", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(50, 330, "W & S: navigate, C: confirm, Z: go back", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(50, 360, "U:unlimited, N:to day", Vector3(1.0f, 0.75f, 0.0f), 2);
-	
-}
-
 void NightStage::playerTurnRender() {
 	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -198,11 +167,6 @@ void NightStage::playerTurnRender() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 }
-
-void NightStage::zombieTurnRender() {
-
-}
-
 
 void NightStage::update(float dt)
 {
@@ -274,7 +238,7 @@ void NightStage::playerTurnUpdate(float dt)
 				to_day = true;
 
 			// if the attack is not super effective then we move onto the zombie's turn
-			if(result != 2)
+			if (result != 2)
 				is_player_turn = false;
 						
 			// otherwise we give the player another action
@@ -295,9 +259,8 @@ void NightStage::playerTurnUpdate(float dt)
 			World::inst->changeOption(1);
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
-			if (World::inst->selectOption()) {
+			if (World::inst->selectOption())
 				is_player_turn = false;
-			}
 		}
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
@@ -317,26 +280,22 @@ void NightStage::zombieTurnUpdate(float dt)
 {
 	int num_zombies = World::inst->wave.size();
 
-	for (int i = 0; i < num_zombies; i++)
+	bool finished = World::inst->zombieAttack(zombie_attacking);
+
+	if (!World::inst->isPlayerAlive())
+		StageManager::inst->changeStage("game over");
+
+	if (finished)
 	{
-
-		//In the turn of the zombies 
-		// The zombies only hurt the player
-
-		int dmg = World::inst->wave[i]->info.dmg;
-
-		World::inst->hurtPlayer(dmg);
-
-		if (!World::inst->isPlayerAlive()) 
+		zombie_attacking++;
+		if (zombie_attacking > num_zombies)
 		{
-			StageManager::inst->changeStage("game over");
-			return;
+			is_player_turn = true;
+			World::inst->changeMenu("general");
+			newTurn();
 		}
-		
 	}
-	is_player_turn = true;
-	World::inst->changeMenu("general");
-	newTurn();
+	
 	return;
 }
 
@@ -375,6 +334,7 @@ void NightStage::newTurn()
 
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
 	World::inst->consumeHunger(10);
-
+	
+	zombie_attacking = 0;
 	selected_target = 0;
 }

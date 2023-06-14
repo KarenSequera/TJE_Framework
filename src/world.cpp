@@ -87,17 +87,23 @@ void World::parseStats(const char* filename) {
 
 void World::parseItemEntities(const char* filename)
 {
+
+	items.resize(NUM_ITEMS);
+	weapon_meshes.resize(NUM_WEAPONS);
+	
 	int i;
-	for (i = 0; i < NUM_ITEMS; i++)
-	{
-		std::vector<ItemEntity*> item;
-		items.push_back(item);
-	}
 
 	int arrs[] = { WEAPON, DEFENSIVE, CONSUMABLE };
 	int sizes[] = { NUM_WEAPONS, NUM_DEF, NUM_CONSUMABLES };
 
-	
+	for (i = 0; i < NUM_ITEMS; i++)
+	{
+		std::vector<ItemEntity*> item_vec;
+		item_vec.resize(sizes[i]);
+		items[i] = item_vec;
+	}
+
+
 	std::ifstream file(filename);
 	if (!file.good()) {
 		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
@@ -119,12 +125,22 @@ void World::parseItemEntities(const char* filename)
 				itemType(item_type),
 				subtype);
 
-			items[item_type].push_back(item);
+			items[item_type][subtype] = item;
+			
 			day_root->addChild(item);
 		}
 		file.ignore(1, '\n');
 	}
 
+	file.ignore(1, '\n');
+	file >> data;
+
+	weapon_meshes[FISTS] = nullptr;
+
+	for (int weapon_type = 1; weapon_type < NUM_WEAPONS; weapon_type++) {
+		file >> data;
+		weapon_meshes[weapon_type] = Mesh::Get(data.c_str());
+	}
 }
 
 struct sRenderData {
@@ -298,10 +314,8 @@ void World::parseSceneNight(const char* filename)
 
 // GENERAL  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //	Hurts the player according to a specific weapon type
-void World::hurtPlayer(weaponType weapon)
+void World::hurtPlayer(int damage)
 {
-	int damage = weapon_dmg[weapon];
-
 	if (player->mitigates)
 	{
 		damage = max(damage - player->mitigates, 0);
@@ -467,8 +481,8 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 */
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
-	Vector3 center = target_pos - Vector3(0.f, 7.0f, 0.f);
-	float sphere_rad = 25.f;
+	Vector3 center = target_pos - Vector3(0.f, 0.0f, 0.f);
+	float sphere_rad = 15.f;
 	Vector3 colPoint, colNormal;
 
 	for (auto& entity : day_root->children)
@@ -614,12 +628,12 @@ void World::loadSky()
 {
 	cubemap = new Texture();
 	cubemap->loadCubemap("sky", {
-			"data/cubemap/right.tga",
-			"data/cubemap/left.tga",
-			"data/cubemap/bottom.tga",
-			"data/cubemap/top.tga",
-			"data/cubemap/front.tga",
-			"data/cubemap/back.tga"
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga"
 	
 	});
 
@@ -641,7 +655,7 @@ void World::generateZombies(int num_night)
 		
 		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
 
-		zombie = new ZombieEntity(type, z_info, night_models[3+i]);
+		zombie = new ZombieEntity(type, z_info[type], night_models[3 + i]);
 
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
@@ -890,12 +904,14 @@ void World::playerToState(int state, float time)
 
 void World::renderNight()
 {
+	Camera* camera = Camera::current;
 	// Player
 	player->render();
 
-	Skeleton::Bone* right_hand = player->getBone("mixamorig_RightHand");
-
 	// Zombies
 	for (auto& zombie : World::inst->wave)
+	{
 		zombie->render();
+		zombie->renderWeapon(weapon_meshes[zombie->info.weapon], camera);
+	}
 }

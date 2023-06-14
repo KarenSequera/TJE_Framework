@@ -20,6 +20,7 @@ public:
 	//Variable that contains the index of the selected zombie
 	// -1 if we are not in target selection
 	int selected_target;
+	int zombie_attacking;
 
 	void onEnter();
 	void onExit();
@@ -34,9 +35,6 @@ public:
 	void zombieTurnUpdate(float dt);
 	void cameraUpdate(float dt);
 	void playerTurnRender();
-	void zombieTurnRender();
-
-	void debugZombies();
 
 	void newTurn();
 
