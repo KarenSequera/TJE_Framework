@@ -2,6 +2,7 @@ fists,data/items/item.obj
 bat,data/items/models/bat.obj
 knife,data/items/models/knife.obj
 gun,data/items/models/gun.obj
+
 arms,data/items/item.obj
 wooden_door,data/items/models/helmet.obj
 metal_shield,data/items//models/armor.obj
@@ -15,3 +16,7 @@ burger,data/items/models/burger.obj
 vest,data/items/models/armor.obj
 helmet,data/items/models/helmet.obj
 
+data/items/item.obj
+data/items/models/bat.obj
+data/items/models/knife_weapon.obj
+data/items/models/gun_weapon.obj

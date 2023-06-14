@@ -306,7 +306,7 @@ void NightStage::playerTurnUpdate(float dt)
 
 	#if DEBUG	
 	if (Input::wasKeyPressed(SDL_SCANCODE_J))
-		World::inst->hurtPlayer(KNIFE);
+		World::inst->hurtPlayer(20);
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_K))
 		World::inst->consumeHunger(10);
@@ -323,9 +323,9 @@ void NightStage::zombieTurnUpdate(float dt)
 		//In the turn of the zombies 
 		// The zombies only hurt the player
 
-		weaponType weapon = World::inst->wave[i]->info.weapon;
+		int dmg = World::inst->wave[i]->info.dmg;
 
-		World::inst->hurtPlayer(weapon);
+		World::inst->hurtPlayer(dmg);
 
 		if (!World::inst->isPlayerAlive()) 
 		{

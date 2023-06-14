@@ -12,9 +12,12 @@ enum playerStates {
 	PLAYER_IDLE 
 };
 
-enum zombieStates{
-	ZOMBIE_IDLE,
-	ZOMBIE_HURT
+enum zombieStates {
+	ZOMBIE_HURT = -2,
+	ZOMBIE_IDLE = -1,
+	ZOMBIE_PUNCH = 0,
+	ZOMBIE_KNIFE = 2,
+	ZOMBIE_GUN = 3
 };
 
 // all classes related to stages

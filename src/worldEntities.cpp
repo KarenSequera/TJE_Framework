@@ -1,4 +1,5 @@
 #include "worldEntities.h"
+#include "world.h"
 #include <fstream>
 
 ItemEntity::ItemEntity(Mesh* in_mesh, Texture* in_texture, Shader* in_shader, itemType i_type, int subtype) :
@@ -43,25 +44,27 @@ void parseZombieInfo(const char* filename, zombieInfo* z_info)
 
 		z_info[z_type].max_health = std::stoi(tokens[1]);
 		z_info[z_type].health = std::stoi(tokens[1]);
-		z_info[z_type].weapon = weaponType(std::stoi(tokens[2]));
-		z_info[z_type].weakness = weaponType(std::stoi(tokens[3]));
-		z_info[z_type].invulnerable_to = weaponType(std::stoi(tokens[4]));
-		z_info[z_type].texture_path = tokens[5];
+		z_info[z_type].dmg = std::stoi(tokens[2]);
+		z_info[z_type].weapon = weaponType(std::stoi(tokens[3]));
+		z_info[z_type].weakness = weaponType(std::stoi(tokens[4]));
+		z_info[z_type].invulnerable_to = weaponType(std::stoi(tokens[5]));
+		z_info[z_type].texture_path = tokens[6];
 	}
 }
 
 // ZombieEntity------------------------------------------------------------------------------------------------------------------------------
-ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model)
+ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model)
 {
 	mesh = Mesh::Get("data/characters/character.MESH");
 	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
 	type = z_type;
 	model_matrix = model;
-	info = z_info[z_type];
-	texture = Texture::Get(z_info->texture_path.c_str());
+	info = z_info;
+	texture = Texture::Get(z_info.texture_path.c_str());
 	
 	anim_manager = new AnimationManager();
 	anim_manager->fillZombieAnimations();
+
 
 	idle_state = ZOMBIE_IDLE;
 }

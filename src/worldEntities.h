@@ -26,6 +26,7 @@ struct zombieInfo
 {
 	int max_health;
 	int health;
+	int dmg;
 	weaponType weapon;
 	weaponType weakness;
 	weaponType invulnerable_to;
@@ -40,7 +41,7 @@ public:
 	zombieType type;
 	zombieInfo info;
 
-	ZombieEntity(zombieType z_type, zombieInfo* z_info, Matrix44 model);
+	ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model);
 
 	int getMultiplier(weaponType weapon);
 	bool alive();

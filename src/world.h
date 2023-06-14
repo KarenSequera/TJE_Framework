@@ -34,8 +34,7 @@ public:
 	std::vector<EntitySpawner*> item_spawns;
 
 	std::vector<std::vector<ItemEntity*>> items;
-
-	EntityMesh* weapons[NUM_WEAPONS];
+	std::vector<Mesh*> weapon_meshes;
 
 	Texture* cubemap;
 
@@ -93,7 +92,7 @@ public:
 	
 
 	// General logic
-	void hurtPlayer(weaponType weapon);
+	void hurtPlayer(int damage);
 	void consumeHunger(int quant);
 
 	int getConsumableQuant(consumableType consumable);

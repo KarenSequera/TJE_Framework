@@ -72,7 +72,8 @@ public:
 	AnimatedEntity() ;
 
 	void render();
+	void renderWeapon(Mesh* mesh, Camera* camera);
 	bool updateAnim(float dt, bool* middle);
 	void toState(int state, float time = 0.f);
-	Skeleton::Bone* getBone(const char* name);
+	Matrix44 getBoneMatrix(const char* name);
 };

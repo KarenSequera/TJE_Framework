@@ -129,11 +129,9 @@ void EntityMesh::render_instanced() {
 		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 1.0));
 		shader->setUniform("u_light_dir", Vector3(0.0, 0.75, 0.75));
 		shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
-		
 
 		//do the draw call
 		mesh->renderInstanced(GL_TRIANGLES, models.data(), models.size());
-
 		//disable shader
 		shader->disable();
 	}
@@ -184,6 +182,37 @@ void AnimatedEntity::render()
 	Entity::render();
 }
 
+void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera) {
+
+	if (!mesh)
+		return;
+
+	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
+
+	// get model
+	Matrix44 model = this->getBoneMatrix("mixamorig_RightHandIndex2");
+
+	model = model * model_matrix;
+
+	Vector3 pos = model.getTranslation() + Vector3(20.f, 0.f, 10.f);
+	model.setTranslation(pos, false);
+
+	shader->enable();
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_texture", texture, 0);
+	shader->setUniform("u_time", time);
+	shader->setUniform("u_model", model);
+	shader->setUniform("u_camera_pos", camera->center);
+	shader->setUniform("u_light_color", Vector3(1.0, 1.0, 1.0));
+	shader->setUniform("u_light_dir", Vector3(0.0, 0.75, 0.75));
+	shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
+
+	mesh->render(GL_TRIANGLES);
+
+	shader->disable();
+}
+
 // Returns: wheter the entity is idle
 bool AnimatedEntity::updateAnim(float dt, bool* middle)
 {
@@ -215,7 +244,7 @@ void AnimatedEntity::toState(int state, float time)
 	idle = false;
 }
 
-Skeleton::Bone* AnimatedEntity::getBone(const char* name)
+Matrix44 AnimatedEntity::getBoneMatrix(const char* name)
 {
-	return anim_manager->getCurrentSkeleton().getBone(name);
+	return anim_manager->getCurrentSkeleton().getBoneMatrix(name, false);
 }

@@ -19,7 +19,6 @@ StageManager::StageManager() {
 
 void StageManager::render() {
 	cur_stage->render();
-
 }
 
 void StageManager::changeStage(std::string go_to)
