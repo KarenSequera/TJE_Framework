@@ -189,8 +189,8 @@ void DayStage::updateMovement(float dt){
 			new_dir = World::inst->player->velocity.dot(collision.colNormal);
 
 			new_dir = new_dir * collision.colNormal;
-			World::inst->player->velocity.x = (World::inst->player->velocity.x-new_dir.x)*0.5;
-			World::inst->player->velocity.z = (World::inst->player->velocity.z-new_dir.z)*0;
+			World::inst->player->velocity.x = 0.f;
+			World::inst->player->velocity.z = 0.f;
 		}
 		World::inst->player->velocity.y = 0.f;
 
