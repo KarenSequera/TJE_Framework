@@ -680,11 +680,17 @@ int World::hurtZombie(int zombie_idx)
 
 	player->addWeaponUses(weapon, -1);
 
-	if (!zombie->alive())
-		removeZombie(zombie_idx);
 
 	idle = false;
-	player->toState(weapon, 0.75f);
+	float delay = player->toState(weapon, 0.75f) / 2;
+	
+	if (multiplier == 1)
+		zombie->toStateDelayed(ZOMBIE_HURT, delay, 0.75);
+	else if(multiplier == 2)
+		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, 0.75);
+
+	if (!zombie->alive())
+		removeZombie(zombie_idx);
 
 	// TODO: DELETE COMMENTS
 	//player_idle = false;

@@ -67,7 +67,7 @@ void NightStage::render()
 
 	shader->disable();
 
-	if (is_player_turn)
+	if (is_player_turn && World::inst->idle)
 	{
 		playerTurnRender();
 	}

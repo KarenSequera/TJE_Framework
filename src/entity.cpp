@@ -216,10 +216,16 @@ void AnimatedEntity::updateAnim(float dt)
 	anim_manager->update(dt);
 }
 
-void AnimatedEntity::toState(int state, float time)
+float AnimatedEntity::toState(int state, float time)
 {
-	anim_manager->goToState(state, time);
+	return anim_manager->goToState(state, time);
 }
+
+void AnimatedEntity::toStateDelayed(int state, float to_start, float time)
+{
+	anim_manager->goToStateDelayed(state, to_start, time);
+}
+
 
 Matrix44 AnimatedEntity::getBoneMatrix(const char* name)
 {

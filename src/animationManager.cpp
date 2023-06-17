@@ -4,8 +4,8 @@
 AnimationManager::AnimationManager()
 {
 	cur_state = 0;
-	target_state = -1;
-    delayed_target_state = -1;
+	target_state = -9999;
+    delayed_target_state = -9999;
 
     cur_time = 0.f;
     target_time = 0.f;
@@ -57,21 +57,26 @@ void AnimationManager::addAnimationState(const char* path, int state) {
     states[state] = Animation::Get(path);
 }
 
-void AnimationManager::goToState(int state, float time)
+float AnimationManager::goToState(int state, float time)
 {
+    float anim_duration = states[state]->duration;
+
     if (time == 0.f)
     {
         cur_state = state;
+        return 0.0;
     }
 
     if (target_state == state)
-        return;
+        return 0.0;
 
     target_state = state;
     transition_time = time;
 
-    if (state != IDLE && state != PLAYER_DEFEND)
-        goToStateDelayed(IDLE, states[state]->duration + time, time);
+    if (state < IDLE)
+        goToStateDelayed(IDLE, anim_duration + time, time);
+
+    return anim_duration;
 }
 
 
@@ -90,18 +95,16 @@ void AnimationManager::update(float dt)
 
     states[cur_state]->assignTime(cur_time);
 
-
     if (time_to_start > 0.f)
     {
         time_to_start -= dt;
         if (time_to_start <= 0.f) {
             goToState(delayed_target_state, delayed_transition_time);
-            delayed_target_state = -1;
             return;
         }
     }
 
-    if (target_state != -1)
+    if (target_state != -9999)
     {
         states[target_state]->assignTime(target_time);
 
@@ -111,7 +114,7 @@ void AnimationManager::update(float dt)
         if (transition_counter >= transition_time) {
             cur_state = target_state;
 
-            target_state = -1;
+            target_state = -9999;
             transition_counter = 0.f;
 
             cur_time = target_time;
@@ -131,12 +134,12 @@ void AnimationManager::update(float dt)
 
 Skeleton& AnimationManager::getCurrentSkeleton()
 {
-    if (target_state != -1)
+    if (target_state != -9999)
         return blended_skeleton;
 
     return states[cur_state]->skeleton;
 }
 
 bool AnimationManager::isIdle() {
-    return cur_state == IDLE && target_state == -1 && delayed_target_state == -1;
+    return cur_state >= IDLE && target_state == -9999;
 }

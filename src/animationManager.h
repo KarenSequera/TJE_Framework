@@ -18,8 +18,8 @@ enum zombieStates {
 	ZOMBIE_PUNCH = 0,
 	ZOMBIE_KNIFE = 2,
 	ZOMBIE_GUN = 3,
-	ZOMBIE_HURT = 5,
-	ZOMBIE_HURT_GRAVE = 6
+	ZOMBIE_HURT = -1,
+	ZOMBIE_HURT_GRAVE = -2
 };
 
 enum commonStates {
@@ -63,7 +63,7 @@ public:
 	void update(float dt);
 
 	void addAnimationState(const char* path, int state);
-	void goToState(int state, float time = 0.f);
+	float goToState(int state, float time = 0.f);
 	void goToStateDelayed(int state, float to_start, float time = 0.f);
 	Skeleton& getCurrentSkeleton();
 
