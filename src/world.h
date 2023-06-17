@@ -134,6 +134,7 @@ public:
 	void resizeOptions(float width, float height);
 
 	bool selectOption();
+	void selectWeapon(int w_type);
 	void createMenus(std::string filename);
 
 	// ANIMATION RELATED

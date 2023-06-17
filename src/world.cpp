@@ -682,7 +682,7 @@ int World::hurtZombie(int zombie_idx)
 
 
 	idle = false;
-	float delay = player->toState(weapon, 0.75f) / 2;
+	float delay = player->toState(weapon, 0.75f) / 3;
 	
 	if (multiplier == 1)
 		zombie->toStateDelayed(ZOMBIE_HURT, delay, 0.75);
@@ -767,6 +767,12 @@ void World::changeOption(int to_add)
 bool World::selectOption()
 {
 	return cur_menu->onSelect(selected_option);
+}
+
+void World::selectWeapon(int w_type)
+{
+	ready_to_attack = true;
+	player->toState(PLAYER_FISTS_IDLE + w_type, 0.5f);
 }
 
 void World::createMenus(std::string filename)

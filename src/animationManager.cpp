@@ -32,6 +32,7 @@ void AnimationManager::fillCommonAnimations() {
 void AnimationManager::fillPlayerAnimations()
 {
     addAnimationState("data/characters/animations/player/idle.skanim", IDLE);
+    addAnimationState("data/characters/animations/player/idle_fists.skanim", PLAYER_FISTS_IDLE);
     addAnimationState("data/characters/animations/player/idle_bat.skanim", PLAYER_BAT_IDLE);
     addAnimationState("data/characters/animations/player/idle_knife.skanim", PLAYER_KNIFE_IDLE);
     addAnimationState("data/characters/animations/player/idle_gun.skanim", PLAYER_GUN_IDLE);
@@ -141,5 +142,5 @@ Skeleton& AnimationManager::getCurrentSkeleton()
 }
 
 bool AnimationManager::isIdle() {
-    return cur_state >= IDLE && target_state == -9999;
+    return cur_state >= IDLE && (target_state == -9999 || target_state >= IDLE);
 }

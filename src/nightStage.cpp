@@ -248,7 +248,10 @@ void NightStage::playerTurnUpdate(float dt)
 			selected_target = 0;
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+		{
 			World::inst->ready_to_attack = false;
+			World::inst->playerToState(IDLE, 0.5f);
+		}
 	}
 	else
 	{

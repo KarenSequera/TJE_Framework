@@ -70,7 +70,7 @@ bool WeaponMenuEntity::onSelect()
 	if(World::inst->unlimited_everything || w_type == FISTS || World::inst->getWeaponUses(w_type))
 	{
 		World::inst->weapon = w_type;
-		World::inst->ready_to_attack = true;
+		World::inst->selectWeapon(w_type);
 	}
 	else {
 		//TODO -> make a function or something that resets a timer in the world, when it is not 0 a message will be shown.

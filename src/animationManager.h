@@ -8,10 +8,11 @@
 #define START_IDLES 4
 
 enum playerStates { 
-	PLAYER_BAT_IDLE = 5,
-	PLAYER_KNIFE_IDLE = 6,
-	PLAYER_GUN_IDLE = 7,
-	PLAYER_DEFEND = 8
+	PLAYER_FISTS_IDLE = 5,
+	PLAYER_BAT_IDLE = 6,
+	PLAYER_KNIFE_IDLE = 7,
+	PLAYER_GUN_IDLE = 8,
+	PLAYER_DEFEND = 9
 };
 
 enum zombieStates {
