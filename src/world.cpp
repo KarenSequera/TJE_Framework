@@ -684,13 +684,16 @@ int World::hurtZombie(int zombie_idx)
 	idle = false;
 	float delay = player->toState(weapon, 0.75f) / 3;
 	
-	if (multiplier == 1)
+	if (!zombie->alive()) {
+		zombie->triggerDeath(delay * 2);
+		player->toStateDelayed(IDLE, delay * 1.5, 0.75f);
+	}
+
+	else if (multiplier == 1)
 		zombie->toStateDelayed(ZOMBIE_HURT, delay, 0.75);
+
 	else if(multiplier == 2)
 		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, 0.75);
-
-	if (!zombie->alive())
-		removeZombie(zombie_idx);
 
 	// TODO: DELETE COMMENTS
 	//player_idle = false;
@@ -777,7 +780,6 @@ void World::selectWeapon(int w_type)
 
 void World::createMenus(std::string filename)
 {
-
 	Menu* general = new Menu();
 	menus["general"] = general;
 
@@ -890,41 +892,24 @@ void World::resizeOptions(float width, float height)
 // Animation related
 void World::updateAnimations(float dt)
 {
-	//TODO: DELETE COMMENTS
-	/*bool middle = false;
-	bool player_gone_idle = player->updateAnim(dt, &middle);*/
-
-	//// if the player was not able, but they are now:
-	//if (!player_idle)
-	//{
-	//	if (middle)
-	//	{
-	//		wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
-	//		zombies_idle = false;
-	//		player_idle = true;
-	//	}else if(player_gone_idle)
-	//		player_idle = true;
-	//}
-	//
-	//bool accumulative = true;
-	//bool local = false;
-	//for (auto& zombie : wave)
-	//{
-	//	local = zombie->updateAnim(dt, &middle);
-	//	accumulative = accumulative && local;
-	//}
-
-	//if(!zombies_idle && accumulative)
-	//	zombies_idle = accumulative;
-
 	player->updateAnim(dt);
 	
 	bool local = player->isIdle();
 
-	for (auto& zombie : wave) {
+	std::vector<int> to_remove;
+
+	for (int i = 0; i < wave.size(); i++) {
+		ZombieEntity* zombie = wave[i];
 		zombie->updateAnim(dt);
+
+		if (shouldTrigger(zombie->time_til_death, dt))
+			to_remove.push_back(i);
+
 		local = local && zombie->isIdle();
 	}
+
+	for (auto& idx : to_remove)
+		removeZombie(idx);
 
 	idle = local;
 }

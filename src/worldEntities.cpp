@@ -65,6 +65,7 @@ ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model,
 	anim_manager = new AnimationManager();
 
 	anim_manager->fillZombieAnimations(idle_anim);
+	time_til_death = 0.f;
 }
 
 int ZombieEntity::getMultiplier(weaponType weapon) 
@@ -90,3 +91,8 @@ bool ZombieEntity::alive()
 {
 	return (info.health > 0);
 } 
+
+void ZombieEntity::triggerDeath(float delay)
+{
+	time_til_death = toStateDelayed(DYING, delay, 0.75f) - 0.1;
+}

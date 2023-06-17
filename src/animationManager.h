@@ -29,7 +29,7 @@ enum commonStates {
 	STAB = 2,
 	SHOOT = 3,
 	IDLE = 4,
-	DYING = 10
+	DYING = -3
 };
 
 // all classes related to stages
@@ -65,7 +65,7 @@ public:
 
 	void addAnimationState(const char* path, int state);
 	float goToState(int state, float time = 0.f);
-	void goToStateDelayed(int state, float to_start, float time = 0.f);
+	float goToStateDelayed(int state, float to_start, float time = 0.f);
 	Skeleton& getCurrentSkeleton();
 
 	bool isIdle();

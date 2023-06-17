@@ -70,7 +70,7 @@ public:
 	void renderWeapon(Mesh* mesh, Camera* camera);
 	void updateAnim(float dt);
 	float toState(int state, float time = 0.f);
-	void toStateDelayed(int state, float to_start, float time = 0.f);
+	float toStateDelayed(int state, float to_start, float time = 0.f);
 	Matrix44 getBoneMatrix(const char* name);
 	bool isIdle();
 };

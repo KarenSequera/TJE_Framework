@@ -1,5 +1,6 @@
 #include "animationManager.h"
 #include "game.h"
+#include "our_utils.h"
 
 AnimationManager::AnimationManager()
 {
@@ -81,28 +82,25 @@ float AnimationManager::goToState(int state, float time)
 }
 
 
-void AnimationManager::goToStateDelayed(int state, float to_start, float time) {
+float AnimationManager::goToStateDelayed(int state, float to_start, float time) {
 
     time_to_start = to_start;
     delayed_target_state = state;
     delayed_transition_time = time;
+
+    return states[state]->duration + to_start;
 }
 
 void AnimationManager::update(float dt)
 {
-    float time = Game::instance->time;
-
+    //float time = Game::instance->time;
     cur_time += dt;
 
     states[cur_state]->assignTime(cur_time);
 
-    if (time_to_start > 0.f)
-    {
-        time_to_start -= dt;
-        if (time_to_start <= 0.f) {
-            goToState(delayed_target_state, delayed_transition_time);
-            return;
-        }
+    if (shouldTrigger(time_to_start, dt)) {
+        goToState(delayed_target_state, delayed_transition_time);
+        return;
     }
 
     if (target_state != -9999)

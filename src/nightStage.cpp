@@ -120,7 +120,7 @@ void NightStage::renderHealthBars(Shader* shader)
 	Vector3 position;
 	//TODO, AN ENUM WITH THE TOTAL HEALTH OF EACH TYPE OF ZOMBIE
 	int total_health = MAX_HEALTH;
-	int actual_health = (World::inst->player->health);
+	int actual_health = max(0.f, World::inst->player->health);
 
 	float ratio = (float) actual_health / total_health;
 
@@ -142,7 +142,7 @@ void NightStage::renderHealthBars(Shader* shader)
 		position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 		total_health = zombie->info.max_health;
-		actual_health = zombie->info.health;
+		actual_health = max(0.f, zombie->info.health);
 
 		ratio = (float) actual_health / total_health;
 

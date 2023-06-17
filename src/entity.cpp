@@ -221,9 +221,9 @@ float AnimatedEntity::toState(int state, float time)
 	return anim_manager->goToState(state, time);
 }
 
-void AnimatedEntity::toStateDelayed(int state, float to_start, float time)
+float AnimatedEntity::toStateDelayed(int state, float to_start, float time)
 {
-	anim_manager->goToStateDelayed(state, to_start, time);
+	return anim_manager->goToStateDelayed(state, to_start, time);
 }
 
 

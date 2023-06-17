@@ -41,8 +41,11 @@ public:
 	zombieType type;
 	zombieInfo info;
 
+	float time_til_death;
+
 	ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model, int idle_anim);
 
 	int getMultiplier(weaponType weapon);
 	bool alive();
+	void triggerDeath(float delay);
 };
