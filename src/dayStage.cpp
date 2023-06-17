@@ -38,8 +38,6 @@ void DayStage::onEnter()
 void DayStage::onExit()
 {
 	bool a = Audio::Stop(channel);
-	std::cout << "|||||||||||||||||||||||||1";
-	std::cout << a;
 	World::inst->clearItems();
 	
 }

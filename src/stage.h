@@ -20,12 +20,3 @@ public:
 	virtual void render() {};
 	virtual void update(float dt) {};
 };
-
-class GameOverStage : public Stage
-{
-public:
-	GameOverStage() {};
-	void render();
-	void update(float dt) {};
-};
-

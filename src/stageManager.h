@@ -1,6 +1,8 @@
 #pragma once
 #include "dayStage.h"
 #include "nightStage.h"
+#include "introStage.h"
+#include "gameOverStage.h"
 
 // all classes related to stages
 class StageManager {

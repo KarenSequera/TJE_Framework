@@ -696,7 +696,7 @@ void World::defend(defensiveType type)
 }
 
 
-// MENU RELATED ---------------------------------------------------------------------------------------
+// NIGHTMENU RELATED ---------------------------------------------------------------------------------------
 void World::changeMenu(std::string go_to)
 {
 	cur_menu = menus[go_to];

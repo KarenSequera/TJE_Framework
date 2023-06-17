@@ -10,7 +10,8 @@ StageManager::StageManager() {
 	stage["day"] = new DayStage();
 	stage["night"] = new NightStage();
 	stage["game over"] = new GameOverStage();
-	cur_stage = stage["day"];
+	stage["intro stage"] = new IntroStage();
+	cur_stage = stage["intro stage"];
 	cur_stage->onEnter();
 //#if DEBUG
 //	changeStage("night");

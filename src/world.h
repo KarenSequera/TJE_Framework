@@ -1,7 +1,7 @@
 #pragma once
 
 #include "worldEntities.h"
-#include "nightMenu.h"
+#include "Menu.h"
 #include <unordered_map>
 
 

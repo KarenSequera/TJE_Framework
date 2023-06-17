@@ -88,13 +88,19 @@
     <ClCompile Include="..\..\src\animationManager.cpp">
       <Filter>our game\entities</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\nightMenu.cpp">
+    <ClCompile Include="..\..\src\menu.cpp">
       <Filter>our game\entities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\world.cpp">
       <Filter>our game</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\audio.cpp" />
+    <ClCompile Include="..\..\src\introStage.cpp">
+      <Filter>our game\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gameOverStage.cpp">
+      <Filter>our game\stages</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -183,13 +189,19 @@
     <ClInclude Include="..\..\src\animationManager.h">
       <Filter>our game\entities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\nightMenu.h">
+    <ClInclude Include="..\..\src\menu.h">
       <Filter>our game\entities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\world.h">
       <Filter>our game</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\audio.h" />
+    <ClInclude Include="..\..\src\introStage.h">
+      <Filter>our game\stages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gameOverStage.h">
+      <Filter>our game\stages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">
