@@ -81,3 +81,8 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 	return true;
 }
 
+void Player::hurtAnimation(float delay)
+{
+	if (anim_manager->cur_state != PLAYER_DEFEND)
+		toStateDelayed(PLAYER_HURT, delay, TRANSITION_TIME);
+}

@@ -2,6 +2,7 @@
 #include "stage.h"
 #define HEALTH_BAR_WIDTH 50.f
 #define HEALTH_BAR_HEIGHT 10.f
+#define TIME_BTW_TURNS 0.5f
 
 class NightStage : public Stage {
 public:
@@ -16,6 +17,7 @@ public:
 
 	bool free_cam_enabled;
 	float n_angle;
+	float time_between_turns;
 
 	//Variable that contains the index of the selected zombie
 	// -1 if we are not in target selection

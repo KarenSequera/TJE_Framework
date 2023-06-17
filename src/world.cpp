@@ -22,7 +22,7 @@ World::World() {
 	day_entities.push_back(day_root);
 
 	selected_option = 0;
-
+	zombie_attacking = false;
 
 	parseSceneDay();
 	parseSpawns("data/spawner.scene");
@@ -680,28 +680,46 @@ int World::hurtZombie(int zombie_idx)
 
 	player->addWeaponUses(weapon, -1);
 
-
 	idle = false;
-	float delay = player->toState(weapon, 0.75f) / 3;
+	float delay = player->toState(weapon, TRANSITION_TIME) / 3;
 	
+	// If the zombie is dead -> trigger their death
 	if (!zombie->alive()) {
-		zombie->triggerDeath(delay * 2);
-		player->toStateDelayed(IDLE, delay * 1.5, 0.75f);
+		zombie->triggerDeath(delay * 1.5);
+		player->toStateDelayed(IDLE, delay * 2, TRANSITION_TIME);
 	}
 
+	// Trigger one animation or the other depending on the effectiveness of the attack
+	// if the zombie is inmune they will be unfazed
 	else if (multiplier == 1)
-		zombie->toStateDelayed(ZOMBIE_HURT, delay, 0.75);
+		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
 
 	else if(multiplier == 2)
-		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, 0.75);
-
-	// TODO: DELETE COMMENTS
-	//player_idle = false;
-
-	//zombie_hurt = zombie_idx;
-	//zombies_idle = false;
-
+		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
+	
 	return multiplier;
+}
+
+bool World::attackPlayer(int zombie_idx)
+{
+	assert(zombie_idx < wave.size());
+
+	ZombieEntity* zombie = wave[zombie_idx];
+
+	if (zombie->isIdle())
+	{
+		if (zombie_attacking) {
+			zombie_attacking = false;
+			return true;
+		}
+
+		hurtPlayer(zombie->info.dmg);
+		
+		float delay = zombie->toState(zombie->info.weapon, TRANSITION_TIME) / 2.f;
+		player->hurtAnimation(delay);
+		zombie_attacking = true;
+	}
+	return false;
 }
 
 void World::removeZombie(int zombie_idx)
@@ -775,7 +793,7 @@ bool World::selectOption()
 void World::selectWeapon(int w_type)
 {
 	ready_to_attack = true;
-	player->toState(PLAYER_FISTS_IDLE + w_type, 0.5f);
+	player->toState(PLAYER_FISTS_IDLE + w_type, TRANSITION_TIME);
 }
 
 void World::createMenus(std::string filename)

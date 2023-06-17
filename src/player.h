@@ -47,4 +47,5 @@ public:
 	void addWeaponUses(weaponType type, int uses);
 	void addDefUses(defensiveType type, int uses);
 	bool affectPlayerStat(affectingStat stat, int amount, bool add);
+	void hurtAnimation(float delay);
 };

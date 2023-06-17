@@ -216,6 +216,11 @@ void AnimatedEntity::updateAnim(float dt)
 	anim_manager->update(dt);
 }
 
+void AnimatedEntity::triggerDeath(float delay)
+{
+	time_til_death = toStateDelayed(DYING, delay, 0.75f) * 3.f / 4.f;
+}
+
 float AnimatedEntity::toState(int state, float time)
 {
 	return anim_manager->goToState(state, time);
@@ -236,3 +241,4 @@ bool AnimatedEntity::isIdle()
 {
 	return anim_manager->isIdle();
 }
+

@@ -92,7 +92,3 @@ bool ZombieEntity::alive()
 	return (info.health > 0);
 } 
 
-void ZombieEntity::triggerDeath(float delay)
-{
-	time_til_death = toStateDelayed(DYING, delay, 0.75f) - 0.1;
-}

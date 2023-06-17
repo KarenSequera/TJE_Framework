@@ -76,7 +76,8 @@ public:
 
 	//Animation
 	bool idle;
-	
+	bool zombie_attacking;
+
 	int zombie_hurt;
 
 	World();
@@ -125,6 +126,9 @@ public:
 		// 1 -> normal damage
 		// 2 -> attack was super efective (x2 damage), player has 
 	int hurtZombie(int zombie_idx);
+	// Tries to hurt the player and returns whether the zombie has finished attacking the player or not
+	bool attackPlayer(int zombie_idx);
+	// removes a zombie from the wave vector
 	void removeZombie(int zombie_idx);
 	void defend(defensiveType type);
 

@@ -6,8 +6,11 @@
 
 #define NUM_ZOMBIE_IDLES 3
 #define START_IDLES 4
+#define TRANSITION_TIME 0.75f
 
-enum playerStates { 
+
+enum playerStates {
+	PLAYER_HURT = -1,
 	PLAYER_FISTS_IDLE = 5,
 	PLAYER_BAT_IDLE = 6,
 	PLAYER_KNIFE_IDLE = 7,
@@ -16,10 +19,10 @@ enum playerStates {
 };
 
 enum zombieStates {
+	ZOMBIE_HURT = -1,
 	ZOMBIE_PUNCH = 0,
 	ZOMBIE_KNIFE = 2,
 	ZOMBIE_GUN = 3,
-	ZOMBIE_HURT = -1,
 	ZOMBIE_HURT_GRAVE = -2
 };
 

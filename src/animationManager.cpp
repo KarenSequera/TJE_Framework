@@ -37,6 +37,7 @@ void AnimationManager::fillPlayerAnimations()
     addAnimationState("data/characters/animations/player/idle_bat.skanim", PLAYER_BAT_IDLE);
     addAnimationState("data/characters/animations/player/idle_knife.skanim", PLAYER_KNIFE_IDLE);
     addAnimationState("data/characters/animations/player/idle_gun.skanim", PLAYER_GUN_IDLE);
+    addAnimationState("data/characters/animations/hit.skanim", PLAYER_HURT);
     
     fillCommonAnimations();
 

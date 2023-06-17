@@ -19,6 +19,9 @@ NightStage::NightStage() : Stage()
 	free_cam_enabled = false;
 	n_angle = 0.f;
 
+	zombie_attacking = 0;
+
+	time_between_turns = TIME_BTW_TURNS;
 	to_day = false;
 }
 
@@ -31,6 +34,8 @@ void NightStage::onEnter() {
 	World* inst = World::inst;
 	is_player_turn = true;
 	selected_target = 0;
+	zombie_attacking = 0;
+	time_between_turns = TIME_BTW_TURNS;
 
 	//TODO: adjust formula so that it is enjoyable
 	turns_to_day = 10 + (cur_night % 5) * 10;
@@ -204,13 +209,16 @@ void NightStage::update(float dt)
 	}
 
 #else
-	if (is_player_turn)
+	if (World::inst->idle)
 	{
-		playerTurnUpdate(dt);
-	}
-	else
-	{
-		zombieTurnUpdate(dt);
+		if (is_player_turn)
+		{
+			playerTurnUpdate(dt);
+		}
+		else
+		{
+			zombieTurnUpdate(dt);
+}
 	}
 #endif
 }
@@ -250,7 +258,7 @@ void NightStage::playerTurnUpdate(float dt)
 		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
 		{
 			World::inst->ready_to_attack = false;
-			World::inst->playerToState(IDLE, 0.5f);
+			World::inst->playerToState(IDLE, TRANSITION_TIME);
 		}
 	}
 	else
@@ -281,28 +289,19 @@ void NightStage::playerTurnUpdate(float dt)
 
 void NightStage::zombieTurnUpdate(float dt)
 {
-	/*int num_zombies = World::inst->wave.size();
-
-	bool finished = World::inst->zombieAttack(zombie_attacking);
-
-	if (!World::inst->isPlayerAlive())
-		StageManager::inst->changeStage("game over");
-
-	if (finished)
+	time_between_turns -= dt;
+	if (time_between_turns <= 0.f)
 	{
-		zombie_attacking++;
-		if (zombie_attacking > num_zombies)
+		if (World::inst->attackPlayer(zombie_attacking))
 		{
-			is_player_turn = true;
-			World::inst->changeMenu("general");
-			newTurn();
+			zombie_attacking++;
+			if (zombie_attacking >= World::inst->wave.size())
+			{
+				is_player_turn = true;
+				newTurn();
+			}
 		}
-	}*/
-	
-	is_player_turn = true;
-	newTurn();
-
-	return;
+	}
 }
 
 void NightStage::cameraUpdate(float dt)
@@ -345,4 +344,5 @@ void NightStage::newTurn()
 	
 	zombie_attacking = 0;
 	selected_target = 0;
+	time_between_turns = TIME_BTW_TURNS;
 }
