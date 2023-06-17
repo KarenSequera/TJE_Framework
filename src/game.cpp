@@ -133,5 +133,6 @@ void Game::onResize(int width, int height)
 	World::inst->camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1); 
 
 	World::inst->resizeOptions(window_width, window_height);
+	StageManager::inst->cur_stage->resizeOptions(window_width, window_height);
 }
 

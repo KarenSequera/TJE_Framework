@@ -19,4 +19,5 @@ public:
 	virtual void onExit() {};
 	virtual void render() {};
 	virtual void update(float dt) {};
+	virtual void resizeOptions(int width, int height) {};
 };

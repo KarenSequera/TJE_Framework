@@ -28,4 +28,7 @@ public:
 	void update(float dt);
 	void updateMovement(float dt);
 	void updateItemsAndStats();
+
+
+	void resizeOptions(int width, int height) {};
 };

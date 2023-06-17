@@ -40,4 +40,7 @@ public:
 
 	void newTurn();
 
+
+	void resizeOptions(int width, int height){};
+
 };
