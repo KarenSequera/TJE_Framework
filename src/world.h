@@ -75,8 +75,7 @@ public:
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
 	//Animation
-	bool player_idle;
-	bool zombies_idle;
+	bool idle;
 	
 	int zombie_hurt;
 
@@ -126,7 +125,7 @@ public:
 		// 1 -> normal damage
 		// 2 -> attack was super efective (x2 damage), player has 
 	int hurtZombie(int zombie_idx);
-	void killZombie(int zombie_idx);
+	void removeZombie(int zombie_idx);
 	void defend(defensiveType type);
 
 	// MENU RELATED

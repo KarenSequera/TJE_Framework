@@ -63,10 +63,6 @@ public:
 
 class AnimatedEntity : public EntityMesh {
 public:
-
-	float animation_time;
-	int idle_state;
-
 	AnimationManager* anim_manager;
 	AnimatedEntity() ;
 
@@ -75,4 +71,5 @@ public:
 	void updateAnim(float dt);
 	void toState(int state, float time = 0.f);
 	Matrix44 getBoneMatrix(const char* name);
+	bool isIdle();
 };

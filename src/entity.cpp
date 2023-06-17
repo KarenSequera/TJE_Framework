@@ -148,8 +148,6 @@ EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_
 AnimatedEntity::AnimatedEntity()
 {
 	anim_manager = nullptr;
-	animation_time = 0.f;
-	idle_state = 0;
 }
 
 void AnimatedEntity::render()
@@ -220,10 +218,15 @@ void AnimatedEntity::updateAnim(float dt)
 
 void AnimatedEntity::toState(int state, float time)
 {
-	animation_time = anim_manager->goToState(state, time);
+	anim_manager->goToState(state, time);
 }
 
 Matrix44 AnimatedEntity::getBoneMatrix(const char* name)
 {
 	return anim_manager->getCurrentSkeleton().getBoneMatrix(name, false);
+}
+
+bool AnimatedEntity::isIdle()
+{
+	return anim_manager->isIdle();
 }

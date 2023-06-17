@@ -65,9 +65,6 @@ ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model,
 	anim_manager = new AnimationManager();
 
 	anim_manager->fillZombieAnimations(idle_anim);
-
-
-	idle_state = ZOMBIE_IDLE;
 }
 
 int ZombieEntity::getMultiplier(weaponType weapon) 

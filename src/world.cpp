@@ -50,8 +50,7 @@ World::World() {
 	ready_to_attack = false;
 	unlimited_everything = false;
 
-	player_idle = true;
-	zombies_idle = true;
+	idle = true;
 
 	zombie_hurt = 0;
 }
@@ -682,18 +681,21 @@ int World::hurtZombie(int zombie_idx)
 	player->addWeaponUses(weapon, -1);
 
 	if (!zombie->alive())
-		killZombie(zombie_idx);
+		removeZombie(zombie_idx);
 
-	player_idle = false;
-	player->toState(weapon, 1.f);
+	idle = false;
+	player->toState(weapon, 0.75f);
 
-	zombie_hurt = zombie_idx;
-	zombies_idle = false;
+	// TODO: DELETE COMMENTS
+	//player_idle = false;
+
+	//zombie_hurt = zombie_idx;
+	//zombies_idle = false;
 
 	return multiplier;
 }
 
-void World::killZombie(int zombie_idx)
+void World::removeZombie(int zombie_idx)
 {
 	if (zombie_idx >= 0 && zombie_idx < zombies_alive )
 	{
@@ -876,6 +878,7 @@ void World::resizeOptions(float width, float height)
 // Animation related
 void World::updateAnimations(float dt)
 {
+	//TODO: DELETE COMMENTS
 	/*bool middle = false;
 	bool player_gone_idle = player->updateAnim(dt, &middle);*/
 
@@ -903,8 +906,15 @@ void World::updateAnimations(float dt)
 	//	zombies_idle = accumulative;
 
 	player->updateAnim(dt);
-	for (auto& zombie : wave)
+	
+	bool local = player->isIdle();
+
+	for (auto& zombie : wave) {
 		zombie->updateAnim(dt);
+		local = local && zombie->isIdle();
+	}
+
+	idle = local;
 }
 
 void World::playerToState(int state, float time)

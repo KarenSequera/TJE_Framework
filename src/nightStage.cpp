@@ -188,7 +188,7 @@ void NightStage::update(float dt)
 	if (free_cam_enabled)
 		cameraUpdate(dt);
 
-	else if(World::inst->player_idle && World::inst->zombies_idle)
+	else if(World::inst->idle)
 	{
 		if (is_player_turn)
 		{
