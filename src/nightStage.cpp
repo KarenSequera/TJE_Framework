@@ -278,7 +278,7 @@ void NightStage::playerTurnUpdate(float dt)
 
 void NightStage::zombieTurnUpdate(float dt)
 {
-	int num_zombies = World::inst->wave.size();
+	/*int num_zombies = World::inst->wave.size();
 
 	bool finished = World::inst->zombieAttack(zombie_attacking);
 
@@ -294,8 +294,11 @@ void NightStage::zombieTurnUpdate(float dt)
 			World::inst->changeMenu("general");
 			newTurn();
 		}
-	}
+	}*/
 	
+	is_player_turn = true;
+	newTurn();
+
 	return;
 }
 
@@ -327,6 +330,8 @@ void NightStage::cameraUpdate(float dt)
 
 void NightStage::newTurn() 
 {
+	World::inst->changeMenu("general");
+
 	turns_to_day--;
 
 	if (turns_to_day == 0)

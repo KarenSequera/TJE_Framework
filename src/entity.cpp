@@ -148,7 +148,6 @@ EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_
 AnimatedEntity::AnimatedEntity()
 {
 	anim_manager = nullptr;
-	idle = true;
 	animation_time = 0.f;
 	idle_state = 0;
 }
@@ -214,34 +213,14 @@ void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera) {
 }
 
 // Returns: wheter the entity is idle
-bool AnimatedEntity::updateAnim(float dt, bool* middle)
+void AnimatedEntity::updateAnim(float dt)
 {
 	anim_manager->update(dt);
-	
-	if (idle)
-		return true;
-
-	animation_time -= dt;
-
-	if (!idle) {
-
-		if (animation_time <= 0.f)
-		{
-			anim_manager->goToState(idle_state, 0.75f);
-			idle = true;
-		}
-		else if((animation_time - anim_manager->states[anim_manager->cur_state]->duration / 2.f) <= 0.f)
-			*middle = true;
-		return false;
-	}
-
-	return false;
 }
 
 void AnimatedEntity::toState(int state, float time)
 {
 	animation_time = anim_manager->goToState(state, time);
-	idle = false;
 }
 
 Matrix44 AnimatedEntity::getBoneMatrix(const char* name)

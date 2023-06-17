@@ -646,6 +646,12 @@ void World::generateZombies(int num_night)
 	wave.clear();
 	ZombieEntity* zombie;
 	
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> distribution(0, 100);
+
+	int idle_anim = distribution(gen);
+
 	int idx = min(num_night, DIFICULTY_LEVELS-1);
 	float probability[NUM_ZOMBIE_TYPES];
 	memcpy(probability, zombies_probabilities[idx], sizeof(probability));
@@ -655,7 +661,7 @@ void World::generateZombies(int num_night)
 		
 		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
 
-		zombie = new ZombieEntity(type, z_info[type], night_models[3 + i]);
+		zombie = new ZombieEntity(type, z_info[type], night_models[3 + i], (idle_anim + i) % NUM_ZOMBIE_IDLES);
 
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
@@ -870,31 +876,35 @@ void World::resizeOptions(float width, float height)
 // Animation related
 void World::updateAnimations(float dt)
 {
-	bool middle = false;
-	bool player_gone_idle = player->updateAnim(dt, &middle);
-	
-	// if the player was not able, but they are now:
-	if (!player_idle)
-	{
-		if (middle)
-		{
-			wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
-			zombies_idle = false;
-			player_idle = true;
-		}else if(player_gone_idle)
-			player_idle = true;
-	}
-	
-	bool accumulative = true;
-	bool local = false;
-	for (auto& zombie : wave)
-	{
-		local = zombie->updateAnim(dt, &middle);
-		accumulative = accumulative && local;
-	}
+	/*bool middle = false;
+	bool player_gone_idle = player->updateAnim(dt, &middle);*/
 
-	if(!zombies_idle && accumulative)
-		zombies_idle = accumulative;
+	//// if the player was not able, but they are now:
+	//if (!player_idle)
+	//{
+	//	if (middle)
+	//	{
+	//		wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
+	//		zombies_idle = false;
+	//		player_idle = true;
+	//	}else if(player_gone_idle)
+	//		player_idle = true;
+	//}
+	//
+	//bool accumulative = true;
+	//bool local = false;
+	//for (auto& zombie : wave)
+	//{
+	//	local = zombie->updateAnim(dt, &middle);
+	//	accumulative = accumulative && local;
+	//}
+
+	//if(!zombies_idle && accumulative)
+	//	zombies_idle = accumulative;
+
+	player->updateAnim(dt);
+	for (auto& zombie : wave)
+		zombie->updateAnim(dt);
 }
 
 void World::playerToState(int state, float time)

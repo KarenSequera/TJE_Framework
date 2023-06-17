@@ -1,45 +1,52 @@
 #include "animationManager.h"
 #include "game.h"
 
-#include <random>
-
 AnimationManager::AnimationManager()
 {
 	cur_state = 0;
 	target_state = -1;
     
-    cur_time = 0.f;
-    target_time = 0.f;
+    /*cur_time = 0.f;
+    target_time = 0.f;*/
 
 	transition_counter = 0.f;
 	transition_time = 0.f;
+
+
+    zombie_idle_paths.resize(NUM_ZOMBIE_IDLES);
+    zombie_idle_paths[0] = "data/characters/animations/zombie/idle_1.skanim";
+    zombie_idle_paths[1] = "data/characters/animations/zombie/idle_2.skanim";
+    zombie_idle_paths[2] = "data/characters/animations/zombie/idle_3.skanim";
+
+}
+
+void AnimationManager::fillCommonAnimations() {
+    addAnimationState("data/characters/animations/punch.skanim", PUNCH);
+    addAnimationState("data/characters/animations/bat.skanim", BAT_SWING);
+    addAnimationState("data/characters/animations/stab.skanim", STAB);
+    addAnimationState("data/characters/animations/shoot.skanim", SHOOT);
 }
 
 void AnimationManager::fillPlayerAnimations()
 {
     addAnimationState("data/characters/animations/player/idle.skanim", PLAYER_IDLE);
-    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_PUNCH);
-    addAnimationState("data/characters/animations/player/bat.skanim", PLAYER_BAT);
-    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_KNIFE);
-    addAnimationState("data/characters/animations/player/punch.skanim", PLAYER_GUN);
+    addAnimationState("data/characters/animations/player/idle_bat.skanim", PLAYER_BAT_IDLE);
+    addAnimationState("data/characters/animations/player/idle_knife.skanim", PLAYER_KNIFE_IDLE);
+    addAnimationState("data/characters/animations/player/idle_gun.skanim", PLAYER_GUN_IDLE);
     
     cur_state = PLAYER_IDLE;
     //addAnimationState("data/characters/animaciones/player/", PLAYER_PUNCH);
 }
 
-void AnimationManager::fillZombieAnimations()
+void AnimationManager::fillZombieAnimations(int idle_anim)
 {
-    addAnimationState("data/characters/animations/zombie/idle.skanim", ZOMBIE_IDLE);
+    addAnimationState(zombie_idle_paths[idle_anim].c_str(), ZOMBIE_IDLE);
     addAnimationState("data/characters/animations/zombie/hit.skanim", ZOMBIE_HURT);
-    addAnimationState("data/characters/animations/zombie/hit.skanim", ZOMBIE_PUNCH);
-    addAnimationState("data/characters/animations/zombie/hit.skanim", ZOMBIE_KNIFE);
-    addAnimationState("data/characters/animations/zombie/hit.skanim", ZOMBIE_GUN);
-    cur_state = ZOMBIE_IDLE;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dist(0, 100);
+    addAnimationState("data/characters/animations/zombie/hit_grave.skanim", ZOMBIE_HURT_GRAVE);
 
-    cur_time = dist(gen);
+    cur_state = ZOMBIE_IDLE;
+
+    //cur_time = dist(gen);
 }
 
 void AnimationManager::addAnimationState(const char* path, int state) {
@@ -66,23 +73,24 @@ void AnimationManager::update(float dt)
 {
     float time = Game::instance->time;
 
-    states[cur_state]->assignTime(cur_time);
-    cur_time += dt;
+    states[cur_state]->assignTime(time); // cur_time);
+    //cur_time += dt;
 
     if (target_state != -1)
     {
-        states[target_state]->assignTime(target_time);
+        states[target_state]->assignTime(time); // target_time);
 
-        target_time += dt;
+        //target_time += dt;
         transition_counter += dt;
 
         if (transition_counter >= transition_time) {
             cur_state = target_state;
 
             target_state = -1;
-            cur_time = target_time;
             transition_counter = 0.f;
-            target_time = 0.f;
+
+            //cur_time = target_time;
+            //target_time = 0.f;
 
             return;
         }

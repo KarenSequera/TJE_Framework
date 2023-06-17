@@ -53,7 +53,7 @@ void parseZombieInfo(const char* filename, zombieInfo* z_info)
 }
 
 // ZombieEntity------------------------------------------------------------------------------------------------------------------------------
-ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model)
+ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model, int idle_anim)
 {
 	mesh = Mesh::Get("data/characters/character.MESH");
 	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
@@ -63,7 +63,8 @@ ZombieEntity::ZombieEntity(zombieType z_type, zombieInfo z_info, Matrix44 model)
 	texture = Texture::Get(z_info.texture_path.c_str());
 	
 	anim_manager = new AnimationManager();
-	anim_manager->fillZombieAnimations();
+
+	anim_manager->fillZombieAnimations(idle_anim);
 
 
 	idle_state = ZOMBIE_IDLE;

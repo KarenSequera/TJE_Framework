@@ -64,7 +64,6 @@ public:
 class AnimatedEntity : public EntityMesh {
 public:
 
-	bool idle;
 	float animation_time;
 	int idle_state;
 
@@ -73,7 +72,7 @@ public:
 
 	void render();
 	void renderWeapon(Mesh* mesh, Camera* camera);
-	bool updateAnim(float dt, bool* middle);
+	void updateAnim(float dt);
 	void toState(int state, float time = 0.f);
 	Matrix44 getBoneMatrix(const char* name);
 };
