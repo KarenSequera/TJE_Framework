@@ -195,7 +195,7 @@ void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bo
 	model.setTranslation(pos, false);
 	
 	if(rotate)
-		model.setRotation(rot_angle, rot_axis);
+		model.rotate(rot_angle, rot_axis);
 
 	shader->enable();
 	shader->setUniform("u_color", Vector4(1, 1, 1, 1));

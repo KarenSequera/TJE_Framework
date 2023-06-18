@@ -87,9 +87,8 @@ void Player::hurtAnimation(float delay)
 		toStateDelayed(PLAYER_HURT, delay, TRANSITION_TIME);
 }
 
-bool Player::holdingObject()
+bool Player::hasWeapon()
 {
-	return (anim_manager->cur_state == PLAYER_DEFEND 
-		|| (anim_manager->cur_state <= SHOOT && anim_manager->cur_state >= BAT_SWING)
+	return ((anim_manager->cur_state <= SHOOT && anim_manager->cur_state >= BAT_SWING)
 		|| (anim_manager->target_state <= SHOOT && anim_manager->target_state >= BAT_SWING));
 }

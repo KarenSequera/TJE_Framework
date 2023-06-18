@@ -145,16 +145,20 @@ void World::parseItemEntities(const char* filename)
 
 		weapon_data.mesh = Mesh::Get(tokens[0].c_str());
 		weapon_data.player_offset = Vector3(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
-		weapon_data.zombie_offset = Vector3(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
-		weapon_data.player_rotate = std::stoi(tokens[7]);
-		weapon_data.zombie_rotate = std::stoi(tokens[8]);
-		weapon_data.player_angle = std::stof(tokens[9]);
-		weapon_data.zombie_angle = std::stof(tokens[10]);
-		weapon_data.player_axis = Vector3(std::stof(tokens[11]), std::stof(tokens[12]), std::stof(tokens[13]));
+		weapon_data.player_rotate = std::stoi(tokens[4]);
+		weapon_data.player_angle = std::stof(tokens[5]);
+		weapon_data.player_axis = Vector3(std::stof(tokens[6]), std::stof(tokens[7]), std::stof(tokens[8]));
+		weapon_data.zombie_offset = Vector3(std::stof(tokens[9]), std::stof(tokens[10]), std::stof(tokens[11]));
+		weapon_data.zombie_rotate = std::stoi(tokens[12]);
+		weapon_data.zombie_angle = std::stof(tokens[13]);
 		weapon_data.zombie_axis = Vector3(std::stof(tokens[14]), std::stof(tokens[15]), std::stof(tokens[16]));
 
 		weapon_mesh_info[weapon_type] = weapon_data;
 	}
+
+	/*
+	TODO: Do something similar for the defensive items when we have them
+	*/
 }
 
 struct sRenderData {
@@ -721,7 +725,7 @@ bool World::attackPlayer(int zombie_idx)
 
 	ZombieEntity* zombie = wave[zombie_idx];
 
-	if (zombie->isIdle())
+	if (!zombie->isAttacking())
 	{
 		if (zombie_attacking) {
 			zombie_attacking = false;
@@ -966,7 +970,7 @@ void World::renderNight()
 	// Player
 	player->render();
 
-	if (ready_to_attack || player->holdingObject())
+	if (ready_to_attack || player->hasWeapon())
 		player->renderWeapon(weapon_mesh_info[weapon].mesh, 
 			camera,
 			weapon_mesh_info[weapon].player_offset, 
@@ -974,6 +978,9 @@ void World::renderNight()
 			weapon_mesh_info[weapon].player_angle, 
 			weapon_mesh_info[weapon].player_axis
 		);
+	//TODO: Do for defensive items, the structure would be similar to the previous one
+	/*else if (player->defending())
+		player->renderDefensive(defensive)*/
 
 	// Zombies
 	for (auto& zombie : World::inst->wave)

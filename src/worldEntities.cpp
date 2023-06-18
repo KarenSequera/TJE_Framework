@@ -91,3 +91,9 @@ bool ZombieEntity::alive()
 {
 	return (info.health > 0);
 } 
+
+bool ZombieEntity::isAttacking()
+{
+	return ((anim_manager->cur_state <= SHOOT && anim_manager->cur_state >= BAT_SWING)
+		|| (anim_manager->target_state <= SHOOT && anim_manager->target_state >= BAT_SWING));
+}

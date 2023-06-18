@@ -45,4 +45,5 @@ public:
 
 	int getMultiplier(weaponType weapon);
 	bool alive();
+	bool isAttacking();
 };
