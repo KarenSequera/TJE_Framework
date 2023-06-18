@@ -481,7 +481,7 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
 	Vector3 center = target_pos - Vector3(0.f, 0.0f, 0.f);
-	float sphere_rad = 15.f;
+	float sphere_rad = 30.f;
 	Vector3 colPoint, colNormal;
 
 	for (auto& entity : day_root->children)
@@ -686,7 +686,7 @@ int World::hurtZombie(int zombie_idx)
 	// If the zombie is dead -> trigger their death
 	if (!zombie->alive()) {
 		zombie->triggerDeath(delay * 1.5);
-		player->toStateDelayed(IDLE, delay * 2, TRANSITION_TIME);
+		player->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
 	}
 
 	// Trigger one animation or the other depending on the effectiveness of the attack
@@ -793,7 +793,7 @@ bool World::selectOption()
 void World::selectWeapon(int w_type)
 {
 	ready_to_attack = true;
-	player->toState(PLAYER_FISTS_IDLE + w_type, TRANSITION_TIME);
+	player->toState(PLAYER_FISTS_IDLE + w_type, TRANSITION_TIME / 2.f);
 }
 
 void World::createMenus(std::string filename)

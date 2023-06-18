@@ -175,6 +175,9 @@ void NightStage::playerTurnRender() {
 
 void NightStage::update(float dt)
 {
+	if (World::inst->zombies_alive <= 0)
+		StageManager::inst->changeStage("day");
+
 	World::inst->updateAnimations(dt);
 
 #if DEBUG
@@ -196,13 +199,9 @@ void NightStage::update(float dt)
 	else if(World::inst->idle)
 	{
 		if (is_player_turn)
-		{
 			playerTurnUpdate(dt);
-		}
 		else
-		{
 			zombieTurnUpdate(dt);
-		}
 	}
 	else
 	{
@@ -212,11 +211,8 @@ void NightStage::update(float dt)
 	if (World::inst->idle)
 	{
 		if (is_player_turn)
-		{
 			playerTurnUpdate(dt);
-		}
 		else
-		{
 			zombieTurnUpdate(dt);
 }
 	}
@@ -241,9 +237,7 @@ void NightStage::playerTurnUpdate(float dt)
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 			int result = World::inst->hurtZombie(selected_target);
 
-			if (World::inst->zombies_alive <= 0)
-				// Turn flag on to go to day whenever the animation finishes
-				to_day = true;
+			
 
 			// if the attack is not super effective then we move onto the zombie's turn
 			if (result != 2)
@@ -258,7 +252,7 @@ void NightStage::playerTurnUpdate(float dt)
 		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
 		{
 			World::inst->ready_to_attack = false;
-			World::inst->playerToState(IDLE, TRANSITION_TIME);
+			World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
 		}
 	}
 	else
