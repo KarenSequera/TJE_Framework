@@ -24,10 +24,15 @@ DayStage::DayStage() : Stage() {
 
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
-	float size_y = 1250.f * Game::instance->window_height / 1080;
-	float size_x = size_y * 2083.f / 1250.f;
+	float size_x = Game::instance->window_width ;
+	float size_y = size_x * 1250.f/2038.0f;
+	/*float size_y = 1250.f * Game::instance->window_height / 1080;
+	float size_x = size_y * 2083.f / 1250.f;*/
 
-	HUD_quad.createQuad(Game::instance->window_width / 2, Game::instance->window_height * 1.22/4 , size_x/2, size_y/2, true);	
+	float position_x = Game::instance->window_width / 2;
+	float position_y = size_y/4;
+
+	HUD_quad.createQuad(position_x, position_y, size_x / 2, size_y / 2, true);
 
 };
 
@@ -119,10 +124,10 @@ void DayStage::renderHUD(Shader* shader)
 	// Rendering the quantity of each consumable
 
 	
-	drawText( Game::instance->window_width*0.245, Game::instance->window_height - Game::instance->window_height*0.09,
+	drawText( Game::instance->window_width*0.315, Game::instance->window_height - Game::instance->window_height*0.07,
 		std::to_string(World::inst->getConsumableQuant(consumableType(3))), Vector3(1.0f, 1.0f, 1.0f), 2);
 
-	/*drawText(Game::instance->window_width * 0.4, Game::instance->window_height - Game::instance->window_height * 0.07,
+	drawText(Game::instance->window_width * 0.4, Game::instance->window_height - Game::instance->window_height * 0.07,
 		std::to_string(World::inst->getConsumableQuant(consumableType(4))), Vector3(1.0f, 1.0f, 1.0f), 2);
 
 	drawText(Game::instance->window_width * 0.48, Game::instance->window_height - Game::instance->window_height * 0.07,
@@ -135,7 +140,7 @@ void DayStage::renderHUD(Shader* shader)
 		std::to_string(World::inst->getConsumableQuant(consumableType(1))), Vector3(1.0f, 1.0f, 1.0f), 2);
 
 	drawText(Game::instance->window_width * 0.72, Game::instance->window_height - Game::instance->window_height * 0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(2))), Vector3(1.0f, 1.0f, 1.0f), 2);*/
+		std::to_string(World::inst->getConsumableQuant(consumableType(2))), Vector3(1.0f, 1.0f, 1.0f), 2);
 }
 
 
@@ -357,11 +362,14 @@ void DayStage::updateItemsAndStats() {
 
 void DayStage::resizeOptions(int width, int height) {
 
-	float size_y = 1250.f * Game::instance->window_height / 1080;
-	float size_x = size_y * 2083.f / 1250.f;
+	float size_x = width;
+	float size_y = size_x * 1250.f / 2083.f;
+	/*float size_y = 1250.f * Game::instance->window_height / 1080;
+	float size_x = size_y * 2083.f / 1250.f;*/
 
-	
+	float position_x = width / 2;
+	float position_y = size_y / 4;
 
-	HUD_quad.createQuad( width / 2, height * 1.22 / 4, size_x / 2, size_y / 2, true);
+	HUD_quad.createQuad(position_x, position_y, size_x / 2, size_y / 2, true);
 
 };
