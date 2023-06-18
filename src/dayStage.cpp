@@ -21,23 +21,33 @@ DayStage::DayStage() : Stage() {
 
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
-	
+
+
+	//TODO: ADAPT THIS TO THE NEW ASSETS
+	float size_y = 1250.f * Game::instance->window_height / 1080;
+	float size_x = size_y * 2083.f / 1250.f;
+
+	HUD_quad.createQuad(Game::instance->window_width / 2, Game::instance->window_height * 1.22/4 , size_x/2, size_y/2, true);	
+
 };
 
 void DayStage::onEnter()
 {
 	// TODO: add the shield that has been left off from the night
-	Audio::Init();
-	channel = Audio::Play("data/audio/intro.wav", 1.0, 1);
+	//udio::Init();
+	//channel = Audio::Play("data/audio/intro.wav", 1.0, 1);
 	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
+
+
+	
 }
 
 void DayStage::onExit()
 {
-	bool a = Audio::Stop(channel);
+	//bool a = Audio::Stop(channel);
 	World::inst->clearItems();
 	
 }
@@ -49,13 +59,20 @@ void DayStage::render() {
 		entity->render();
 	}
 
-	drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
-	drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
-	
-	renderConsumableMenu();
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+	renderHUD(shader);
+
+	//drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
+	//drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
+	//drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
+	//
+	//renderConsumableMenu();
 	#if DEBUG
-	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
+	drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
 		, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
 
@@ -86,6 +103,41 @@ void DayStage::renderSky()
 	glEnable(GL_DEPTH_TEST);
 
 }
+
+
+void DayStage::renderHUD(Shader* shader)
+{
+	// rendering the icons 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	
+	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud.tga"), 0);
+	HUD_quad.render(GL_TRIANGLES);
+	glDisable(GL_BLEND);
+
+	// Rendering the quantity of each consumable
+
+	
+	drawText( Game::instance->window_width*0.245, Game::instance->window_height - Game::instance->window_height*0.09,
+		std::to_string(World::inst->getConsumableQuant(consumableType(3))), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+	/*drawText(Game::instance->window_width * 0.4, Game::instance->window_height - Game::instance->window_height * 0.07,
+		std::to_string(World::inst->getConsumableQuant(consumableType(4))), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+	drawText(Game::instance->window_width * 0.48, Game::instance->window_height - Game::instance->window_height * 0.07,
+		std::to_string(World::inst->getConsumableQuant(consumableType(5))), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+	drawText(Game::instance->window_width * 0.5555, Game::instance->window_height - Game::instance->window_height * 0.07,
+		std::to_string(World::inst->getConsumableQuant(consumableType(0))), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+	drawText(Game::instance->window_width * 0.64, Game::instance->window_height - Game::instance->window_height * 0.07,
+		std::to_string(World::inst->getConsumableQuant(consumableType(1))), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+	drawText(Game::instance->window_width * 0.72, Game::instance->window_height - Game::instance->window_height * 0.07,
+		std::to_string(World::inst->getConsumableQuant(consumableType(2))), Vector3(1.0f, 1.0f, 1.0f), 2);*/
+}
+
 
 void DayStage::update(float dt) {
 	time_remaining -= dt;
@@ -302,3 +354,14 @@ void DayStage::updateItemsAndStats() {
 		#endif
 	}
 }
+
+void DayStage::resizeOptions(int width, int height) {
+
+	float size_y = 1250.f * Game::instance->window_height / 1080;
+	float size_x = size_y * 2083.f / 1250.f;
+
+	
+
+	HUD_quad.createQuad( width / 2, height * 1.22 / 4, size_x / 2, size_y / 2, true);
+
+};

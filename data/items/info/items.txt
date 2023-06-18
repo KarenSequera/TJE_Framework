@@ -6,8 +6,8 @@ arms,data/items/item.obj
 wooden_door,data/items/models/helmet.obj
 metal_shield,data/items//models/armor.obj
 
-bandages,data/items/models/syring.obj
-painkillers,data/items/models/pill.obj
+bandages,data/items/models/pill.obj
+painkillers,data/items/models/syring.obj
 aid_kit,data/items/models/firstaidkit.obj
 apple,data/items/models/apple.obj
 canned_beans,data/items/models/can.obj

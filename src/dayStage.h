@@ -15,6 +15,7 @@ public:
 	const char* consumable_names[NUM_CONSUMABLES - NUM_SHIELD_ITEMS] = 
 		{ "Bandages ", "Painkillers ", "First-aid Kit ", "Apple ", "Canned Beans ", "Burger "};
 
+	Mesh HUD_quad;
 	consumableType consumable_selected;
 	float time_remaining;
 
@@ -25,10 +26,11 @@ public:
 	void render();
 	void renderConsumableMenu();
 	void renderSky();
+	void renderHUD(Shader* shader);
 	void update(float dt);
 	void updateMovement(float dt);
 	void updateItemsAndStats();
 
 
-	void resizeOptions(int width, int height) {};
+	void resizeOptions(int width, int height);
 };
