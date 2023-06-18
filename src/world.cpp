@@ -714,9 +714,17 @@ bool World::attackPlayer(int zombie_idx)
 		}
 
 		hurtPlayer(zombie->info.dmg);
-		
-		float delay = zombie->toState(zombie->info.weapon, TRANSITION_TIME) / 2.f;
-		player->hurtAnimation(delay);
+
+		float delay = zombie->toState(zombie->info.weapon, TRANSITION_TIME) / 3.f;
+
+		if (!isPlayerAlive()) {
+			player->triggerDeath(delay * 1.5);
+			zombie->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
+		}
+		else {
+			player->hurtAnimation(delay);
+		}
+
 		zombie_attacking = true;
 	}
 	return false;
@@ -911,7 +919,7 @@ void World::resizeOptions(float width, float height)
 void World::updateAnimations(float dt)
 {
 	player->updateAnim(dt);
-	
+
 	bool local = player->isIdle();
 
 	std::vector<int> to_remove;

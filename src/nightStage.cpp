@@ -207,6 +207,11 @@ void NightStage::update(float dt)
 	{
 	}
 
+	if (!World::inst->isPlayerAlive()) {
+		if (shouldTrigger(World::inst->player->time_til_death, dt))
+			StageManager::inst->changeStage("game over");
+	}
+
 #else
 	if (World::inst->idle)
 	{
@@ -214,7 +219,11 @@ void NightStage::update(float dt)
 			playerTurnUpdate(dt);
 		else
 			zombieTurnUpdate(dt);
-}
+	}
+
+	if (!World::inst->isPlayerAlive()) {
+		if (shouldTrigger(World::inst->player->time_til_death, dt))
+			StageManager::inst->changeStage("game over");
 	}
 #endif
 }
@@ -284,6 +293,7 @@ void NightStage::playerTurnUpdate(float dt)
 void NightStage::zombieTurnUpdate(float dt)
 {
 	time_between_turns -= dt;
+
 	if (time_between_turns <= 0.f)
 	{
 		if (World::inst->attackPlayer(zombie_attacking))
@@ -296,6 +306,7 @@ void NightStage::zombieTurnUpdate(float dt)
 			}
 		}
 	}
+
 }
 
 void NightStage::cameraUpdate(float dt)

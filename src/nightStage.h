@@ -2,7 +2,7 @@
 #include "stage.h"
 #define HEALTH_BAR_WIDTH 50.f
 #define HEALTH_BAR_HEIGHT 10.f
-#define TIME_BTW_TURNS 0.5f
+#define TIME_BTW_TURNS 1.f
 
 class NightStage : public Stage {
 public:
