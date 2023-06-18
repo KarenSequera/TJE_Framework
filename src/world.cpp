@@ -88,7 +88,7 @@ void World::parseItemEntities(const char* filename)
 {
 
 	items.resize(NUM_ITEMS);
-	weapon_meshes.resize(NUM_WEAPONS);
+	weapon_mesh_info.resize(NUM_WEAPONS);
 	
 	int i;
 
@@ -134,11 +134,26 @@ void World::parseItemEntities(const char* filename)
 	file.ignore(1, '\n');
 	file >> data;
 
-	weapon_meshes[FISTS] = nullptr;
+
+	weapon_mesh_info[FISTS].mesh = nullptr;
 
 	for (int weapon_type = 1; weapon_type < NUM_WEAPONS; weapon_type++) {
 		file >> data;
-		weapon_meshes[weapon_type] = Mesh::Get(data.c_str());
+		sWeaponMeshData weapon_data;
+
+		std::vector<std::string> tokens = tokenize(data, ",");
+
+		weapon_data.mesh = Mesh::Get(tokens[0].c_str());
+		weapon_data.player_offset = Vector3(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+		weapon_data.zombie_offset = Vector3(std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]));
+		weapon_data.player_rotate = std::stoi(tokens[7]);
+		weapon_data.zombie_rotate = std::stoi(tokens[8]);
+		weapon_data.player_angle = std::stof(tokens[9]);
+		weapon_data.zombie_angle = std::stof(tokens[10]);
+		weapon_data.player_axis = Vector3(std::stof(tokens[11]), std::stof(tokens[12]), std::stof(tokens[13]));
+		weapon_data.zombie_axis = Vector3(std::stof(tokens[14]), std::stof(tokens[15]), std::stof(tokens[16]));
+
+		weapon_mesh_info[weapon_type] = weapon_data;
 	}
 }
 
@@ -952,12 +967,25 @@ void World::renderNight()
 	player->render();
 
 	if (ready_to_attack || player->holdingObject())
-		player->renderWeapon(weapon_meshes[weapon], camera);
+		player->renderWeapon(weapon_mesh_info[weapon].mesh, 
+			camera,
+			weapon_mesh_info[weapon].player_offset, 
+			weapon_mesh_info[weapon].player_rotate, 
+			weapon_mesh_info[weapon].player_angle, 
+			weapon_mesh_info[weapon].player_axis
+		);
 
 	// Zombies
 	for (auto& zombie : World::inst->wave)
 	{
 		zombie->render();
-		zombie->renderWeapon(weapon_meshes[zombie->info.weapon], camera);
+		int zombie_weapon = zombie->info.weapon;
+		zombie->renderWeapon(weapon_mesh_info[zombie_weapon].mesh,
+			camera,
+			weapon_mesh_info[zombie_weapon].zombie_offset,
+			weapon_mesh_info[zombie_weapon].zombie_rotate,
+			weapon_mesh_info[zombie_weapon].zombie_angle,
+			weapon_mesh_info[zombie_weapon].zombie_axis
+		);
 	}
 }

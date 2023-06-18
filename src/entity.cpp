@@ -179,7 +179,7 @@ void AnimatedEntity::render()
 	Entity::render();
 }
 
-void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera) {
+void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bool rotate, float rot_angle, Vector3 rot_axis) {
 
 	if (!mesh)
 		return;
@@ -191,8 +191,11 @@ void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera) {
 
 	model = model * model_matrix;
 
-	Vector3 pos = model.getTranslation() + Vector3(20.f, 0.f, 10.f);
+	Vector3 pos = model.getTranslation() + offset;
 	model.setTranslation(pos, false);
+	
+	if(rotate)
+		model.setRotation(rot_angle, rot_axis);
 
 	shader->enable();
 	shader->setUniform("u_color", Vector4(1, 1, 1, 1));

@@ -69,7 +69,7 @@ public:
 	float time_til_death;
 
 	void render();
-	void renderWeapon(Mesh* mesh, Camera* camera);
+	void renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bool rotate, float rot_angle, Vector3 rot_axis);
 	void updateAnim(float dt);
 	void triggerDeath(float delay);
 	float toState(int state, float time = 0.f);

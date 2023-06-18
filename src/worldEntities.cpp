@@ -91,4 +91,3 @@ bool ZombieEntity::alive()
 {
 	return (info.health > 0);
 } 
-

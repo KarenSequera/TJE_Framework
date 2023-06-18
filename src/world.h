@@ -14,6 +14,18 @@ struct sCollisionData {
 	Vector3 colNormal;
 };
 
+struct sWeaponMeshData {
+	Mesh* mesh;
+	Vector3 player_offset;
+	Vector3 zombie_offset;
+	int player_rotate;
+	int zombie_rotate;
+	float player_angle;
+	float zombie_angle;
+	Vector3 player_axis;
+	Vector3 zombie_axis;
+};
+
 class World {
 public:
 	// General variables
@@ -34,7 +46,7 @@ public:
 	std::vector<EntitySpawner*> item_spawns;
 
 	std::vector<std::vector<ItemEntity*>> items;
-	std::vector<Mesh*> weapon_meshes;
+	std::vector<sWeaponMeshData> weapon_mesh_info;
 
 	Texture* cubemap;
 

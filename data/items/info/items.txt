@@ -17,6 +17,6 @@ vest,data/items/models/armor.obj
 helmet,data/items/models/helmet.obj
 
 data/items/item.obj
-data/items/models/bat.obj
-data/items/models/knife_weapon.obj
-data/items/models/gun_weapon.obj
+data/items/models/weapons/bat.obj,0.0,0.0,10.0,15.0,0.0,10.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+data/items/models/weapons/knife.obj,0.0,0.0,10.0,15.0,0.0,10.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+data/items/models/weapons/gun.obj,0.0,0.0,10.0,15.0,0.0,10.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
