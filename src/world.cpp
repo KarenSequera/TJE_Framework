@@ -951,6 +951,9 @@ void World::renderNight()
 	// Player
 	player->render();
 
+	if (ready_to_attack || player->holdingObject())
+		player->renderWeapon(weapon_meshes[weapon], camera);
+
 	// Zombies
 	for (auto& zombie : World::inst->wave)
 	{

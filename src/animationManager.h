@@ -38,7 +38,6 @@ enum commonStates {
 // all classes related to stages
 class AnimationManager {
 private:
-	int target_state;
 	int delayed_target_state;
 
 	Skeleton blended_skeleton;
@@ -57,6 +56,7 @@ public:
 	std::vector<std::string> zombie_idle_paths;
 
 	int cur_state;
+	int target_state;
 
 	AnimationManager();
 
