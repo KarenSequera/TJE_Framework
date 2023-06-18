@@ -65,12 +65,19 @@ void NightStage::render()
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 
-	if(World::inst->ready_to_attack)
-		renderCrosshair(shader);
-
 	renderHealthBars(shader);
 
 	shader->disable();
+
+
+	if (World::inst->ready_to_attack) {
+		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture_anim.fs");
+		shader->enable();
+		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+		renderCrosshair(shader);
+		shader->disable();
+	}
 
 	if (is_player_turn && World::inst->idle)
 	{
@@ -80,19 +87,25 @@ void NightStage::render()
 
 void NightStage::renderCrosshair(Shader* shader)
 {
+	float anim_speed = 7.f;
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
 
 	Vector3 position = model.getTranslation();
-	position.y += 200.f;
+	position.y += 175.f;
 	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	Mesh quad;
 	quad.createQuad(position.x, position.y, 50.f, 50.f, true);
 
-	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair.tga"), 0);
+	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair_anim.tga"), 0);
+	shader->setUniform("u_ratio", 1.f / 8.f);
+	shader->setUniform("u_state", int(Game::instance->time * anim_speed) % 8);
+	shader->setUniform("u_time", Game::instance->time);
+
 	quad.render(GL_TRIANGLES);
 	glDisable(GL_BLEND);
 }
