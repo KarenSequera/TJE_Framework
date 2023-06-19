@@ -26,7 +26,6 @@ public:
 	void render();
 	void renderCrosshair(Shader* shader);
 	void renderHealthBars(Shader* shader);
-	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader);
 
 	void update(float dt);
 

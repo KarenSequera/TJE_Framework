@@ -20,4 +20,8 @@ public:
 	virtual void render() {};
 	virtual void update(float dt) {};
 	virtual void resizeOptions(int width, int height) {};
+	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height);
+	void renderHungerBar(Vector3 position, float hunger_ratio, Shader* shader, float width, float height);
+
+
 };

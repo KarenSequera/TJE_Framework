@@ -96,25 +96,6 @@ void NightStage::renderCrosshair(Shader* shader)
 	glDisable(GL_BLEND);
 }
 
-void NightStage::renderHealthBar(Vector3 position, float hp_ratio, Shader* shader)
-{
-	Mesh quad1;
-	Mesh quad2;
-
-	//Creation of the first quad, the background one.
-	quad1.createQuad(position.x, position.y, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, true);
-
-	//Creation of the second quad. This one contains the life information. 
-	float greenBarWidth = HEALTH_BAR_WIDTH * hp_ratio;
-	float offset = (50.f - greenBarWidth) * 0.5f;
-	quad2.createQuad(position.x - offset, position.y, greenBarWidth, HEALTH_BAR_HEIGHT, true);
-
-	shader->setUniform("u_texture", Texture::Get("data/NightTextures/redTexture.tga"), 0);
-	quad1.render(GL_TRIANGLES);
-
-	shader->setUniform("u_texture", Texture::Get("data/NightTextures/greenTexture.tga"), 0);
-	quad2.render(GL_TRIANGLES);
-}
 
 void NightStage::renderHealthBars(Shader* shader)
 {
@@ -134,7 +115,7 @@ void NightStage::renderHealthBars(Shader* shader)
 	position.y -= 25.f;
 	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
-	renderHealthBar(position, ratio, shader);
+	renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 	
 	//Health bar of the zombies
 	for (auto& zombie : World::inst->wave){
@@ -150,7 +131,7 @@ void NightStage::renderHealthBars(Shader* shader)
 
 		ratio = (float) actual_health / total_health;
 
-		renderHealthBar(position, ratio, shader);
+		renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 	}
 	glEnable(GL_DEPTH_TEST);
 }
