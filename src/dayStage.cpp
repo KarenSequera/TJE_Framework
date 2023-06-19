@@ -24,15 +24,13 @@ DayStage::DayStage() : Stage() {
 
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
-	float size_x = Game::instance->window_width ;
-	float size_y = size_x * 1250.f/2038.0f;
-	/*float size_y = 1250.f * Game::instance->window_height / 1080;
-	float size_x = size_y * 2083.f / 1250.f;*/
-
+	float size_x = (Game::instance->window_width)/1.5;
+	float size_y = (size_x * 1000/3000);
+	
 	float position_x = Game::instance->window_width / 2;
-	float position_y = size_y/4;
+	float position_y = (position_x / 1.5 * 1000/3000);
 
-	HUD_quad.createQuad(position_x, position_y, size_x / 2, size_y / 2, true);
+	HUD_quad.createQuad(position_x, position_y, size_x, size_y , true);
 
 };
 
@@ -362,14 +360,12 @@ void DayStage::updateItemsAndStats() {
 
 void DayStage::resizeOptions(int width, int height) {
 
-	float size_x = width;
-	float size_y = size_x * 1250.f / 2083.f;
-	/*float size_y = 1250.f * Game::instance->window_height / 1080;
-	float size_x = size_y * 2083.f / 1250.f;*/
+	float size_x = width / 1.5;
+	float size_y = (size_x * 1000 / 3000);
+
 
 	float position_x = width / 2;
-	float position_y = size_y / 4;
+	float position_y = (position_x / 1.5 * 1000 / 3000);
 
-	HUD_quad.createQuad(position_x, position_y, size_x / 2, size_y / 2, true);
-
+	HUD_quad.createQuad(position_x, position_y, size_x, size_y, true);
 };
