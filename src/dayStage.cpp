@@ -62,13 +62,8 @@ void DayStage::render() {
 		entity->render();
 	}
 
-	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-	shader->enable();
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-
 	glDisable(GL_DEPTH_TEST);
-	renderHUD(shader);
+	renderHUD();
 	glEnable(GL_DEPTH_TEST);
 
 	//drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
@@ -110,13 +105,20 @@ void DayStage::renderSky()
 }
 
 
-void DayStage::renderHUD(Shader* shader)
+void DayStage::renderHUD()
 {
+
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud.tga"), 0);
+
 	// rendering the icons 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud.tga"), 0);
+	
 	HUD_quad.render(GL_TRIANGLES);
 	
 
@@ -154,8 +156,21 @@ void DayStage::renderHUD(Shader* shader)
 	// Rendering Hunger bar
 	position = Vector3(Game::instance->window_width / 1.58, Game::instance->window_width / 8.3, 0);
 	renderHungerBar(position, 0.5, shader, width, height);
+	shader->disable();
+
+
+	Shader* shader_selected = Shader::Get("data/shaders/quad.vs", "data/shaders/hud.fs");
+	shader_selected->enable();
+	shader_selected->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader_selected->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader_selected->setUniform("u_texture", Texture::Get("data/hudDay/hud_selected.tga"), 0);
+	shader_selected->setUniform("u_ratio", 1.0/6.0);
+	shader_selected->setUniform("u_selected", (consumable_selected));
+
+	HUD_quad.render(GL_TRIANGLES);
 
 	glDisable(GL_BLEND);
+	shader_selected->disable();
 
 }
 

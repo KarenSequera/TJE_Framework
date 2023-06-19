@@ -26,7 +26,7 @@ public:
 	void render();
 	void renderConsumableMenu();
 	void renderSky();
-	void renderHUD(Shader* shader);
+	void renderHUD();
 	void update(float dt);
 	void updateMovement(float dt);
 	void updateItemsAndStats();
