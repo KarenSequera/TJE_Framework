@@ -164,13 +164,13 @@ void DayStage::renderHUD()
 	shader_selected->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader_selected->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 	shader_selected->setUniform("u_texture", Texture::Get("data/hudDay/hud_selected.tga"), 0);
-	shader_selected->setUniform("u_ratio", 1.0/6.0);
+	shader_selected->setUniform("u_ratio", 1.f/6.f);
 	shader_selected->setUniform("u_selected", (consumable_selected));
 
 	HUD_quad.render(GL_TRIANGLES);
 
-	glDisable(GL_BLEND);
 	shader_selected->disable();
+	glDisable(GL_BLEND);
 
 }
 
@@ -348,11 +348,11 @@ void DayStage::updateItemsAndStats() {
 	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 		{
-			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
+			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_E))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected + 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
 
 		// use consumable
