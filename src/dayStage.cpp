@@ -121,44 +121,22 @@ void DayStage::renderHUD()
 	
 	HUD_quad.render(GL_TRIANGLES);
 	
-
-	// Rendering the quantity of each consumable
-
-	/*
-	drawText( Game::instance->window_width*0.315, Game::instance->window_height - Game::instance->window_height*0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(3))), Vector3(1.0f, 1.0f, 1.0f), 2);
-
-	drawText(Game::instance->window_width * 0.4, Game::instance->window_height - Game::instance->window_height * 0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(4))), Vector3(1.0f, 1.0f, 1.0f), 2);
-
-	drawText(Game::instance->window_width * 0.48, Game::instance->window_height - Game::instance->window_height * 0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(5))), Vector3(1.0f, 1.0f, 1.0f), 2);
-
-	drawText(Game::instance->window_width * 0.5555, Game::instance->window_height - Game::instance->window_height * 0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(0))), Vector3(1.0f, 1.0f, 1.0f), 2);
-
-	drawText(Game::instance->window_width * 0.64, Game::instance->window_height - Game::instance->window_height * 0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(1))), Vector3(1.0f, 1.0f, 1.0f), 2);
-
-	drawText(Game::instance->window_width * 0.72, Game::instance->window_height - Game::instance->window_height * 0.07,
-		std::to_string(World::inst->getConsumableQuant(consumableType(2))), Vector3(1.0f, 1.0f, 1.0f), 2);*/
-
 	// Rendering Health Bar
 	Vector3 position = Vector3(Game::instance->window_width / 2.3, Game::instance->window_width / 8.3, 0);
 	float width = Game::instance->window_width /7.5;
 	float height = (width * 15 / 90);
-
-	int total_health = MAX_HEALTH;
-	int actual_health = (World::inst->player->health);
-	float ratio = (float)actual_health / total_health;
-	renderHealthBar(position, ratio, shader, width, height);
+	
+	renderHealthBar(position,
+		(float)(World::inst->player->health) / MAX_HEALTH , shader, width, height);
 
 	// Rendering Hunger bar
 	position = Vector3(Game::instance->window_width / 1.58, Game::instance->window_width / 8.3, 0);
-	renderHungerBar(position, 0.5, shader, width, height);
+	
+	renderHungerBar(position, (float)(World::inst->player->hunger/MAX_HUNGER), shader, width, height);
 	shader->disable();
 
 
+	//Rendering selected option
 	Shader* shader_selected = Shader::Get("data/shaders/quad.vs", "data/shaders/hud.fs");
 	shader_selected->enable();
 	shader_selected->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
@@ -168,8 +146,23 @@ void DayStage::renderHUD()
 	shader_selected->setUniform("u_selected", (consumable_selected));
 
 	HUD_quad.render(GL_TRIANGLES);
-
 	shader_selected->disable();
+
+
+	// Rendering the quantity of each consumable
+
+	float x = Game::instance->window_width / 2.87;
+	//float y = Game::instance->window_width / 1.42;
+	float y = Game::instance->window_height / 1.07;
+
+	float offset = Game::instance->window_width /15;
+
+	for (int i = 0; i < 6; i++) {
+		drawText(x + offset * i, y,
+			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_width / 300);
+
+	}
+	
 	glDisable(GL_BLEND);
 
 }
