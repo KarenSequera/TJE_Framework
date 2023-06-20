@@ -72,8 +72,8 @@ void  GameOverStage::resizeOptions(int width, int height)
 
 	float offset = 0.05 * height;
 
-	option_uses_pos[0] = Vector2(0.85 * width, 2 * size_y +  offset);
-	option_uses_pos[1] = Vector2(0.85 * width, 1 * size_y);
+	option_uses_pos[0] = Vector2(width/2, 2 * size_y +  offset);
+	option_uses_pos[1] = Vector2(width/2, 1 * size_y);
 
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);

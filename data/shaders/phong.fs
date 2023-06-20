@@ -32,7 +32,18 @@ void main() {
     // Combine all components to get the final color
     vec3 final_color = ambient + diffuse + specular;
 
-    // Output the final color
+    float dist = length(u_camera_pos - v_world_position);
+    float fogMinDist = 500.0;   
+    float fogMaxDist = 3500.0;   
+
+    float fog_factor = clamp(1.0 - (fogMaxDist - dist) / (fogMaxDist - fogMinDist), 0.0, 1.0);
+
+    vec3 fog_color = vec3(0.7, 0.7, 0.7); 
+
+    final_color = mix( final_color, fog_color, fog_factor );
+
+
+
     gl_FragColor = vec4(final_color, 1.0)* 1.0;
 }
 

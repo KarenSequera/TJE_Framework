@@ -37,7 +37,7 @@ DayStage::DayStage() : Stage() {
 void DayStage::onEnter()
 {
 	// TODO: add the shield that has been left off from the night
-	//udio::Init();
+	//Audio::Init();
 	//channel = Audio::Play("data/audio/intro.wav", 1.0, 1);
 	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
@@ -153,13 +153,13 @@ void DayStage::renderHUD()
 
 	float x = Game::instance->window_width / 2.87;
 	//float y = Game::instance->window_width / 1.42;
-	float y = Game::instance->window_height / 1.07;
+	float y = Game::instance->window_height / 1.068;
 
 	float offset = Game::instance->window_width /15;
 
 	for (int i = 0; i < 6; i++) {
 		drawText(x + offset * i, y,
-			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_width / 300);
+			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height / 270);
 
 	}
 	

@@ -618,12 +618,12 @@ void World::loadSky()
 {
 	cubemap = new Texture();
 	cubemap->loadCubemap("sky", {
-			"data/cubemap/right.tga",
-			"data/cubemap/left.tga",
-			"data/cubemap/bottom.tga",
-			"data/cubemap/top.tga",
-			"data/cubemap/front.tga",
-			"data/cubemap/back.tga"
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga"
 	
 	});
 
