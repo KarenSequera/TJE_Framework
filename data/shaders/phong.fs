@@ -33,7 +33,7 @@ void main() {
     vec3 final_color = ambient + diffuse + specular;
 
     float dist = length(u_camera_pos - v_world_position);
-    float fogMinDist = 500.0;   
+    float fogMinDist = 300.0;   
     float fogMaxDist = 3500.0;   
 
     float fog_factor = clamp(1.0 - (fogMaxDist - dist) / (fogMaxDist - fogMinDist), 0.0, 1.0);
