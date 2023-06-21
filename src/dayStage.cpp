@@ -132,7 +132,7 @@ void DayStage::renderHUD()
 	// Rendering Hunger bar
 	position = Vector3(Game::instance->window_width / 1.58, Game::instance->window_width / 8.3, 0);
 	
-	renderHungerBar(position, (float)(World::inst->player->hunger/MAX_HUNGER), shader, width, height);
+	renderHungerBar(position, (float)(World::inst->player->hunger)/MAX_HUNGER, shader, width, height);
 	shader->disable();
 
 
