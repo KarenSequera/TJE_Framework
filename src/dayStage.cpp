@@ -43,8 +43,6 @@ void DayStage::onEnter()
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
-
-
 	
 }
 
@@ -203,8 +201,8 @@ void DayStage::updateMovement(float dt){
 
 		// MOVEMENT
 		// The orientation of the camara is conttrolled with the right joystick
-		right_analog_x_disp = Input::gamepads[0].axis[RIGHT_ANALOG_X];
-		right_analog_y_disp = Input::gamepads[0].axis[RIGHT_ANALOG_Y];
+		right_analog_x_disp = -1.f * Input::gamepads[0].axis[RIGHT_ANALOG_X];
+		right_analog_y_disp = -1.f * Input::gamepads[0].axis[RIGHT_ANALOG_Y];
 
 		left_analog_x_disp = Input::gamepads[0].axis[LEFT_ANALOG_X];
 		left_analog_y_disp = Input::gamepads[0].axis[LEFT_ANALOG_Y];
@@ -215,11 +213,18 @@ void DayStage::updateMovement(float dt){
 		}
 
 		//The player moves with the left joystick, so when the left joystick is moved, we need to move the camera. 
-		if (std::abs(left_analog_x_disp) > DRIFT_THRESHOLD)
-			camera->moveXZ(Vector3(left_analog_x_disp, 0.f, 0.f) * -3.0f * speed);
+		if (std::abs(left_analog_x_disp) > DRIFT_THRESHOLD) {
+			int sign = left_analog_x_disp > 0.f ? -1.f : 1.f;
+			move_dir = move_dir + sign * camera->v_right;
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
 
 		if (std::abs(left_analog_y_disp) > DRIFT_THRESHOLD) {
-			camera->moveXZ(Vector3(0.f, 0.f, left_analog_y_disp) * -3.0f * speed);
+			int sign = left_analog_y_disp > 0.f ? -1.f : 1.f;
+			move_dir = move_dir + sign * camera->front;
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
 		}
 	}
 	else {
@@ -254,41 +259,37 @@ void DayStage::updateMovement(float dt){
 				move_dir.normalize();
 		}
 
-		World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
-
-		/*#if DEBUG
-		printf("%f %f %f\n", World::inst->player->velocity.x, World::inst->player->velocity.y, World::inst->player->velocity.z);
-		#endif*/
-
-
-		if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions) == 1)
-		{
-			Vector3 new_dir;
-			Vector3 velocity;
-
-			sCollisionData collision = collisions[0];
-				
-			velocity = World::inst->player->velocity;
-				
-			new_dir = World::inst->player->velocity.dot(collision.colNormal);
-
-			new_dir = new_dir * collision.colNormal;
-			World::inst->player->velocity.x = 0;
-			World::inst->player->velocity.z = 0;
-		}
-		World::inst->player->velocity.y = 0.f;
-
-		World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
-		World::inst->player->model_matrix.setTranslation(World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
-	
-		World::inst->player->velocity *= 0.15f;
-		camera->eye = World::inst->player->position;
-
-		move_dir *= 0.15f;
 		//to navigate with the mouse fixed in the middle
 		if (mouse_locked)
 			Input::centerMouse();
 	}
+
+	World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
+
+	if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions) == 1)
+	{
+		Vector3 new_dir;
+		Vector3 velocity;
+
+		sCollisionData collision = collisions[0];
+
+		velocity = World::inst->player->velocity;
+
+		new_dir = World::inst->player->velocity.dot(collision.colNormal);
+
+		new_dir = new_dir * collision.colNormal;
+		World::inst->player->velocity.x = 0;
+		World::inst->player->velocity.z = 0;
+	}
+	World::inst->player->velocity.y = 0.f;
+
+	World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
+	World::inst->player->model_matrix.setTranslation(World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
+
+	World::inst->player->velocity *= 0.15f;
+	camera->eye = World::inst->player->position;
+
+	move_dir *= 0.15f;
 	
 }
 
@@ -296,15 +297,15 @@ void DayStage::updateItemsAndStats() {
 	if (Input::gamepads[0].connected)
 	{
 		// MENU
-		if (Input::wasPadPressed(HATState::PAD_RIGHT))
+		if (Input::wasButtonPressed(RB_BUTTON))
 		{
 			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
 		}
-		else if (Input::wasPadPressed(HATState::PAD_LEFT))
+		else if (Input::wasButtonPressed(LB_BUTTON))
 		{
 			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
-		else if (Input::wasButtonPressed(X_BUTTON))
+		else if (Input::wasButtonPressed(A_BUTTON))
 		{
 			int res = World::inst->useConsumable(consumable_selected);
 			switch (res) {
@@ -322,20 +323,6 @@ void DayStage::updateItemsAndStats() {
 				break;
 			}
 		}
-		#if DEBUG
-		else if (Input::wasPadPressed(PAD_UP))
-		{
-			World::inst->hurtPlayer(KNIFE);
-		}
-		else if (Input::wasPadPressed(PAD_DOWN))
-		{
-			World::inst->consumeHunger(10);
-		}
-		else if (Input::wasButtonPressed(RIGHT_ANALOG_BUTTON))
-		{
-			World::inst->getConsumable(VEST);
-		}
-		#endif
 	}
 	else
 	{
@@ -371,17 +358,17 @@ void DayStage::updateItemsAndStats() {
 				break;
 			}
 		}
-#if DEBUG
-		else if (Input::wasKeyPressed(SDL_SCANCODE_J))
-			World::inst->hurtPlayer(KNIFE);
-
-		else if (Input::wasKeyPressed(SDL_SCANCODE_K))
-			World::inst->consumeHunger(10);
-
-		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
-			StageManager::inst->changeStage("night");
-		#endif
 	}
+#if DEBUG
+	if (Input::wasKeyPressed(SDL_SCANCODE_J))
+		World::inst->hurtPlayer(KNIFE);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_K))
+		World::inst->consumeHunger(10);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_N))
+		StageManager::inst->changeStage("night");
+#endif
 }
 
 void DayStage::resizeOptions(int width, int height) {

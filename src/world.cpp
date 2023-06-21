@@ -456,42 +456,6 @@ void World::getItem(ItemEntity* item) {
 	}
 }
 
-bool World::checkItemCollisions(const Vector3& ray_dir)
-{
-	for (auto& entity : day_root->children)
-	{
-		EntityCollision* collision = dynamic_cast<EntityCollision*>(entity);
-		if (!collision)
-			continue;
-
-		for (auto& model : collision->models)
-		{
-			if (!collision->mesh->testRayCollision(
-				model,
-				player->position,
-				ray_dir,
-				Vector3(),
-				Vector3(),
-				MAX_ITEM_DIST,
-				false
-			))
-			#if DEBUG
-			{
-
-				printf("NO collision\n");
-				continue;
-			}
-			printf("Collided with item!\n");
-			#else
-				continue;
-			#endif
-			return true;
-		}
-		
-	}
-	return false;
-}
-
 /*
 * Function that checks the collisions of the player with the object in the scene
 * @param target_pos: the position the playe wants to move to
@@ -504,7 +468,7 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
 	Vector3 center = target_pos - Vector3(0.f, 0.0f, 0.f);
-	float sphere_rad = 30.f;
+	float sphere_rad = 40.f;
 	Vector3 colPoint, colNormal;
 
 	for (auto& entity : day_root->children)

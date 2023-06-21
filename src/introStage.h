@@ -25,7 +25,6 @@ public:
 	void update(float dt);
 
 	void resizeOptions(int width, int height);
-	void changeOption(int to_add);
 	bool selectOption();
 
 };

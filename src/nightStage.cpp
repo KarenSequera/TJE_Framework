@@ -231,48 +231,99 @@ void NightStage::playerTurnUpdate(float dt)
 	// if null pointer, the user has chosen to attack
 	if (World::inst->ready_to_attack)
 	{
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
-			selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
+		if (Input::gamepads[0].connected) {
 
-		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
-			selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+			if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
+				selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
 
-		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
-			int result = World::inst->hurtZombie(selected_target);
+			else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT))
+				selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
 
-			
+			else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
+				int result = World::inst->hurtZombie(selected_target);
 
-			// if the attack is not super effective then we move onto the zombie's turn
-			if (result != 2)
-				is_player_turn = false;
-						
-			// otherwise we give the player another action
-			// TODO: message of super efective, perhaps -> with a bool and a specific UI element for it, for example
-			World::inst->ready_to_attack = false;
-			World::inst->changeMenu("general");
-			selected_target = 0;
+
+
+				// if the attack is not super effective then we move onto the zombie's turn
+				if (result != 2)
+					is_player_turn = false;
+
+				// otherwise we give the player another action
+				// TODO: message of super efective, perhaps -> with a bool and a specific UI element for it, for example
+				World::inst->ready_to_attack = false;
+				World::inst->changeMenu("general");
+				selected_target = 0;
+			}
+			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+			{
+				World::inst->ready_to_attack = false;
+				World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
+			}
 		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
-		{
-			World::inst->ready_to_attack = false;
-			World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
+		else {
+			if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
+				selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
+
+			else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
+				selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+
+			else if (Input::wasButtonPressed(A_BUTTON)) {
+				int result = World::inst->hurtZombie(selected_target);
+
+
+
+				// if the attack is not super effective then we move onto the zombie's turn
+				if (result != 2)
+					is_player_turn = false;
+
+				// otherwise we give the player another action
+				// TODO: message of super efective, perhaps -> with a bool and a specific UI element for it, for example
+				World::inst->ready_to_attack = false;
+				World::inst->changeMenu("general");
+				selected_target = 0;
+			}
+			else if (Input::wasButtonPressed(B_BUTTON))
+			{
+				World::inst->ready_to_attack = false;
+				World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
+			}
 		}
+		
 	}
 	else
 	{
-		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
-			World::inst->changeOption(-1);
+		if (Input::gamepads[0].connected) {
 
-		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
-			World::inst->changeOption(1);
+			if (Input::gamepads[0].didDirectionChanged(FLICK_UP))
+				World::inst->changeOption(-1);
 
-		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
-			if (World::inst->selectOption())
-				is_player_turn = false;
+			else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
+				World::inst->changeOption(1);
+
+			else if (Input::wasButtonPressed(A_BUTTON))
+			{
+				if (World::inst->selectOption())
+					is_player_turn = false;
+			}
+			else if (Input::wasButtonPressed(B_BUTTON))
+				World::inst->changeMenu("general");
 		}
+		else {
+			if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
+				World::inst->changeOption(-1);
 
-		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
-			World::inst->changeMenu("general");
+			else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
+				World::inst->changeOption(1);
+
+			else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
+				if (World::inst->selectOption())
+					is_player_turn = false;
+			}
+
+			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+				World::inst->changeMenu("general");
+		}
+		
 	}
 
 	#if DEBUG	

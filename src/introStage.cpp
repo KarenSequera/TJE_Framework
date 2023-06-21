@@ -50,17 +50,22 @@ void IntroStage::render()
 
 void IntroStage::update(float dt)
 {
-	if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP)) 
-	{
-		changeOption(-1);
+	if (Input::gamepads[0].connected) {
+		if(Input::gamepads[0].didDirectionChanged(FLICK_UP))
+			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
+		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
+			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+		else if (Input::wasButtonPressed(A_BUTTON))
+			selectOption();
+
 	}
-	else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
-	{
-		changeOption(1);
-	}
-	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
-	{
-		selectOption();
+	else {
+		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
+			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
+		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
+			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
+			selectOption();
 	}
 }
 
@@ -85,11 +90,6 @@ void  IntroStage::resizeOptions(int width, int height)
 		option_uses_pos[i].x += 0.1 * width;
 		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
 	}
-}
-
-void IntroStage::changeOption(int to_add)
-{
-	selected_option = ourMod(selected_option + to_add, OPTIONS_INTRO_MENU);
 }
 
 bool IntroStage::selectOption()

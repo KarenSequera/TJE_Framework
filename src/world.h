@@ -124,7 +124,6 @@ public:
 	void addDefItemUses(defensiveType def);
 	void getItem(ItemEntity* item);
 
-	bool checkItemCollisions(const Vector3& ray_dir);
 	int checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
 	void loadSky();
 	
