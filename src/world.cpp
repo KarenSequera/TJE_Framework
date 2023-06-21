@@ -23,7 +23,7 @@ World::World() {
 	day_entities.push_back(day_root);
 
 	selected_option = 0;
-
+	zombie_attacking = false;
 
 	parseSceneDay();
 	parseSpawns("data/spawner.scene");
@@ -51,8 +51,7 @@ World::World() {
 	ready_to_attack = false;
 	unlimited_everything = false;
 
-	player_idle = true;
-	zombies_idle = true;
+	idle = true;
 
 	zombie_hurt = 0;
 
@@ -91,17 +90,23 @@ void World::parseStats(const char* filename) {
 
 void World::parseItemEntities(const char* filename)
 {
+
+	items.resize(NUM_ITEMS);
+	weapon_mesh_info.resize(NUM_WEAPONS);
+	
 	int i;
-	for (i = 0; i < NUM_ITEMS; i++)
-	{
-		std::vector<ItemEntity*> item;
-		items.push_back(item);
-	}
 
 	int arrs[] = { WEAPON, DEFENSIVE, CONSUMABLE };
 	int sizes[] = { NUM_WEAPONS, NUM_DEF, NUM_CONSUMABLES };
 
-	
+	for (i = 0; i < NUM_ITEMS; i++)
+	{
+		std::vector<ItemEntity*> item_vec;
+		item_vec.resize(sizes[i]);
+		items[i] = item_vec;
+	}
+
+
 	std::ifstream file(filename);
 	if (!file.good()) {
 		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
@@ -123,12 +128,41 @@ void World::parseItemEntities(const char* filename)
 				itemType(item_type),
 				subtype);
 
-			items[item_type].push_back(item);
+			items[item_type][subtype] = item;
+			
 			day_root->addChild(item);
 		}
 		file.ignore(1, '\n');
 	}
 
+	file.ignore(1, '\n');
+	file >> data;
+
+
+	weapon_mesh_info[FISTS].mesh = nullptr;
+
+	for (int weapon_type = 1; weapon_type < NUM_WEAPONS; weapon_type++) {
+		file >> data;
+		sWeaponMeshData weapon_data;
+
+		std::vector<std::string> tokens = tokenize(data, ",");
+
+		weapon_data.mesh = Mesh::Get(tokens[0].c_str());
+		weapon_data.player_offset = Vector3(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+		weapon_data.player_rotate = std::stoi(tokens[4]);
+		weapon_data.player_angle = std::stof(tokens[5]);
+		weapon_data.player_axis = Vector3(std::stof(tokens[6]), std::stof(tokens[7]), std::stof(tokens[8]));
+		weapon_data.zombie_offset = Vector3(std::stof(tokens[9]), std::stof(tokens[10]), std::stof(tokens[11]));
+		weapon_data.zombie_rotate = std::stoi(tokens[12]);
+		weapon_data.zombie_angle = std::stof(tokens[13]);
+		weapon_data.zombie_axis = Vector3(std::stof(tokens[14]), std::stof(tokens[15]), std::stof(tokens[16]));
+
+		weapon_mesh_info[weapon_type] = weapon_data;
+	}
+
+	/*
+	TODO: Do something similar for the defensive items when we have them
+	*/
 }
 
 struct sRenderData {
@@ -302,10 +336,8 @@ void World::parseSceneNight(const char* filename)
 
 // GENERAL  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //	Hurts the player according to a specific weapon type
-void World::hurtPlayer(weaponType weapon)
+void World::hurtPlayer(int damage)
 {
-	int damage = weapon_dmg[weapon];
-
 	if (player->mitigates)
 	{
 		damage = max(damage - player->mitigates, 0);
@@ -471,8 +503,8 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 */
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
-	Vector3 center = target_pos - Vector3(0.f, 7.0f, 0.f);
-	float sphere_rad = 25.f;
+	Vector3 center = target_pos - Vector3(0.f, 0.0f, 0.f);
+	float sphere_rad = 30.f;
 	Vector3 colPoint, colNormal;
 
 	for (auto& entity : day_root->children)
@@ -636,6 +668,12 @@ void World::generateZombies(int num_night)
 	wave.clear();
 	ZombieEntity* zombie;
 	
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> distribution(0, 100);
+
+	int idle_anim = distribution(gen);
+
 	int idx = min(num_night, DIFICULTY_LEVELS-1);
 	float probability[NUM_ZOMBIE_TYPES];
 	memcpy(probability, zombies_probabilities[idx], sizeof(probability));
@@ -645,7 +683,7 @@ void World::generateZombies(int num_night)
 		
 		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
 
-		zombie = new ZombieEntity(type, z_info, night_models[3+i]);
+		zombie = new ZombieEntity(type, z_info[type], night_models[3 + i], (idle_anim + i) % NUM_ZOMBIE_IDLES);
 
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
@@ -665,19 +703,57 @@ int World::hurtZombie(int zombie_idx)
 
 	player->addWeaponUses(weapon, -1);
 
-	if (!zombie->alive())
-		killZombie(zombie_idx);
+	idle = false;
+	float delay = player->toState(weapon, TRANSITION_TIME) / 3;
+	
+	// If the zombie is dead -> trigger their death
+	if (!zombie->alive()) {
+		zombie->triggerDeath(delay * 1.5);
+		player->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
+	}
 
-	player_idle = false;
-	player->toState(weapon, 1.f);
+	// Trigger one animation or the other depending on the effectiveness of the attack
+	// if the zombie is inmune they will be unfazed
+	else if (multiplier == 1)
+		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
 
-	zombie_hurt = zombie_idx;
-	zombies_idle = false;
-
+	else if(multiplier == 2)
+		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
+	
 	return multiplier;
 }
 
-void World::killZombie(int zombie_idx)
+bool World::attackPlayer(int zombie_idx)
+{
+	assert(zombie_idx < wave.size());
+
+	ZombieEntity* zombie = wave[zombie_idx];
+
+	if (!zombie->isAttacking())
+	{
+		if (zombie_attacking) {
+			zombie_attacking = false;
+			return true;
+		}
+
+		hurtPlayer(zombie->info.dmg);
+
+		float delay = zombie->toState(zombie->info.weapon, TRANSITION_TIME) / 3.f;
+
+		if (!isPlayerAlive()) {
+			player->triggerDeath(delay * 1.5);
+			zombie->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
+		}
+		else {
+			player->hurtAnimation(delay);
+		}
+
+		zombie_attacking = true;
+	}
+	return false;
+}
+
+void World::removeZombie(int zombie_idx)
 {
 	if (zombie_idx >= 0 && zombie_idx < zombies_alive )
 	{
@@ -745,9 +821,14 @@ bool World::selectOption()
 	return cur_menu->onSelect(selected_option);
 }
 
+void World::selectWeapon(int w_type)
+{
+	ready_to_attack = true;
+	player->toState(PLAYER_FISTS_IDLE + w_type, TRANSITION_TIME / 2.f);
+}
+
 void World::createMenus(std::string filename)
 {
-
 	Menu* general = new Menu();
 	menus["general"] = general;
 
@@ -860,31 +941,26 @@ void World::resizeOptions(float width, float height)
 // Animation related
 void World::updateAnimations(float dt)
 {
-	bool middle = false;
-	bool player_gone_idle = player->updateAnim(dt, &middle);
-	
-	// if the player was not able, but they are now:
-	if (!player_idle)
-	{
-		if (middle)
-		{
-			wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
-			zombies_idle = false;
-			player_idle = true;
-		}else if(player_gone_idle)
-			player_idle = true;
-	}
-	
-	bool accumulative = true;
-	bool local = false;
-	for (auto& zombie : wave)
-	{
-		local = zombie->updateAnim(dt, &middle);
-		accumulative = accumulative && local;
+	player->updateAnim(dt);
+
+	bool local = player->isIdle();
+
+	std::vector<int> to_remove;
+
+	for (int i = 0; i < wave.size(); i++) {
+		ZombieEntity* zombie = wave[i];
+		zombie->updateAnim(dt);
+
+		if (shouldTrigger(zombie->time_til_death, dt))
+			to_remove.push_back(i);
+
+		local = local && zombie->isIdle();
 	}
 
-	if(!zombies_idle && accumulative)
-		zombies_idle = accumulative;
+	for (auto& idx : to_remove)
+		removeZombie(idx);
+
+	idle = local;
 }
 
 void World::playerToState(int state, float time)
@@ -894,12 +970,33 @@ void World::playerToState(int state, float time)
 
 void World::renderNight()
 {
+	Camera* camera = Camera::current;
 	// Player
 	player->render();
 
-	Skeleton::Bone* right_hand = player->getBone("mixamorig_RightHand");
+	if (ready_to_attack || player->hasWeapon())
+		player->renderWeapon(weapon_mesh_info[weapon].mesh, 
+			camera,
+			weapon_mesh_info[weapon].player_offset, 
+			weapon_mesh_info[weapon].player_rotate, 
+			weapon_mesh_info[weapon].player_angle, 
+			weapon_mesh_info[weapon].player_axis
+		);
+	//TODO: Do for defensive items, the structure would be similar to the previous one
+	/*else if (player->defending())
+		player->renderDefensive(defensive)*/
 
 	// Zombies
 	for (auto& zombie : World::inst->wave)
+	{
 		zombie->render();
+		int zombie_weapon = zombie->info.weapon;
+		zombie->renderWeapon(weapon_mesh_info[zombie_weapon].mesh,
+			camera,
+			weapon_mesh_info[zombie_weapon].zombie_offset,
+			weapon_mesh_info[zombie_weapon].zombie_rotate,
+			weapon_mesh_info[zombie_weapon].zombie_angle,
+			weapon_mesh_info[zombie_weapon].zombie_axis
+		);
+	}
 }

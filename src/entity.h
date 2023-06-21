@@ -63,16 +63,18 @@ public:
 
 class AnimatedEntity : public EntityMesh {
 public:
-
-	bool idle;
-	float animation_time;
-	int idle_state;
-
 	AnimationManager* anim_manager;
-	AnimatedEntity() ;
+	AnimatedEntity();
+
+	float time_til_death;
 
 	void render();
-	bool updateAnim(float dt, bool* middle);
-	void toState(int state, float time = 0.f);
-	Skeleton::Bone* getBone(const char* name);
+	void renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bool rotate, float rot_angle, Vector3 rot_axis);
+	void updateAnim(float dt);
+	void triggerDeath(float delay);
+	float toState(int state, float time = 0.f);
+	float toStateDelayed(int state, float to_start, float time = 0.f);
+	bool isIdle();
+	Matrix44 getBoneMatrix(const char* name);
+
 };

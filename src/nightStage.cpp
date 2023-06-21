@@ -19,6 +19,9 @@ NightStage::NightStage() : Stage()
 	free_cam_enabled = false;
 	n_angle = 0.f;
 
+	zombie_attacking = 0;
+
+	time_between_turns = TIME_BTW_TURNS;
 	to_day = false;
 }
 
@@ -31,6 +34,8 @@ void NightStage::onEnter() {
 	World* inst = World::inst;
 	is_player_turn = true;
 	selected_target = 0;
+	zombie_attacking = 0;
+	time_between_turns = TIME_BTW_TURNS;
 
 	//TODO: adjust formula so that it is enjoyable
 	turns_to_day = 10 + (cur_night % 5) * 10;
@@ -60,38 +65,47 @@ void NightStage::render()
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 
-	if(World::inst->ready_to_attack)
-		renderCrosshair(shader);
-
 	renderHealthBars(shader);
 
 	shader->disable();
 
-	if (is_player_turn)
+
+	if (World::inst->ready_to_attack) {
+		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture_anim.fs");
+		shader->enable();
+		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+		renderCrosshair(shader);
+		shader->disable();
+	}
+
+	if (is_player_turn && World::inst->idle)
 	{
 		playerTurnRender();
-	}
-	else
-	{
-		zombieTurnRender();
 	}
 }
 
 void NightStage::renderCrosshair(Shader* shader)
 {
+	float anim_speed = 7.f;
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
 
 	Vector3 position = model.getTranslation();
-	position.y += 200.f;
+	position.y += 175.f;
 	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	Mesh quad;
 	quad.createQuad(position.x, position.y, 50.f, 50.f, true);
 
-	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair.tga"), 0);
+	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair_anim.tga"), 0);
+	shader->setUniform("u_ratio", 1.f / 8.f);
+	shader->setUniform("u_state", int(Game::instance->time * anim_speed) % 8);
+	shader->setUniform("u_time", Game::instance->time);
+
 	quad.render(GL_TRIANGLES);
 	glDisable(GL_BLEND);
 }
@@ -105,7 +119,7 @@ void NightStage::renderHealthBars(Shader* shader)
 	Vector3 position;
 	//TODO, AN ENUM WITH THE TOTAL HEALTH OF EACH TYPE OF ZOMBIE
 	int total_health = MAX_HEALTH;
-	int actual_health = (World::inst->player->health);
+	int actual_health = max(0.f, World::inst->player->health);
 
 	float ratio = (float) actual_health / total_health;
 
@@ -127,40 +141,13 @@ void NightStage::renderHealthBars(Shader* shader)
 		position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 		total_health = zombie->info.max_health;
-		actual_health = zombie->info.health;
+		actual_health = max(0.f, zombie->info.health);
 
 		ratio = (float) actual_health / total_health;
 
 		renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 	}
 	glEnable(GL_DEPTH_TEST);
-}
-
-void NightStage::debugZombies()
-{
-	if (World::inst->ready_to_attack) {
-		for (int i = 0; i < World::inst->zombies_alive; i++)
-		{
-			drawText(50 + i * 250, 200, "Z health: " + std::to_string(World::inst->wave[i]->info.health), (selected_target == i) ? Vector3(1.0f, 1.0f, 1.0f) : Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 230, "Invulnerable to: " + std::to_string(World::inst->wave[i]->info.invulnerable_to), Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 260, "Weak to: " + std::to_string(World::inst->wave[i]->info.weakness), Vector3(1.0f, 0.75f, 0.0f), 2);
-
-		}
-	}
-	else
-	{
-		for (int i = 0; i < World::inst->zombies_alive; i++)
-		{
-			drawText(50 + i * 250, 200, "Z health: " + std::to_string(World::inst->wave[i]->info.health), Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 230, "Invulnerable to: " + std::to_string(World::inst->wave[i]->info.invulnerable_to), Vector3(1.0f, 0.75f, 0.0f), 2);
-			drawText(50 + i * 250, 260, "Weak to: " + std::to_string(World::inst->wave[i]->info.weakness), Vector3(1.0f, 0.75f, 0.0f), 2);
-		}
-	}
-
-	drawText(50, 300, "WEAPONS: -1 nothing, 0 fists, 1 bat, 2 knife, 3 gun", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(50, 330, "W & S: navigate, C: confirm, Z: go back", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(50, 360, "U:unlimited, N:to day", Vector3(1.0f, 0.75f, 0.0f), 2);
-	
 }
 
 void NightStage::playerTurnRender() {
@@ -180,13 +167,11 @@ void NightStage::playerTurnRender() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void NightStage::zombieTurnRender() {
-
-}
-
-
 void NightStage::update(float dt)
 {
+	if (World::inst->zombies_alive <= 0)
+		StageManager::inst->changeStage("day");
+
 	World::inst->updateAnimations(dt);
 
 #if DEBUG
@@ -205,29 +190,34 @@ void NightStage::update(float dt)
 	if (free_cam_enabled)
 		cameraUpdate(dt);
 
-	else if(World::inst->player_idle && World::inst->zombies_idle)
+	else if(World::inst->idle)
 	{
 		if (is_player_turn)
-		{
 			playerTurnUpdate(dt);
-		}
 		else
-		{
 			zombieTurnUpdate(dt);
-		}
 	}
 	else
 	{
 	}
 
-#else
-	if (is_player_turn)
-	{
-		playerTurnUpdate(dt);
+	if (!World::inst->isPlayerAlive()) {
+		if (shouldTrigger(World::inst->player->time_til_death, dt))
+			StageManager::inst->changeStage("game over");
 	}
-	else
+
+#else
+	if (World::inst->idle)
 	{
-		zombieTurnUpdate(dt);
+		if (is_player_turn)
+			playerTurnUpdate(dt);
+		else
+			zombieTurnUpdate(dt);
+	}
+
+	if (!World::inst->isPlayerAlive()) {
+		if (shouldTrigger(World::inst->player->time_til_death, dt))
+			StageManager::inst->changeStage("game over");
 	}
 #endif
 }
@@ -250,12 +240,10 @@ void NightStage::playerTurnUpdate(float dt)
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 			int result = World::inst->hurtZombie(selected_target);
 
-			if (World::inst->zombies_alive <= 0)
-				// Turn flag on to go to day whenever the animation finishes
-				to_day = true;
+			
 
 			// if the attack is not super effective then we move onto the zombie's turn
-			if(result != 2)
+			if (result != 2)
 				is_player_turn = false;
 						
 			// otherwise we give the player another action
@@ -265,7 +253,10 @@ void NightStage::playerTurnUpdate(float dt)
 			selected_target = 0;
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+		{
 			World::inst->ready_to_attack = false;
+			World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
+		}
 	}
 	else
 	{
@@ -276,9 +267,8 @@ void NightStage::playerTurnUpdate(float dt)
 			World::inst->changeOption(1);
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
-			if (World::inst->selectOption()) {
+			if (World::inst->selectOption())
 				is_player_turn = false;
-			}
 		}
 
 		else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
@@ -287,7 +277,7 @@ void NightStage::playerTurnUpdate(float dt)
 
 	#if DEBUG	
 	if (Input::wasKeyPressed(SDL_SCANCODE_J))
-		World::inst->hurtPlayer(KNIFE);
+		World::inst->hurtPlayer(20);
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_K))
 		World::inst->consumeHunger(10);
@@ -296,29 +286,21 @@ void NightStage::playerTurnUpdate(float dt)
 
 void NightStage::zombieTurnUpdate(float dt)
 {
-	int num_zombies = World::inst->wave.size();
+	time_between_turns -= dt;
 
-	for (int i = 0; i < num_zombies; i++)
+	if (time_between_turns <= 0.f)
 	{
-
-		//In the turn of the zombies 
-		// The zombies only hurt the player
-
-		weaponType weapon = World::inst->wave[i]->info.weapon;
-
-		World::inst->hurtPlayer(weapon);
-
-		if (!World::inst->isPlayerAlive()) 
+		if (World::inst->attackPlayer(zombie_attacking))
 		{
-			StageManager::inst->changeStage("game over");
-			return;
+			zombie_attacking++;
+			if (zombie_attacking >= World::inst->wave.size())
+			{
+				is_player_turn = true;
+				newTurn();
+			}
 		}
-		
 	}
-	is_player_turn = true;
-	World::inst->changeMenu("general");
-	newTurn();
-	return;
+
 }
 
 void NightStage::cameraUpdate(float dt)
@@ -349,6 +331,8 @@ void NightStage::cameraUpdate(float dt)
 
 void NightStage::newTurn() 
 {
+	World::inst->changeMenu("general");
+
 	turns_to_day--;
 
 	if (turns_to_day == 0)
@@ -356,6 +340,8 @@ void NightStage::newTurn()
 
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
 	World::inst->consumeHunger(10);
-
+	
+	zombie_attacking = 0;
 	selected_target = 0;
+	time_between_turns = TIME_BTW_TURNS;
 }

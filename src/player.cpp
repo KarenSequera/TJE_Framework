@@ -27,8 +27,6 @@ Player::Player() {
 	for (i = 0; i < NUM_CONSUMABLES; ++i) {
 		consumables[i] = 0;
 	}
-
-	idle_state = PLAYER_IDLE;
 }
 
 //	Adds weapon uses
@@ -83,3 +81,14 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 	return true;
 }
 
+void Player::hurtAnimation(float delay)
+{
+	if (anim_manager->cur_state != PLAYER_DEFEND)
+		toStateDelayed(PLAYER_HURT, delay, TRANSITION_TIME);
+}
+
+bool Player::hasWeapon()
+{
+	return ((anim_manager->cur_state <= SHOOT && anim_manager->cur_state >= BAT_SWING)
+		|| (anim_manager->target_state <= SHOOT && anim_manager->target_state >= BAT_SWING));
+}
