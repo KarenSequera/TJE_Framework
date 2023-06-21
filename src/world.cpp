@@ -651,6 +651,20 @@ void World::generateZombies(int num_night)
 
 		if (type == STANDARD) {
 			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
+
+			switch (zombie->info.weakness) {
+				case BAT:
+					zombie->color = Vector4(0.5f, 1.f, 1.f, 1.f);
+					break;
+				case KNIFE:
+					zombie->color = Vector4(1.f, 0.5f, 1.f, 1.f);
+					break;
+				case GUN:
+					zombie->color = Vector4(1.f, 1.f, 0.5f, 1.f);
+					break;
+			}
+
+			
 		}
 		wave.push_back(zombie);
 	}

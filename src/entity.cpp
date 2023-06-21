@@ -41,6 +41,7 @@ EntityMesh::EntityMesh() : Entity(){
 	mesh = nullptr;
 	texture = nullptr;
 	shader = nullptr;
+	color = Vector4(1.f);
 	is_instanced = false;
 }
 
@@ -84,7 +85,7 @@ void EntityMesh::render_simple() {
 		//upload uniforms
 		shader->setUniform("u_model", model_matrix);
 
-		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_color", color);
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
 		shader->setUniform("u_time", time);
@@ -121,7 +122,6 @@ void EntityMesh::render_instanced() {
 		shader->enable();
 
 		//upload uniforms
-		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
 		shader->setUniform("u_time", time);
@@ -136,6 +136,7 @@ void EntityMesh::render_instanced() {
 		shader->disable();
 	}
 
+
 	Entity::render();
 }
 
@@ -148,6 +149,7 @@ EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_
 AnimatedEntity::AnimatedEntity()
 {
 	anim_manager = nullptr;
+	time_til_death = -10.f;
 }
 
 void AnimatedEntity::render()
@@ -164,7 +166,7 @@ void AnimatedEntity::render()
 		shader->enable();
 
 		//upload uniforms
-		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_color", color);
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
 		shader->setUniform("u_model", getGlobalMatrix());
@@ -198,7 +200,6 @@ void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bo
 		model.rotate(rot_angle, rot_axis);
 
 	shader->enable();
-	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_texture", texture, 0);
 	shader->setUniform("u_time", time);

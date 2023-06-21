@@ -40,6 +40,8 @@ public:
 	Texture* texture;
 	Shader* shader;
 
+	Vector4 color;
+
 	bool is_instanced;
 	std::vector<Matrix44> models;
 
