@@ -4,8 +4,8 @@ knife,data/items/models/knife.obj
 gun,data/items/models/gun.obj
 
 arms,data/items/item.obj
-wooden_door,data/items/models/helmet.obj
-metal_shield,data/items//models/armor.obj
+wooden_door,data/items/models/garbage_shield.obj
+metal_shield,data/items//models/police_shield.obj
 
 bandages,data/items/models/pill.obj
 painkillers,data/items/models/syring.obj
