@@ -391,7 +391,8 @@ void NightStage::newTurn()
 
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
 	World::inst->consumeHunger(10);
-	
+	World::inst->playerDefenseOff();
+
 	zombie_attacking = 0;
 	selected_target = 0;
 	time_between_turns = TIME_BTW_TURNS;

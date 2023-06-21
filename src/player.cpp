@@ -1,11 +1,14 @@
 #include "player.h"
+#include "our_utils.h"
 
 Player::Player() {
 	health = MAX_HEALTH;
 	shield = 0;
 	hunger = MAX_HUNGER;
 	mitigates = 0;
-
+	defensive = 0;
+	til_def_broken = 0.f;
+	def_broken = false;
 	// Render related
 	mesh = Mesh::Get("data/characters/character.MESH");
 	texture = Texture::Get("data/characters/player.tga");
@@ -83,12 +86,19 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 
 void Player::hurtAnimation(float delay)
 {
-	if (anim_manager->cur_state != PLAYER_DEFEND)
-		toStateDelayed(PLAYER_HURT, delay, TRANSITION_TIME);
+	toStateDelayed(PLAYER_HURT, delay, TRANSITION_TIME);
+	if(def_broken)
+		til_def_broken = delay;
 }
 
 bool Player::hasWeapon()
 {
 	return ((anim_manager->cur_state <= SHOOT && anim_manager->cur_state >= BAT_SWING)
 		|| (anim_manager->target_state <= SHOOT && anim_manager->target_state >= BAT_SWING));
+}
+
+void Player::updateAnim(float dt) {
+	AnimatedEntity::updateAnim(dt);
+	if (shouldTrigger(til_def_broken, dt))
+		defensive = 0;
 }

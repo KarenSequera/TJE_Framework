@@ -14,7 +14,7 @@ struct sCollisionData {
 	Vector3 colNormal;
 };
 
-struct sWeaponMeshData {
+struct sHoldableMeshData {
 	Mesh* mesh;
 	Vector3 player_offset;
 	Vector3 zombie_offset;
@@ -25,6 +25,7 @@ struct sWeaponMeshData {
 	Vector3 player_axis;
 	Vector3 zombie_axis;
 };
+
 
 class World {
 public:
@@ -49,7 +50,8 @@ public:
 	std::vector<EntitySpawner*> item_spawns;
 
 	std::vector<std::vector<ItemEntity*>> items;
-	std::vector<sWeaponMeshData> weapon_mesh_info;
+	std::vector<sHoldableMeshData> weapon_mesh_info;
+	std::vector<sHoldableMeshData> def_mesh_info;
 
 	Texture* cubemap;
 
@@ -108,6 +110,7 @@ public:
 
 	// General logic
 	void hurtPlayer(int damage);
+	void playerDefenseOff();
 	void consumeHunger(int quant);
 
 	int getConsumableQuant(consumableType consumable);

@@ -52,7 +52,6 @@ World::World() {
 	unlimited_everything = false;
 
 	idle = true;
-
 	zombie_hurt = 0;
 
 	//init audio
@@ -93,6 +92,7 @@ void World::parseItemEntities(const char* filename)
 
 	items.resize(NUM_ITEMS);
 	weapon_mesh_info.resize(NUM_WEAPONS);
+	def_mesh_info.resize(NUM_DEF);
 	
 	int i;
 
@@ -143,7 +143,7 @@ void World::parseItemEntities(const char* filename)
 
 	for (int weapon_type = 1; weapon_type < NUM_WEAPONS; weapon_type++) {
 		file >> data;
-		sWeaponMeshData weapon_data;
+		sHoldableMeshData weapon_data;
 
 		std::vector<std::string> tokens = tokenize(data, ",");
 
@@ -160,9 +160,28 @@ void World::parseItemEntities(const char* filename)
 		weapon_mesh_info[weapon_type] = weapon_data;
 	}
 
-	/*
-	TODO: Do something similar for the defensive items when we have them
-	*/
+	file.ignore(1, '\n');
+	file >> data;
+	def_mesh_info[ARMS].mesh = nullptr;
+
+	for (int def_type = 1; def_type < NUM_DEF; def_type++) {
+		file >> data;
+		sHoldableMeshData def_data;
+
+		std::vector<std::string> tokens = tokenize(data, ",");
+
+		def_data.mesh = Mesh::Get(tokens[0].c_str());
+		def_data.player_offset = Vector3(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+		def_data.player_rotate = std::stoi(tokens[4]);
+		def_data.player_angle = std::stof(tokens[5]);
+		def_data.player_axis = Vector3(std::stof(tokens[6]), std::stof(tokens[7]), std::stof(tokens[8]));
+		def_data.zombie_offset = Vector3(std::stof(tokens[9]), std::stof(tokens[10]), std::stof(tokens[11]));
+		def_data.zombie_rotate = std::stoi(tokens[12]);
+		def_data.zombie_angle = std::stof(tokens[13]);
+		def_data.zombie_axis = Vector3(std::stof(tokens[14]), std::stof(tokens[15]), std::stof(tokens[16]));
+
+		def_mesh_info[def_type] = def_data;
+	}
 }
 
 struct sRenderData {
@@ -335,20 +354,28 @@ void World::parseSceneNight(const char* filename)
 // behaviour related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // GENERAL  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//	Hurts the player according to a specific weapon type
+//	Hurts the player for a spefific amount of damage
 void World::hurtPlayer(int damage)
 {
-	if (player->mitigates)
-	{
-		damage = max(damage - player->mitigates, 0);
-		player->mitigates = 0;
+	int dmg = damage;
+	if (player->mitigates) {
+		dmg = max(damage - player->mitigates, 0);
+		player->mitigates = max(player->mitigates - damage, 0);
+		player->def_broken = true;
 	}
 
-	int diff = player->shield - damage;
-	player->affectPlayerStat(SHIELD, damage, false);
+	int diff = player->shield - dmg;
+	player->affectPlayerStat(SHIELD, dmg, false);
 
 	if (diff < 0)
 		player->affectPlayerStat(HEALTH, -1 * diff, false);
+}
+
+void World::playerDefenseOff()
+{
+	player->mitigates = 0;
+	player->defensive = 0;
+	player->toState(IDLE, TRANSITION_TIME);
 }
 
 bool World::isPlayerAlive() {
@@ -580,7 +607,6 @@ void World::clearItems()
 				items[item_type][subtype]->models.clear();
 		}
 	}
-	int i;
 }
 
 void  World::spawnerInit()
@@ -620,7 +646,6 @@ void World::loadSky()
 			"data/cubemap/sky.tga",
 			"data/cubemap/sky.tga",
 			"data/cubemap/sky.tga"
-	
 	});
 
 }
@@ -707,6 +732,7 @@ bool World::attackPlayer(int zombie_idx)
 
 	if (!zombie->isAttacking())
 	{
+		bool mitigating = player->mitigates;
 		if (zombie_attacking) {
 			zombie_attacking = false;
 			return true;
@@ -720,7 +746,7 @@ bool World::attackPlayer(int zombie_idx)
 			player->triggerDeath(delay * 1.5);
 			zombie->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
 		}
-		else {
+		else if(!mitigating){
 			player->hurtAnimation(delay);
 		}
 
@@ -745,6 +771,8 @@ void World::defend(defensiveType type)
 {
 	player->mitigates = defensive_stats[type];
 	player->def_uses[type]--;
+	player->defensive = type;
+	player->toState(PLAYER_DEFEND, TRANSITION_TIME);
 }
 
 
@@ -954,13 +982,25 @@ void World::renderNight()
 	player->render();
 
 	if (ready_to_attack || player->hasWeapon())
-		player->renderWeapon(weapon_mesh_info[weapon].mesh, 
+		player->renderHolding(weapon_mesh_info[weapon].mesh, 
 			camera,
 			weapon_mesh_info[weapon].player_offset, 
 			weapon_mesh_info[weapon].player_rotate, 
 			weapon_mesh_info[weapon].player_angle, 
-			weapon_mesh_info[weapon].player_axis
+			weapon_mesh_info[weapon].player_axis,
+			true
 		);
+	else if (player->defensive) {
+		int idx = player->defensive;
+		player->renderHolding(def_mesh_info[idx].mesh,
+			camera,
+			def_mesh_info[idx].player_offset,
+			def_mesh_info[idx].player_rotate,
+			def_mesh_info[idx].player_angle,
+			def_mesh_info[idx].player_axis,
+			false
+		);
+	}
 	//TODO: Do for defensive items, the structure would be similar to the previous one
 	/*else if (player->defending())
 		player->renderDefensive(defensive)*/
@@ -970,12 +1010,13 @@ void World::renderNight()
 	{
 		zombie->render();
 		int zombie_weapon = zombie->info.weapon;
-		zombie->renderWeapon(weapon_mesh_info[zombie_weapon].mesh,
+		zombie->renderHolding(weapon_mesh_info[zombie_weapon].mesh,
 			camera,
 			weapon_mesh_info[zombie_weapon].zombie_offset,
 			weapon_mesh_info[zombie_weapon].zombie_rotate,
 			weapon_mesh_info[zombie_weapon].zombie_angle,
-			weapon_mesh_info[zombie_weapon].zombie_axis
+			weapon_mesh_info[zombie_weapon].zombie_axis,
+			true
 		);
 	}
 }

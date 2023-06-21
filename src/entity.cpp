@@ -181,7 +181,7 @@ void AnimatedEntity::render()
 	Entity::render();
 }
 
-void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bool rotate, float rot_angle, Vector3 rot_axis) {
+void AnimatedEntity::renderHolding(Mesh* mesh, Camera* camera, Vector3 offset, bool rotate, float rot_angle, Vector3 rot_axis, bool right_hand) {
 
 	if (!mesh)
 		return;
@@ -189,7 +189,7 @@ void AnimatedEntity::renderWeapon(Mesh* mesh, Camera* camera, Vector3 offset, bo
 	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
 
 	// get model
-	Matrix44 model = this->getBoneMatrix("mixamorig_RightHandIndex2");
+	Matrix44 model = right_hand ? this->getBoneMatrix("mixamorig_RightHandIndex2") : this->getBoneMatrix("mixamorig_LeftHand");
 
 	model = model * model_matrix;
 
