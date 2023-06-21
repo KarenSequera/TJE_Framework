@@ -16,6 +16,7 @@ public:
 		{ "Bandages ", "Painkillers ", "First-aid Kit ", "Apple ", "Canned Beans ", "Burger "};
 
 	Mesh HUD_quad;
+	Mesh instructions_quad;
 	consumableType consumable_selected;
 	float time_remaining;
 

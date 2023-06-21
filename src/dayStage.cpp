@@ -32,6 +32,13 @@ DayStage::DayStage() : Stage() {
 
 	HUD_quad.createQuad(position_x, position_y, size_x, size_y , true);
 
+	size_x = (Game::instance->window_width)/1.8;
+	size_y = (size_x * 1000 / 4000);
+	position_x = Game::instance->window_width / 2;
+	position_y = (position_x / 1.4 * 1000 / 4000);
+
+	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
 };
 
 void DayStage::onEnter()
@@ -118,7 +125,9 @@ void DayStage::renderHUD()
 	
 	
 	HUD_quad.render(GL_TRIANGLES);
-	
+	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud2.tga"), 0);
+	instructions_quad.render(GL_TRIANGLES);
+
 	// Rendering Health Bar
 	Vector3 position = Vector3(Game::instance->window_width / 2.3, Game::instance->window_width / 8.3, 0);
 	float width = Game::instance->window_width /7.5;
@@ -146,6 +155,7 @@ void DayStage::renderHUD()
 	HUD_quad.render(GL_TRIANGLES);
 	shader_selected->disable();
 
+	
 
 	// Rendering the quantity of each consumable
 
@@ -381,4 +391,12 @@ void DayStage::resizeOptions(float width, float height) {
 	float position_y = (position_x / 2 * 1000 / 3000);
 
 	HUD_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
+	size_x = (Game::instance->window_width) / 1.8;
+	size_y = (size_x * 1000 / 4000);
+	position_x = Game::instance->window_width / 2;
+	position_y = (position_x / 1.4 * 1000 / 4000);
+
+	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
 };
