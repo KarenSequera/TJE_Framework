@@ -69,7 +69,7 @@ void IntroStage::update(float dt)
 	}
 }
 
-void  IntroStage::resizeOptions(int width, int height)
+void  IntroStage::resizeOptions(float width, float height)
 {
 	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_y = 100.f * height / 1080;

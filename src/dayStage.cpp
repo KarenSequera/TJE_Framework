@@ -371,7 +371,7 @@ void DayStage::updateItemsAndStats() {
 #endif
 }
 
-void DayStage::resizeOptions(int width, int height) {
+void DayStage::resizeOptions(float width, float height) {
 
 	float size_x = width / 2.5;
 	float size_y = (size_x * 1000 / 3000);

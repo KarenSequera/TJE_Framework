@@ -132,11 +132,7 @@ void Game::onResize(int width, int height)
 	World::inst->camera2D->aspect = width / (float)height;
 	World::inst->camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1); 
 
-	World::inst->resizeOptions(window_width, window_height);
-	StageManager::inst->stage["day"]->resizeOptions(window_width, window_height);
-	StageManager::inst->stage["night"]->resizeOptions(window_width, window_height);
-	StageManager::inst->stage["game over"]->resizeOptions(window_width, window_height);
-	StageManager::inst->stage["intro stage"]->resizeOptions(window_width, window_height);
-
+	for(auto& stage : StageManager::inst->stage)
+		stage.second->resizeOptions(window_width, window_height);
 }
 

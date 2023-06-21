@@ -663,8 +663,6 @@ void World::generateZombies(int num_night)
 					zombie->color = Vector4(1.f, 1.f, 0.5f, 1.f);
 					break;
 			}
-
-			
 		}
 		wave.push_back(zombie);
 	}
@@ -894,6 +892,9 @@ void World::createMenus(std::string filename)
 
 void World::resizeOptions(float width, float height)
 {
+
+	window_width = width;
+	window_height = height;
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_y = 100.f * height / 1080;

@@ -32,5 +32,5 @@ public:
 	void updateItemsAndStats();
 
 
-	void resizeOptions(int width, int height);
+	void resizeOptions(float width, float height);
 };

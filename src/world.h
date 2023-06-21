@@ -32,6 +32,9 @@ public:
 	static World* inst;
 	Player* player;
 
+	float window_width;
+	float window_height;
+
 	bool unlimited_everything;
 
 	int consumable_stats[NUM_CONSUMABLES];
@@ -71,8 +74,8 @@ public:
 	weaponType weapon;
 
 	// Menus
-	float window_width;
-	float window_height;
+	float w_width;
+	float w_height;
 	Mesh* option_quads[3];
 	Vector2 option_uses_pos[3];
 

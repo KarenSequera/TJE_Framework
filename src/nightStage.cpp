@@ -396,3 +396,7 @@ void NightStage::newTurn()
 	selected_target = 0;
 	time_between_turns = TIME_BTW_TURNS;
 }
+
+void NightStage::resizeOptions(float width, float height) {
+	World::inst->resizeOptions(width, height);
+}

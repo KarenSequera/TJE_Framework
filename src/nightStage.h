@@ -40,6 +40,6 @@ public:
 	void newTurn();
 
 
-	void resizeOptions(int width, int height){};
+	void resizeOptions(float width, float height);
 
 };

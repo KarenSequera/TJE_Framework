@@ -64,7 +64,7 @@ void GameOverStage::update(float dt)
 	}
 }
 
-void  GameOverStage::resizeOptions(int width, int height)
+void  GameOverStage::resizeOptions(float width, float height)
 {
 	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_y = 100.f * height / 1080;
