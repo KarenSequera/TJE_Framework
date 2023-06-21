@@ -92,14 +92,16 @@ void NightStage::renderCrosshair(Shader* shader)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
+	ZombieEntity* selected = World::inst->wave[selected_target];
+	Matrix44 model = selected->getBoneMatrix("mixamorig_Spine") * selected->model_matrix;
 
 	Vector3 position = model.getTranslation();
-	position.y += 175.f;
+	position.x -= 10.f;
+	position.y += 10.f;
 	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	Mesh quad;
-	quad.createQuad(position.x, position.y, 50.f, 50.f, true);
+	quad.createQuad(position.x, position.y, 65.f, 65.f, true);
 
 	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair_anim.tga"), 0);
 	shader->setUniform("u_ratio", 1.f / 8.f);

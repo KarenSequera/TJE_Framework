@@ -37,7 +37,7 @@ World::World() {
 	loadSky();
 
 	//ParseNight 
-	parseSceneNight("data/nightScenePrueba.scene");
+	parseSceneNight("data/nightScene.scene");
 	
 	camera2D = new Camera();
 	camera2D->view_matrix = Matrix44();
