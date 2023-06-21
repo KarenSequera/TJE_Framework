@@ -68,8 +68,8 @@ public:
 	};
 
 	//Night variables 
-	std::vector<ZombieEntity*> wave;
-	int zombies_alive;
+	std::vector<std::vector<ZombieEntity*>> waves;
+	int cur_wave;
 
 	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
@@ -92,7 +92,7 @@ public:
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
 	//Animation
-	bool idle;
+	bool idle; 
 	bool zombie_attacking;
 
 	int zombie_hurt;
@@ -148,6 +148,8 @@ public:
 	// removes a zombie from the wave vector
 	void removeZombie(int zombie_idx);
 	void defend(defensiveType type);
+	int zombiesAlive();
+	bool nextWave();
 
 	// MENU RELATED
 	void changeMenu(std::string go_to);

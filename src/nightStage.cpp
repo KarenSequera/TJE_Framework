@@ -92,7 +92,7 @@ void NightStage::renderCrosshair(Shader* shader)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	ZombieEntity* selected = World::inst->wave[selected_target];
+	ZombieEntity* selected = World::inst->waves[World::inst->cur_wave][selected_target];
 	Matrix44 model = selected->getBoneMatrix("mixamorig_Spine") * selected->model_matrix;
 
 	Vector3 position = model.getTranslation();
@@ -134,7 +134,7 @@ void NightStage::renderHealthBars(Shader* shader)
 	renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 	
 	//Health bar of the zombies
-	for (auto& zombie : World::inst->wave){
+	for (auto& zombie : World::inst->waves[World::inst->cur_wave]) {
 
 		model = zombie->model_matrix;
 
@@ -171,11 +171,12 @@ void NightStage::playerTurnRender() {
 
 void NightStage::update(float dt)
 {
-	if (World::inst->zombies_alive <= 0)
-		StageManager::inst->changeStage("day");
+	if (World::inst->zombiesAlive() <= 0) 
+		if (World::inst->nextWave()) 
+			StageManager::inst->changeStage("day");
 
 	World::inst->updateAnimations(dt);
-
+	 
 #if DEBUG
 	if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("day");
@@ -236,10 +237,10 @@ void NightStage::playerTurnUpdate(float dt)
 		if (Input::gamepads[0].connected) {
 
 			if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
-				selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
+				selected_target = ourMod(selected_target - 1, World::inst->zombiesAlive());
 
 			else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT))
-				selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+				selected_target = ourMod(selected_target + 1, World::inst->zombiesAlive());
 			else if (Input::wasButtonPressed(A_BUTTON)) {
 				int result = World::inst->hurtZombie(selected_target);
 
@@ -265,10 +266,10 @@ void NightStage::playerTurnUpdate(float dt)
 		}
 		else {
 			if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
-				selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
+				selected_target = ourMod(selected_target - 1, World::inst->zombiesAlive());
 
 			else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
-				selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+				selected_target = ourMod(selected_target + 1, World::inst->zombiesAlive());
 			else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 				int result = World::inst->hurtZombie(selected_target);
 
@@ -346,7 +347,7 @@ void NightStage::zombieTurnUpdate(float dt)
 		if (World::inst->attackPlayer(zombie_attacking))
 		{
 			zombie_attacking++;
-			if (zombie_attacking >= World::inst->wave.size())
+			if (zombie_attacking >= World::inst->waves[World::inst->cur_wave].size())
 			{
 				is_player_turn = true;
 				newTurn();

@@ -24,6 +24,7 @@ World::World() {
 
 	selected_option = 0;
 	zombie_attacking = false;
+	cur_wave = 0;
 
 	parseSceneDay();
 	parseSpawns("data/spawner.scene");
@@ -654,7 +655,10 @@ void World::loadSky()
 
 void World::generateZombies(int num_night) 
 {
-	wave.clear();
+	cur_wave = 0;
+	for (auto& wave : waves)
+		wave.clear();
+
 	ZombieEntity* zombie;
 	
 	std::random_device rd;
@@ -667,17 +671,22 @@ void World::generateZombies(int num_night)
 	float probability[NUM_ZOMBIE_TYPES];
 	memcpy(probability, zombies_probabilities[idx], sizeof(probability));
 
-	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) 
-	{
-		
-		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
+	int num_waves = num_night / 5 + 1;
+	waves.resize(num_waves);
 
-		zombie = new ZombieEntity(type, z_info[type], night_models[3 + i], (idle_anim + i) % NUM_ZOMBIE_IDLES);
+	for (int wave_idx = 0; wave_idx < num_waves; wave_idx++) {
+		waves[wave_idx].resize(NUM_ZOMBIES_WAVE);
+		for (int i = 0; i < NUM_ZOMBIES_WAVE; i++)
+		{
 
-		if (type == STANDARD) {
-			zombie->info.weakness = weaponType((distribution(gen) % 3) + 1);
+			zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
 
-			switch (zombie->info.weakness) {
+			zombie = new ZombieEntity(type, z_info[type], night_models[3 + i], (idle_anim + i) % NUM_ZOMBIE_IDLES);
+
+			if (type == STANDARD) {
+				zombie->info.weakness = weaponType((distribution(gen) % 3) + 1);
+
+				switch (zombie->info.weakness) {
 				case BAT:
 					zombie->color = Vector4(0.5f, 1.f, 1.f, 1.f);
 					break;
@@ -687,18 +696,16 @@ void World::generateZombies(int num_night)
 				case GUN:
 					zombie->color = Vector4(1.f, 1.f, 0.5f, 1.f);
 					break;
+				}
 			}
+			waves[wave_idx][i] = zombie;
 		}
-		wave.push_back(zombie);
 	}
-
-	zombies_alive = NUM_ZOMBIES_WAVE;
-
 };
 
 int World::hurtZombie(int zombie_idx)
 {
-	ZombieEntity* zombie = wave[zombie_idx];
+	ZombieEntity* zombie = waves[cur_wave][zombie_idx];
 	int multiplier = zombie->getMultiplier(weapon);
 	zombie->info.health -= weapon_dmg[weapon] * multiplier;
 
@@ -726,9 +733,9 @@ int World::hurtZombie(int zombie_idx)
 
 bool World::attackPlayer(int zombie_idx)
 {
-	assert(zombie_idx < wave.size());
+	assert(zombie_idx < waves[cur_wave].size());
 
-	ZombieEntity* zombie = wave[zombie_idx];
+	ZombieEntity* zombie = waves[cur_wave][zombie_idx];
 
 	if (!zombie->isAttacking())
 	{
@@ -757,11 +764,10 @@ bool World::attackPlayer(int zombie_idx)
 
 void World::removeZombie(int zombie_idx)
 {
-	if (zombie_idx >= 0 && zombie_idx < zombies_alive )
+	if (zombie_idx >= 0 && zombie_idx < waves[cur_wave].size())
 	{
-		ZombieEntity* zombie = wave[zombie_idx];
-		wave.erase(std::next(wave.begin(), zombie_idx));
-		zombies_alive--;
+		ZombieEntity* zombie = waves[cur_wave][zombie_idx];
+		waves[cur_wave].erase(std::next(waves[cur_wave].begin(), zombie_idx));
 		delete zombie->anim_manager;
 		delete zombie;
 	}
@@ -775,6 +781,17 @@ void World::defend(defensiveType type)
 	player->toState(PLAYER_DEFEND, TRANSITION_TIME);
 }
 
+int World::zombiesAlive() {
+	return waves[cur_wave].size();
+}
+
+bool World::nextWave() {
+
+	if (cur_wave + 1 >= waves.size())
+		return true;
+	cur_wave++;
+	return false;
+}
 
 // NIGHTMENU RELATED ---------------------------------------------------------------------------------------
 void World::changeMenu(std::string go_to)
@@ -954,8 +971,8 @@ void World::updateAnimations(float dt)
 
 	std::vector<int> to_remove;
 
-	for (int i = 0; i < wave.size(); i++) {
-		ZombieEntity* zombie = wave[i];
+	for (int i = 0; i < waves[cur_wave].size(); i++) {
+		ZombieEntity* zombie = waves[cur_wave][i];
 		zombie->updateAnim(dt);
 
 		if (shouldTrigger(zombie->time_til_death, dt))
@@ -1006,7 +1023,7 @@ void World::renderNight()
 		player->renderDefensive(defensive)*/
 
 	// Zombies
-	for (auto& zombie : World::inst->wave)
+	for (auto& zombie : World::inst->waves[cur_wave])
 	{
 		zombie->render();
 		int zombie_weapon = zombie->info.weapon;
