@@ -675,7 +675,7 @@ void World::generateZombies(int num_night)
 		zombie = new ZombieEntity(type, z_info[type], night_models[3 + i], (idle_anim + i) % NUM_ZOMBIE_IDLES);
 
 		if (type == STANDARD) {
-			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
+			zombie->info.weakness = weaponType((distribution(gen) % 3) + 1);
 
 			switch (zombie->info.weakness) {
 				case BAT:
