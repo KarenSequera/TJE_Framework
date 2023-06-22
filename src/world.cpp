@@ -912,8 +912,8 @@ void World::resizeOptions(float width, float height)
 
 	for (int i = 0; i < 3; i++)
 	{
-		option_uses_pos[i].x += 0.08 * option_uses_pos[i].x;
-		option_uses_pos[i].y = height - option_uses_pos[i].y*0.99;
+		option_uses_pos[i].x += 0.4 * size_x;
+		option_uses_pos[i].y = height - option_uses_pos[i].y;
 	}
 }
 
