@@ -2,7 +2,7 @@
 #include "stage.h"
 
 #define DRIFT_THRESHOLD 0.01
-#define DAY_TIME 60.f
+#define DAY_TIME 10.f
 
 class DayStage : public Stage {
 public:

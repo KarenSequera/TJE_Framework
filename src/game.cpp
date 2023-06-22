@@ -45,7 +45,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	new World();
 
-	stage_manager = new StageManager();
+	stage_manager = new StageManager(window_width, window_height);
 }
 
 //what to do when the image has to be draw
@@ -132,7 +132,6 @@ void Game::onResize(int width, int height)
 	World::inst->camera2D->aspect = width / (float)height;
 	World::inst->camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1); 
 
-	for(auto& stage : StageManager::inst->stage)
-		stage.second->resizeOptions(window_width, window_height);
+	stage_manager->resize(width, height);
 }
 

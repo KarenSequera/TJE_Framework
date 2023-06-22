@@ -17,7 +17,7 @@ DayStage::DayStage() : Stage() {
 
 	consumable_selected = BURGER;
 	
-	time_remaining = DAY_TIME;
+	time_remaining = DAY_TIME + STAGE_TRANSITION_TIME;
 
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
@@ -36,9 +36,10 @@ DayStage::DayStage() : Stage() {
 
 void DayStage::onEnter()
 {
-	// TODO: add the shield that has been left off from the night
 	//Audio::Init();
 	//channel = Audio::Play("data/audio/intro.wav", 1.0, 1);
+	
+	World::inst->clearItems();
 	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
@@ -48,9 +49,6 @@ void DayStage::onEnter()
 
 void DayStage::onExit()
 {
-	//bool a = Audio::Stop(channel);
-	World::inst->clearItems();
-	
 }
 
 void DayStage::render() {
@@ -167,12 +165,10 @@ void DayStage::renderHUD()
 
 
 void DayStage::update(float dt) {
-	time_remaining -= dt;
-	if (time_remaining <= 0.f) 
-	{
+
+	if(shouldTrigger(time_remaining, dt))
 		StageManager::inst->changeStage("night");
-		return;
-	}
+
 	updateMovement(dt);
 	updateItemsAndStats();
 }
