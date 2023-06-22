@@ -805,6 +805,8 @@ void World::changeMenu(std::string go_to)
 
 void World::changeOption(int to_add)
 {
+	Audio::Play("data/audio/change_option.wav", 1.f, false);
+
 	int start = cur_menu->start_visible;
 	int end = cur_menu->end_visible;
 	int num_options = cur_menu->options.size();

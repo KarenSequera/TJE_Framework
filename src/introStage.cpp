@@ -51,19 +51,28 @@ void IntroStage::render()
 void IntroStage::update(float dt)
 {
 	if (Input::gamepads[0].connected) {
-		if(Input::gamepads[0].didDirectionChanged(FLICK_UP))
+		if (Input::gamepads[0].didDirectionChanged(FLICK_UP)) {
+			Audio::Play("data/audio/change_option.wav", 1.f, false);
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
+		}
 		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
+		{
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+			Audio::Play("data/audio/change_option.wav", 1.f, false);
+		}
 		else if (Input::wasButtonPressed(A_BUTTON))
 			selectOption();
 
 	}
 	else {
-		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
+		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP)) {
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
+			Audio::Play("data/audio/change_option.wav", 1.f, false);
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN)) {
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+			Audio::Play("data/audio/change_option.wav", 1.f, false);
+		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 			selectOption();
 	}

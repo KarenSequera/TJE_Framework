@@ -35,7 +35,7 @@ DayStage::DayStage() : Stage() {
 void DayStage::onEnter()
 {
 	//Audio::Init();
-	channel = Audio::Play("data/audio/day.wav", 0.25f, true);
+	channel = Audio::Play("data/audio/day.wav", 0.1f, true);
 	
 	World::inst->clearItems();
 	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
