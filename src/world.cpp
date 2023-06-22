@@ -900,8 +900,8 @@ void World::resizeOptions(float width, float height)
 	float size_y = 100.f * height / 1080;
 	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 0.05 * height;
-	
+	float offset = 0.05 * width;
+
 	option_uses_pos[0] = Vector2(0.85 * width, 3 * size_y + 2 * offset);
 	option_uses_pos[1] = Vector2(0.85 * width, 2 * size_y + offset);
 	option_uses_pos[2] = Vector2(0.85 * width, 1 * size_y);
@@ -912,8 +912,8 @@ void World::resizeOptions(float width, float height)
 
 	for (int i = 0; i < 3; i++)
 	{
-		option_uses_pos[i].x += 0.1 * width;
-		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
+		option_uses_pos[i].x += 0.08 * option_uses_pos[i].x;
+		option_uses_pos[i].y = height - option_uses_pos[i].y*0.99;
 	}
 }
 

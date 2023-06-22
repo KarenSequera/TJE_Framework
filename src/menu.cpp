@@ -40,7 +40,7 @@ void NightMenuEntity::render(bool selected, int menu_pos)
 	World::inst->option_quads[menu_pos]->render(GL_TRIANGLES);
 	shader->disable();
 	
-	float x = World::inst->option_uses_pos[menu_pos].x;
+	float x = World::inst->option_uses_pos[menu_pos].x ;
 	float y = World::inst->option_uses_pos[menu_pos].y;
 
 	renderUses(x,y);
