@@ -8,6 +8,7 @@
 #include "animation.h"
 #include "stageManager.h"
 #include "world.h"
+#include "audio.h"
 
 #include <cmath>
 
@@ -19,6 +20,8 @@ Game* Game::instance = NULL;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
+	Audio::Init();
+
 	this->window_width = window_width;
 	this->window_height = window_height;
 	this->window = window;

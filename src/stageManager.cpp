@@ -2,6 +2,7 @@
 #include "our_utils.h"
 #include "world.h"
 #include "camera.h"
+#include "audio.h"
 
 StageManager* StageManager::inst = NULL;
 
@@ -17,6 +18,10 @@ StageManager::StageManager(float window_width, float window_height) {
 	stages["night"] = new NightStage();
 	stages["game over"] = new GameOverStage();
 	stages["intro stage"] = new IntroStage();
+
+	transition_sounds["day"] = "data/audio/to_night.wav";
+	transition_sounds["night"] = "data/audio/to_night.wav";
+
 	cur_stage = stages["intro stage"];
 	cur_stage->onEnter();
 }
@@ -59,6 +64,7 @@ void StageManager::renderStageTransition() {
 
 void StageManager::changeStage(std::string go_to)
 {
+	Audio::Play(transition_sounds[go_to].c_str(), 1.0, false);
 	cur_stage->onExit();
 	transition_time = STAGE_TRANSITION_TIME;
 	next = go_to;

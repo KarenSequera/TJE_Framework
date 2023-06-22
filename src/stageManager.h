@@ -22,6 +22,7 @@ public:
 	//~StageManager();
 
 	std::unordered_map<std::string, Stage*> stages;
+	std::unordered_map<std::string, std::string> transition_sounds;
 
 	void render();
 	void renderStageTransition();
