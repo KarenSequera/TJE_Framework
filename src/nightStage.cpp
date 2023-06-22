@@ -26,6 +26,8 @@ NightStage::NightStage() : Stage()
 }
 
 void NightStage::onEnter() {
+	channel = Audio::Play("data/audio/night2.wav", 0.25f, true);
+
 	World::inst->generateZombies(cur_night);
 
 	World::inst->player->model_matrix = World::inst->night_models[2];

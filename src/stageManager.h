@@ -4,7 +4,7 @@
 #include "introStage.h"
 #include "gameOverStage.h"
 
-#define STAGE_TRANSITION_TIME 3.f
+#define STAGE_TRANSITION_TIME 4.f
 
 // all classes related to stages
 class StageManager {

@@ -19,8 +19,8 @@ StageManager::StageManager(float window_width, float window_height) {
 	stages["game over"] = new GameOverStage();
 	stages["intro stage"] = new IntroStage();
 
-	transition_sounds["day"] = "data/audio/to_night.wav";
-	transition_sounds["night"] = "data/audio/to_night.wav";
+	transition_sounds["day"] = "data/audio/to_day.wav";
+	transition_sounds["night"] = "data/audio/to_night2.wav";
 
 	cur_stage = stages["intro stage"];
 	cur_stage->onEnter();
@@ -64,7 +64,7 @@ void StageManager::renderStageTransition() {
 
 void StageManager::changeStage(std::string go_to)
 {
-	Audio::Play(transition_sounds[go_to].c_str(), 1.0, false);
+	Audio::Play(transition_sounds[go_to].c_str(), 0.5, false);
 	cur_stage->onExit();
 	transition_time = STAGE_TRANSITION_TIME;
 	next = go_to;
@@ -77,6 +77,7 @@ void StageManager::update(float dt) {
 
 		float diff = transition_time - STAGE_TRANSITION_TIME / 2.f;
 		if(!next.empty() && diff <= 0.05){
+			cur_stage->stopMusic();
 			cur_stage = stages[next];
 			cur_stage->onEnter();
 			next.clear();

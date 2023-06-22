@@ -50,3 +50,7 @@ void Stage::renderHungerBar(Vector3 position, float hunger_ratio, Shader* shader
 	quad2.render(GL_TRIANGLES);
 
 }
+
+void Stage::stopMusic() {
+	Audio::Stop(channel);
+}
