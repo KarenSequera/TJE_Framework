@@ -27,7 +27,7 @@ public:
 	void renderConsumableMenu();
 	void renderSky();
 	void renderHUD();
-	void update(float dt);
+	void update(float dt, bool transitioning = false);
 	void updateMovement(float dt);
 	void updateItemsAndStats();
 

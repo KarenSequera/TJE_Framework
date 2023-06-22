@@ -1,5 +1,6 @@
 #include "player.h"
 #include "our_utils.h"
+#include "audio.h"
 
 Player::Player() {
 	health = MAX_HEALTH;
@@ -63,15 +64,21 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 	int mult = add ? 1 : -1;
 	switch (stat) {
 	case HUNGER:
-		if (add && hunger == MAX_HUNGER)
-			return false;
-
+		if (add) {
+			if (hunger == MAX_HUNGER)
+				return false;
+			else
+			Audio::Play("data/audio/hunger_cons.wav", 1.f, false);
+		}
 		hunger = clamp(hunger + mult * amount, 0, MAX_HUNGER);
 		break;
 	case HEALTH:
-		if (add && health == MAX_HEALTH)
-			return false;
-
+		if (add) {
+			if (health == MAX_HEALTH)
+				return false;
+			else
+			Audio::Play("data/audio/health_cons.wav", 1.f, false);
+		}
 		health = clamp(health + mult * amount, 0, MAX_HEALTH);
 		break;
 	case SHIELD:

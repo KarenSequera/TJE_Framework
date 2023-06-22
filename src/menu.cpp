@@ -85,7 +85,7 @@ bool WeaponMenuEntity::onSelect()
 {
 	if(World::inst->unlimited_everything || w_type == FISTS || World::inst->getWeaponUses(w_type))
 	{
-		Audio::Play("data/audio/select.wav", 1.f, false);
+		Audio::Play("data/audio/menu/select.wav", 1.f, false);
 		World::inst->weapon = w_type;
 		World::inst->selectWeapon(w_type);
 	}
@@ -115,7 +115,7 @@ bool DefensiveMenuEntity::onSelect()
 {
 	if (World::inst->unlimited_everything || d_type == ARMS || World::inst->getDefItemUses(d_type))
 	{
-		Audio::Play("data/audio/select.wav", 1.f, false);
+		Audio::Play("data/audio/menu/select.wav", 1.f, false);
 		World::inst->defend(d_type);
 		return true;
 
@@ -135,7 +135,7 @@ GeneralMenuEntity::GeneralMenuEntity(Texture* normal_texture, Texture* selected,
 
 bool GeneralMenuEntity::onSelect()
 {
-	Audio::Play("data/audio/select.wav", 1.f, false);
+	Audio::Play("data/audio/menu/select.wav", 1.f, false);
 	World::inst->changeMenu(go_to);
 	return false;
 }

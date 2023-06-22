@@ -20,7 +20,7 @@ public:
 	virtual void onEnter() {};
 	virtual void onExit() {};
 	virtual void render() {};
-	virtual void update(float dt) {};
+	virtual void update(float dt, bool transitioning = false) {};
 	virtual void resizeOptions(float width, float height) {};
 	void stopMusic();
 	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height);

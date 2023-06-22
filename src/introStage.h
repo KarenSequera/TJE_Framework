@@ -22,7 +22,7 @@ public:
 	void onExit();
 	void render();
 
-	void update(float dt);
+	void update(float dt, bool transitioning = false);
 
 	void resizeOptions(float width, float height);
 	bool selectOption();

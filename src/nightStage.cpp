@@ -26,7 +26,7 @@ NightStage::NightStage() : Stage()
 }
 
 void NightStage::onEnter() {
-	//channel = Audio::Play("data/audio/night2.wav", 0.05f, true);
+	channel = Audio::Play("data/audio/night/night.wav", 0.05f, true);
 
 	World::inst->generateZombies(cur_night);
 
@@ -171,9 +171,9 @@ void NightStage::playerTurnRender() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void NightStage::update(float dt)
+void NightStage::update(float dt, bool transitioning)
 {
-	if (World::inst->zombiesAlive() <= 0) 
+	if (!transitioning && World::inst->zombiesAlive() <= 0) 
 		if (World::inst->nextWave()) 
 			StageManager::inst->changeStage("day");
 
@@ -239,13 +239,13 @@ void NightStage::playerTurnUpdate(float dt)
 		if (Input::gamepads[0].connected) {
 
 			if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT)) {
-				Audio::Play("data/audio/change_option.wav", 1.f, false);
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 				selected_target = ourMod(selected_target - 1, World::inst->zombiesAlive());
 			}
 
 			else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT)) {
 				selected_target = ourMod(selected_target + 1, World::inst->zombiesAlive());
-				Audio::Play("data/audio/change_option.wav", 1.f, false);
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 			}
 			else if (Input::wasButtonPressed(A_BUTTON)) {
 				int result = World::inst->hurtZombie(selected_target);
@@ -264,7 +264,7 @@ void NightStage::playerTurnUpdate(float dt)
 			}
 			else if (Input::wasButtonPressed(B_BUTTON))
 			{
-				Audio::Play("data/audio/go_back.wav", 1.f, false);
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 
 				World::inst->ready_to_attack = false;
 				World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
@@ -275,12 +275,12 @@ void NightStage::playerTurnUpdate(float dt)
 		else {
 			if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT)) {
 				selected_target = ourMod(selected_target - 1, World::inst->zombiesAlive());
-				Audio::Play("data/audio/change_option.wav", 1.f, false);
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 			}
 
 			else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT)){
 				selected_target = ourMod(selected_target + 1, World::inst->zombiesAlive());
-				Audio::Play("data/audio/change_option.wav", 1.f, false);
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 				int result = World::inst->hurtZombie(selected_target);
@@ -299,7 +299,7 @@ void NightStage::playerTurnUpdate(float dt)
 			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
 			{
-				Audio::Play("data/audio/go_back.wav", 1.f, false);
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 				World::inst->ready_to_attack = false;
 				World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
 			}
@@ -322,7 +322,7 @@ void NightStage::playerTurnUpdate(float dt)
 					is_player_turn = false;
 			}
 			else if (Input::wasButtonPressed(B_BUTTON)) {
-				Audio::Play("data/audio/go_back.wav", 1.f, false);
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 				World::inst->changeMenu("general");
 			}
 		}
@@ -339,7 +339,7 @@ void NightStage::playerTurnUpdate(float dt)
 			}
 
 			else if (Input::wasKeyPressed(SDL_SCANCODE_Z)) {
-				Audio::Play("data/audio/go_back.wav", 1.f, false);
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 				World::inst->changeMenu("general");
 			}
 		}

@@ -466,7 +466,7 @@ void World::addDefItemUses(defensiveType def) {
 
 //	Tries to get an item from the world and add it to the player's inventory
 void World::getItem(ItemEntity* item) {
-
+	Audio::Play("data/audio/day/get_item.wav", 1.f, false);
 	switch (item->item_type) {
 		case WEAPON:
 			// get type from entity
@@ -805,7 +805,7 @@ void World::changeMenu(std::string go_to)
 
 void World::changeOption(int to_add)
 {
-	Audio::Play("data/audio/change_option.wav", 1.f, false);
+	Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 
 	int start = cur_menu->start_visible;
 	int end = cur_menu->end_visible;
