@@ -19,6 +19,7 @@ enum playerStates {
 };
 
 enum zombieStates {
+	ZOMBIE_DODGE = -2,
 	ZOMBIE_HURT = -1,
 	ZOMBIE_PUNCH = 0,
 	ZOMBIE_KNIFE = 2,

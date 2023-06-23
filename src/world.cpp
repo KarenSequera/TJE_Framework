@@ -779,9 +779,7 @@ int World::hurtZombie(int zombie_idx)
 	}
 
 	// Trigger one animation or the other depending on the effectiveness of the attack
-	// if the zombie is inmune they will be unfazed
 	else if (multiplier == 1) {
-
 		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
 	}
 
@@ -789,6 +787,9 @@ int World::hurtZombie(int zombie_idx)
 		Audio::Play("data/audio/night/crit.wav", 1.f, false);
 		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
 	}
+	
+	else 
+		zombie->toStateDelayed(ZOMBIE_DODGE, delay, TRANSITION_TIME);
 	
 	playWeaponSound(weapon, 1.5 * delay, multiplier == 0, !zombie->alive());
 

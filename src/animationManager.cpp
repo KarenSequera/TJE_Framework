@@ -51,6 +51,7 @@ void AnimationManager::fillZombieAnimations(int idle_anim)
     addAnimationState(zombie_idle_paths[idle_anim].c_str(), IDLE);
     addAnimationState("data/characters/animations/zombie/hit.skanim", ZOMBIE_HURT);
     addAnimationState("data/characters/animations/zombie/hit_grave.skanim", ZOMBIE_HURT_GRAVE);
+    addAnimationState("data/characters/animations/zombie/dodge.skanim", ZOMBIE_DODGE);
 
     fillCommonAnimations();
 
