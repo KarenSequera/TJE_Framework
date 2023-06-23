@@ -861,19 +861,18 @@ void World::createMenus(std::string filename)
 		exit(-1);
 	}
 
+	general->options.resize(NUM_GENERAL_OPTIONS);
+
 	std::string data;
 	for (int option = 0; option < NUM_GENERAL_OPTIONS; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		general->options.push_back(
-			new GeneralMenuEntity(
-				Texture::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
-				tokens[3]
-			)
-		);
+		general->options[option] = new GeneralMenuEntity(
+			Texture::Get(tokens[1].c_str()),
+			Texture::Get(tokens[2].c_str()),
+			tokens[3]);
 	}
 
 	file.ignore(1, '\n');
@@ -882,18 +881,17 @@ void World::createMenus(std::string filename)
 	Menu* consumables = new Menu();
 	menus["consumables"] = consumables;
 
+	consumables->options.resize(NUM_CONSUMABLES);
+
 	for (int option = 0; option < NUM_CONSUMABLES; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		consumables->options.push_back(
-			new ConsumableMenuEntity(
-				Texture::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
-				consumableType(std::stoi(tokens[3]))
-			)
-		);
+		consumables->options[option] = new ConsumableMenuEntity(
+			Texture::Get(tokens[1].c_str()),
+			Texture::Get(tokens[2].c_str()),
+			consumableType(std::stoi(tokens[3])));
 	}
 
 	file.ignore(1, '\n');
@@ -902,17 +900,16 @@ void World::createMenus(std::string filename)
 	Menu* weapon = new Menu();
 	menus["weapon"] = weapon;
 
+	weapon->options.resize(NUM_WEAPONS);
 	for (int option = 0; option < NUM_WEAPONS; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		weapon->options.push_back(
-			new WeaponMenuEntity(
-				Texture::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
-				weaponType(std::stoi(tokens[3]))
-			)
+		weapon->options[option] = new WeaponMenuEntity(
+			Texture::Get(tokens[1].c_str()),
+			Texture::Get(tokens[2].c_str()),
+			weaponType(std::stoi(tokens[3]))
 		);
 	}
 
@@ -921,19 +918,18 @@ void World::createMenus(std::string filename)
 	//Defend menu
 	Menu* defensive = new Menu();
 	menus["defensive"] = defensive;
+	defensive->options.resize(NUM_DEF);
 
 	for (int option = 0; option < NUM_DEF; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		defensive->options.push_back(
-			new DefensiveMenuEntity(
+		defensive->options[option] = new DefensiveMenuEntity(
 				Texture::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
 				defensiveType(std::stoi(tokens[3]))
-			)
-		);
+			);
 	}
 }
 

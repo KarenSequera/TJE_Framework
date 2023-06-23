@@ -39,7 +39,9 @@ public:
 	static Audio* Get(const char* filename);
 	// Play Manager API
 	static HCHANNEL Play(const char* filename, float volume, bool loop);
-	static void PlayDelayed(const char* filename, float volume, float delay);
+	static void PlayDelayed(const char* filename, float volume, float delay, int repeat, float repeat_time);
+
+	static void UpdateDelayed(float dt);
 	//static HCHANNEL Play3D(const char* filename, Vector3 position);
 	// Stop sounds
 	static bool Stop(HCHANNEL channel);
