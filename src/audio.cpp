@@ -1,6 +1,8 @@
 #include "audio.h"
 
 std::map<std::string, Audio*> Audio::sAudiosLoaded;
+sDelayedAudio Audio::d_sounds[MAX_DELAYED_SOUNDS];
+int Audio::num_delayed;
 
 Audio::Audio()
 {
@@ -9,6 +11,17 @@ Audio::Audio()
 
 Audio::~Audio()
 {
+	num_delayed = 0;
+
+	sDelayedAudio delayed_audio;
+	delayed_audio.delay = -9999.f;
+	delayed_audio.volume = 1.f;
+	delayed_audio.filename = "";
+
+	for (int i = 0; i < MAX_DELAYED_SOUNDS; i++) {
+		d_sounds[i] = delayed_audio;
+	}
+
 	BASS_SampleFree(sample);
 }
 
@@ -60,6 +73,22 @@ HCHANNEL Audio::Play(const char* filename, float volume, bool loop)
 	return hSampleChannel;
 }
 
+
+void Audio::PlayDelayed(const char* filename, float volume, float delay) {
+	if (num_delayed == MAX_DELAYED_SOUNDS)
+		return;
+
+	sDelayedAudio delayed_audio;
+	delayed_audio.delay = delay;
+	delayed_audio.filename = filename;
+	delayed_audio.volume = volume;
+
+
+	for (int i = 0; i < MAX_DELAYED_SOUNDS; i++) {
+		if (d_sounds[i].delay <= -1.f)
+			d_sounds[i] = delayed_audio;
+	}
+}
 
 bool Audio::Stop(HCHANNEL channel) {
 	return BASS_ChannelStop(channel);
