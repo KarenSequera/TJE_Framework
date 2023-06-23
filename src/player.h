@@ -33,7 +33,10 @@ public:
 	int shield;
 	int hunger;
 	int mitigates;
-	
+	int defensive;
+	float til_def_broken;
+	bool def_broken;
+
 	//array containing the uses 
 	int weapon_uses[NUM_WEAPONS];
 
@@ -49,4 +52,5 @@ public:
 	bool affectPlayerStat(affectingStat stat, int amount, bool add);
 	void hurtAnimation(float delay);
 	bool hasWeapon();
+	void updateAnim(float dt);
 };

@@ -32,7 +32,7 @@ public:
 	void renderHealthBars(Shader* shader);
 	void renderBackground(Shader* shader);
 
-	void update(float dt);
+	void update(float dt, bool transitioning);
 
 	void playerTurnUpdate(float dt);
 	void zombieTurnUpdate(float dt);

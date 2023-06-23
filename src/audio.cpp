@@ -1,6 +1,10 @@
 #include "audio.h"
+#include "our_utils.h"
 
 std::map<std::string, Audio*> Audio::sAudiosLoaded;
+sDelayedAudio Audio::d_sounds[MAX_DELAYED_SOUNDS];
+int Audio::num_delayed;
+
 
 Audio::Audio()
 {
@@ -13,7 +17,19 @@ Audio::~Audio()
 }
 
 bool Audio::Init()
-{	//Init the bass library
+{	
+	num_delayed = 0;
+
+	sDelayedAudio delayed_audio;
+	delayed_audio.delay = -10.f;
+	delayed_audio.volume = 1.f;
+	delayed_audio.filename = "";
+
+	for (int i = 0; i < MAX_DELAYED_SOUNDS; i++) {
+		d_sounds[i] = delayed_audio;
+	}
+	
+	//Init the bass library
 	return BASS_Init(-1, 44100, 0, 0, NULL);
 }
 
@@ -60,6 +76,41 @@ HCHANNEL Audio::Play(const char* filename, float volume, bool loop)
 	return hSampleChannel;
 }
 
+
+void Audio::PlayDelayed(const char* filename, float volume, float delay, int repeat, float repeat_time) {
+	if (delay <= 0.05)
+		Play(filename, volume, false);
+
+	if (num_delayed == MAX_DELAYED_SOUNDS)
+		return;
+
+	sDelayedAudio delayed_audio;
+	delayed_audio.delay = delay;
+	delayed_audio.filename = filename;
+	delayed_audio.volume = volume;
+
+
+	for (int i = 0; i < MAX_DELAYED_SOUNDS; i++) {
+		if (d_sounds[i].delay <= -1.f) {
+			d_sounds[i] = delayed_audio;
+			break;
+		}
+	}
+	
+	for (int i = 0; i < repeat; i++) {
+		PlayDelayed(filename, volume, delay + (i+1) * repeat_time, 0, 0.f);
+	}
+}
+
+void Audio::UpdateDelayed(float dt) {
+	for (int i = 0; i < MAX_DELAYED_SOUNDS; i++) {
+		if (shouldTrigger(d_sounds[i].delay, dt)) {
+			Play(d_sounds[i].filename.c_str(), d_sounds[i].volume, false);
+			d_sounds[i].delay = -10.f;
+			d_sounds[i].filename.clear();
+		}
+	}
+}
 
 bool Audio::Stop(HCHANNEL channel) {
 	return BASS_ChannelStop(channel);

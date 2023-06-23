@@ -8,13 +8,14 @@
 #define MAX_ITEM_DIST 1000
 #define DIFICULTY_LEVELS 4
 #define NUM_ZOMBIES_WAVE 3
+#define HURT_SOUNDS 5
 
 struct sCollisionData {
 	Vector3 colPoint;
 	Vector3 colNormal;
 };
 
-struct sWeaponMeshData {
+struct sHoldableMeshData {
 	Mesh* mesh;
 	Vector3 player_offset;
 	Vector3 zombie_offset;
@@ -25,6 +26,7 @@ struct sWeaponMeshData {
 	Vector3 player_axis;
 	Vector3 zombie_axis;
 };
+
 
 class World {
 public:
@@ -49,7 +51,11 @@ public:
 	std::vector<EntitySpawner*> item_spawns;
 
 	std::vector<std::vector<ItemEntity*>> items;
-	std::vector<sWeaponMeshData> weapon_mesh_info;
+	std::vector<sHoldableMeshData> weapon_mesh_info;
+	std::vector<sHoldableMeshData> def_mesh_info;
+
+	std::vector<std::string> weapon_sounds;
+	std::vector<std::string> hurt_sounds;
 
 	Texture* cubemap;
 
@@ -66,8 +72,8 @@ public:
 	};
 
 	//Night variables 
-	std::vector<ZombieEntity*> wave;
-	int zombies_alive;
+	std::vector<std::vector<ZombieEntity*>> waves;
+	int cur_wave;
 
 	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
@@ -90,12 +96,14 @@ public:
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
 	//Animation
-	bool idle;
+	bool idle; 
 	bool zombie_attacking;
 
 	int zombie_hurt;
 
 	World();
+
+	void getSounds();
 	
 	// functions to parse
 	void parseStats(const char* filename);
@@ -108,6 +116,7 @@ public:
 
 	// General logic
 	void hurtPlayer(int damage);
+	void playerDefenseOff();
 	void consumeHunger(int quant);
 
 	int getConsumableQuant(consumableType consumable);
@@ -133,6 +142,8 @@ public:
 	// NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	void generateZombies(int num_night);
 
+	void playHurt(float delay, bool defend, bool dead);
+
 	// ZOMBIE RELATED
 	// This function is called when the player atacks a zombie
 		//Depends on the vulnerabilities will return 0,1,2
@@ -145,6 +156,10 @@ public:
 	// removes a zombie from the wave vector
 	void removeZombie(int zombie_idx);
 	void defend(defensiveType type);
+	int zombiesAlive();
+	bool nextWave();
+
+	void playWeaponSound(weaponType weapon, float delay, bool dead, bool miss);
 
 	// MENU RELATED
 	void changeMenu(std::string go_to);

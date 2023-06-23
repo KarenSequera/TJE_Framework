@@ -2,7 +2,7 @@
 #include "stage.h"
 
 #define DRIFT_THRESHOLD 0.01
-#define DAY_TIME 60.f
+#define DAY_TIME 30.f
 
 class DayStage : public Stage {
 public:
@@ -28,7 +28,7 @@ public:
 	void renderConsumableMenu();
 	void renderSky();
 	void renderHUD();
-	void update(float dt);
+	void update(float dt, bool transitioning = false);
 	void updateMovement(float dt);
 	void updateItemsAndStats();
 

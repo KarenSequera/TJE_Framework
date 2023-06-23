@@ -26,6 +26,8 @@ NightStage::NightStage() : Stage()
 }
 
 void NightStage::onEnter() {
+	channel = Audio::Play("data/audio/night/night.wav", 0.05f, true);
+
 	World::inst->generateZombies(cur_night);
 
 	World::inst->player->model_matrix = World::inst->night_models[2];
@@ -103,14 +105,16 @@ void NightStage::renderCrosshair(Shader* shader)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Matrix44 model = World::inst->wave[selected_target]->model_matrix;
+	ZombieEntity* selected = World::inst->waves[World::inst->cur_wave][selected_target];
+	Matrix44 model = selected->getBoneMatrix("mixamorig_Spine") * selected->model_matrix;
 
 	Vector3 position = model.getTranslation();
-	position.y += 175.f;
+	position.x -= 10.f;
+	position.y += 10.f;
 	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
 
 	Mesh quad;
-	quad.createQuad(position.x, position.y, 50.f, 50.f, true);
+	quad.createQuad(position.x, position.y, 65.f, 65.f, true);
 
 	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair_anim.tga"), 0);
 	shader->setUniform("u_ratio", 1.f / 8.f);
@@ -143,7 +147,7 @@ void NightStage::renderHealthBars(Shader* shader)
 	renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 	
 	//Health bar of the zombies
-	for (auto& zombie : World::inst->wave){
+	for (auto& zombie : World::inst->waves[World::inst->cur_wave]) {
 
 		model = zombie->model_matrix;
 
@@ -194,13 +198,14 @@ void NightStage::renderBackground(Shader* shader)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void NightStage::update(float dt)
+void NightStage::update(float dt, bool transitioning)
 {
-	if (World::inst->zombies_alive <= 0)
-		StageManager::inst->changeStage("day");
+	if (!transitioning && World::inst->zombiesAlive() <= 0) 
+		if (World::inst->nextWave()) 
+			StageManager::inst->changeStage("day");
 
 	World::inst->updateAnimations(dt);
-
+	 
 #if DEBUG
 	if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("day");
@@ -260,15 +265,17 @@ void NightStage::playerTurnUpdate(float dt)
 	{
 		if (Input::gamepads[0].connected) {
 
-			if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
-				selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
+			if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT)) {
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+				selected_target = ourMod(selected_target - 1, World::inst->zombiesAlive());
+			}
 
-			else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT))
-				selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+			else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT)) {
+				selected_target = ourMod(selected_target + 1, World::inst->zombiesAlive());
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+			}
 			else if (Input::wasButtonPressed(A_BUTTON)) {
 				int result = World::inst->hurtZombie(selected_target);
-
-
 
 				// if the attack is not super effective then we move onto the zombie's turn
 				if (result != 2)
@@ -282,6 +289,8 @@ void NightStage::playerTurnUpdate(float dt)
 			}
 			else if (Input::wasButtonPressed(B_BUTTON))
 			{
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
+
 				World::inst->ready_to_attack = false;
 				World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
 			}
@@ -289,11 +298,15 @@ void NightStage::playerTurnUpdate(float dt)
 			
 		}
 		else {
-			if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
-				selected_target = ourMod(selected_target - 1, World::inst->zombies_alive);
+			if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT)) {
+				selected_target = ourMod(selected_target - 1, World::inst->zombiesAlive());
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+			}
 
-			else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
-				selected_target = ourMod(selected_target + 1, World::inst->zombies_alive);
+			else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT)){
+				selected_target = ourMod(selected_target + 1, World::inst->zombiesAlive());
+				Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 				int result = World::inst->hurtZombie(selected_target);
 
@@ -311,6 +324,7 @@ void NightStage::playerTurnUpdate(float dt)
 			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
 			{
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 				World::inst->ready_to_attack = false;
 				World::inst->playerToState(IDLE, TRANSITION_TIME / 2.f);
 			}
@@ -332,8 +346,10 @@ void NightStage::playerTurnUpdate(float dt)
 				if (World::inst->selectOption())
 					is_player_turn = false;
 			}
-			else if (Input::wasButtonPressed(B_BUTTON))
+			else if (Input::wasButtonPressed(B_BUTTON)) {
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 				World::inst->changeMenu("general");
+			}
 		}
 		else {
 			if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP))
@@ -347,8 +363,10 @@ void NightStage::playerTurnUpdate(float dt)
 					is_player_turn = false;
 			}
 
-			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
+			else if (Input::wasKeyPressed(SDL_SCANCODE_Z)) {
+				Audio::Play("data/audio/menu/go_back.wav", 1.f, false);
 				World::inst->changeMenu("general");
+			}
 		}
 		
 	}
@@ -371,7 +389,7 @@ void NightStage::zombieTurnUpdate(float dt)
 		if (World::inst->attackPlayer(zombie_attacking))
 		{
 			zombie_attacking++;
-			if (zombie_attacking >= World::inst->wave.size())
+			if (zombie_attacking >= World::inst->waves[World::inst->cur_wave].size())
 			{
 				is_player_turn = true;
 				newTurn();
@@ -418,7 +436,8 @@ void NightStage::newTurn()
 
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
 	World::inst->consumeHunger(10);
-	
+	World::inst->playerDefenseOff();
+
 	zombie_attacking = 0;
 	selected_target = 0;
 	time_between_turns = TIME_BTW_TURNS;
