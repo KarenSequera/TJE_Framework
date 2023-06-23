@@ -49,8 +49,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	new World();
 
 	stage_manager = new StageManager(window_width, window_height);
-
-	Audio::PlayDelayed("data/audio/night/crit.wav", 1.0, 1.f, 2, 1.f);
 }
 
 //what to do when the image has to be draw

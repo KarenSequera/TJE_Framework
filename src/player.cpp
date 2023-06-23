@@ -67,7 +67,7 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 		if (add) {
 			if (hunger == MAX_HUNGER)
 				return false;
-			else
+			
 			Audio::Play("data/audio/hunger_cons.wav", 1.f, false);
 		}
 		hunger = clamp(hunger + mult * amount, 0, MAX_HUNGER);
@@ -76,14 +76,18 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 		if (add) {
 			if (health == MAX_HEALTH)
 				return false;
-			else
+			
 			Audio::Play("data/audio/health_cons.wav", 1.f, false);
 		}
 		health = clamp(health + mult * amount, 0, MAX_HEALTH);
 		break;
 	case SHIELD:
-		if (add && shield == MAX_SHIELD)
-			return false;
+		if (add) {
+			if(health == MAX_SHIELD)
+				return false;
+			
+			Audio::Play("data/audio/shield_cons.wav", 1.f, false);
+		}
 
 		shield = clamp(shield + mult * amount, 0, MAX_SHIELD);
 		break;
@@ -106,6 +110,9 @@ bool Player::hasWeapon()
 
 void Player::updateAnim(float dt) {
 	AnimatedEntity::updateAnim(dt);
-	if (shouldTrigger(til_def_broken, dt))
+	if (shouldTrigger(til_def_broken, dt)) {
+		if(defensive)
+			Audio::Play("data/audio/night/crack_shield.wav", 1.f, false);
 		defensive = 0;
+	}
 }

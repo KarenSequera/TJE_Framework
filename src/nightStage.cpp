@@ -250,8 +250,6 @@ void NightStage::playerTurnUpdate(float dt)
 			else if (Input::wasButtonPressed(A_BUTTON)) {
 				int result = World::inst->hurtZombie(selected_target);
 
-
-
 				// if the attack is not super effective then we move onto the zombie's turn
 				if (result != 2)
 					is_player_turn = false;

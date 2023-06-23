@@ -78,6 +78,9 @@ HCHANNEL Audio::Play(const char* filename, float volume, bool loop)
 
 
 void Audio::PlayDelayed(const char* filename, float volume, float delay, int repeat, float repeat_time) {
+	if (delay <= 0.05)
+		Play(filename, volume, false);
+
 	if (num_delayed == MAX_DELAYED_SOUNDS)
 		return;
 

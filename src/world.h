@@ -8,6 +8,7 @@
 #define MAX_ITEM_DIST 1000
 #define DIFICULTY_LEVELS 4
 #define NUM_ZOMBIES_WAVE 3
+#define HURT_SOUNDS 5
 
 struct sCollisionData {
 	Vector3 colPoint;
@@ -52,6 +53,9 @@ public:
 	std::vector<std::vector<ItemEntity*>> items;
 	std::vector<sHoldableMeshData> weapon_mesh_info;
 	std::vector<sHoldableMeshData> def_mesh_info;
+
+	std::vector<std::string> weapon_sounds;
+	std::vector<std::string> hurt_sounds;
 
 	Texture* cubemap;
 
@@ -98,6 +102,8 @@ public:
 	int zombie_hurt;
 
 	World();
+
+	void getSounds();
 	
 	// functions to parse
 	void parseStats(const char* filename);
@@ -136,6 +142,8 @@ public:
 	// NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	void generateZombies(int num_night);
 
+	void playHurt(float delay, bool defend, bool dead);
+
 	// ZOMBIE RELATED
 	// This function is called when the player atacks a zombie
 		//Depends on the vulnerabilities will return 0,1,2
@@ -150,6 +158,8 @@ public:
 	void defend(defensiveType type);
 	int zombiesAlive();
 	bool nextWave();
+
+	void playWeaponSound(weaponType weapon, float delay, bool dead, bool miss);
 
 	// MENU RELATED
 	void changeMenu(std::string go_to);

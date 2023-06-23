@@ -57,6 +57,26 @@ World::World() {
 
 	//init audio
 	Audio::Init();
+
+	getSounds();
+}
+
+void World::getSounds() {
+	weapon_sounds.resize(NUM_WEAPONS);
+	weapon_sounds[FISTS] = "data/audio/night/fists.wav";
+	weapon_sounds[BAT] = "data/audio/night/bat.wav";
+	weapon_sounds[KNIFE] = "data/audio/night/knife.wav";
+	weapon_sounds[GUN] = "data/audio/night/gun.wav";
+
+	hurt_sounds.resize(NUM_DEF + HURT_SOUNDS);
+
+	for (int i = 0; i < NUM_DEF; i++) {
+		hurt_sounds[i] = "data/audio/night/defend" + std::to_string(i + 1) + ".wav";
+	}
+
+	for (int i = 0; i < HURT_SOUNDS; i++) {
+		hurt_sounds[i + NUM_DEF] = "data/audio/night/hit" + std::to_string(i + 1) + ".wav";
+	}
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -703,6 +723,42 @@ void World::generateZombies(int num_night)
 	}
 };
 
+void World::playHurt(float delay, bool defend, bool dead) {
+	int sound;
+
+	if (defend && !dead) {
+		sound = player->defensive;
+		Audio::PlayDelayed(hurt_sounds[sound].c_str(), 1.f, delay, 0, 0.f);
+	}
+	else {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> distribution(0, 100);
+
+		sound = distribution(gen) % HURT_SOUNDS + NUM_DEF;
+
+		Audio::PlayDelayed(hurt_sounds[sound].c_str(), 1.f, delay, 0, 0.f);
+
+		sound = (sound + 1) % HURT_SOUNDS + NUM_DEF;
+	}
+
+	if(!dead)
+		Audio::PlayDelayed(hurt_sounds[sound].c_str(), 1.f, delay * 2.75f, 0, 0.f);
+
+}
+
+void World::playWeaponSound(weaponType weapon, float delay, bool miss, bool dead) {
+	int repeat = 1;
+	if (dead || weapon == GUN)
+		repeat = 0;
+
+	if (miss)
+		Audio::PlayDelayed("data/audio/night/miss.wav", 1.f, delay, repeat, delay * 2);
+	else
+		Audio::PlayDelayed(weapon_sounds[weapon].c_str(), 1.f, delay, repeat, delay * 2);
+		
+}
+
 int World::hurtZombie(int zombie_idx)
 {
 	ZombieEntity* zombie = waves[cur_wave][zombie_idx];
@@ -716,18 +772,26 @@ int World::hurtZombie(int zombie_idx)
 	
 	// If the zombie is dead -> trigger their death
 	if (!zombie->alive()) {
+		if (multiplier == 2)
+			Audio::Play("data/audio/night/crit.wav", 1.f, false);
 		zombie->triggerDeath(delay * 1.5);
 		player->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
 	}
 
 	// Trigger one animation or the other depending on the effectiveness of the attack
 	// if the zombie is inmune they will be unfazed
-	else if (multiplier == 1)
-		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
+	else if (multiplier == 1) {
 
-	else if(multiplier == 2)
+		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
+	}
+
+	else if (multiplier == 2) {
+		Audio::Play("data/audio/night/crit.wav", 1.f, false);
 		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
+	}
 	
+	playWeaponSound(weapon, 1.5 * delay, multiplier == 0, !zombie->alive());
+
 	return multiplier;
 }
 
@@ -751,11 +815,16 @@ bool World::attackPlayer(int zombie_idx)
 
 		if (!isPlayerAlive()) {
 			player->triggerDeath(delay * 1.5);
+			playHurt(delay * 1.5, false, true);
 			zombie->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
 		}
 		else if(!mitigating){
 			player->hurtAnimation(delay);
+			playHurt(delay * 1.5, false, false);
 		}
+		else 
+			playHurt(delay * 1.5, true, false);
+
 
 		zombie_attacking = true;
 	}
