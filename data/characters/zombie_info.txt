@@ -1,4 +1,4 @@
 standard,100,5,0,-1,-1,data/characters/zombie_standard.tga
-thug,10,10,2,3,2,data/texture.tga
-policeman,15,25,3,2,-1,data/texture.tga
-soldier,20,25,3,1,3,data/texture.tga
+thug,10,10,2,3,2,data/characters/zombie_thug.tga
+policeman,15,25,3,2,-1,data/characters/zombie_policeman.tga
+soldier,20,25,3,1,3,data/characters/zombie_soldier.tga

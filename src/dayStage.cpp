@@ -63,17 +63,17 @@ void DayStage::render() {
 	}
 
 	glDisable(GL_DEPTH_TEST);
-	//renderHUD();
+	renderHUD();
 	glEnable(GL_DEPTH_TEST);
 
-	//drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
-	//drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	//drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
+	drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
+	drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
 	//
 	//renderConsumableMenu();
 	#if DEBUG
-	//drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
-		//, Vector3(0.0f, 0.5f, 0.75f), 2);
+	drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
+		, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
 
 }
@@ -160,7 +160,7 @@ void DayStage::renderHUD()
 
 	for (int i = 0; i < 6; i++) {
 		drawText(x + offset * i, y,
-			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * Game::instance->window_height * 0.000005);
+			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * 0.003);
 
 	}
 	
