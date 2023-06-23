@@ -44,6 +44,8 @@ void NightStage::onEnter() {
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
+
+	background.createQuad(World::inst->window_width / 2, World::inst->window_height / 2, World::inst->window_width, World::inst->window_height, true);
 }
 
 void NightStage::onExit()
@@ -51,8 +53,20 @@ void NightStage::onExit()
 	World::inst->applyShields();
 }
 
+
 void NightStage::render()
 {
+
+	// rendering the background quad
+	
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	
+	renderBackground(shader);
+	
+	shader->disable();
 	// render what must be rendered always
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
 	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -60,10 +74,7 @@ void NightStage::render()
 	
 	World::inst->renderNight();
 
-	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 	shader->enable();
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 
 	renderHealthBars(shader);
 
@@ -160,9 +171,25 @@ void NightStage::playerTurnRender() {
 	glDisable(GL_CULL_FACE);
 
 	//menu render
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	World::inst->cur_menu->render(World::inst->selected_option);
 	
 	// Render menus -> prep options
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+void NightStage::renderBackground(Shader* shader)
+{
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/background.tga"), 0);
+	background.render(GL_TRIANGLES);
+
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 }
@@ -398,5 +425,6 @@ void NightStage::newTurn()
 }
 
 void NightStage::resizeOptions(float width, float height) {
+	background.createQuad(width / 2, height / 2, width, height, true);
 	World::inst->resizeOptions(width, height);
 }

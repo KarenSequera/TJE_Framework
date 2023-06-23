@@ -68,7 +68,7 @@ void DayStage::render() {
 	}
 
 	glDisable(GL_DEPTH_TEST);
-	renderHUD();
+	//renderHUD();
 	glEnable(GL_DEPTH_TEST);
 
 	//drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
@@ -77,8 +77,8 @@ void DayStage::render() {
 	//
 	//renderConsumableMenu();
 	#if DEBUG
-	drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
-		, Vector3(0.0f, 0.5f, 0.75f), 2);
+	//drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
+		//, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
 
 }

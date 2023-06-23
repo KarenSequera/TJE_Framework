@@ -23,12 +23,14 @@ public:
 	// -1 if we are not in target selection
 	int selected_target;
 	int zombie_attacking;
+	Mesh background;
 
 	void onEnter();
 	void onExit();
 	void render();
 	void renderCrosshair(Shader* shader);
 	void renderHealthBars(Shader* shader);
+	void renderBackground(Shader* shader);
 
 	void update(float dt);
 
