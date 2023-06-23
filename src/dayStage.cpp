@@ -8,7 +8,6 @@
  
 float angle = 0;
 float mouse_speed = 100.0f;
-
 DayStage::DayStage() : Stage() {
 
 	mouse_locked = true;
@@ -16,53 +15,165 @@ DayStage::DayStage() : Stage() {
 
 	consumable_selected = BURGER;
 	
-	time_remaining = DAY_TIME;
+	time_remaining = DAY_TIME + STAGE_TRANSITION_TIME;
 
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
+
+
+	//TODO: ADAPT THIS TO THE NEW ASSETS
+	float size_x = (Game::instance->window_width)/2.5;
+	float size_y = (size_x * 1000/3000);
+	
+	float position_x = Game::instance->window_width/2;
+	float position_y = (position_x/2 * 1000/3000);
+
+	HUD_quad.createQuad(position_x, position_y, size_x, size_y , true);
+
+	size_x = (Game::instance->window_width)/1.8;
+	size_y = (size_x * 1000 / 4000);
+	position_x = Game::instance->window_width / 2;
+	position_y = (position_x / 1.4 * 1000 / 4000);
+
+	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
 };
 
 void DayStage::onEnter()
 {
-	// TODO: add the shield that has been left off from the night
-
+	//Audio::Init();
+	channel = Audio::Play("data/audio/day/day.wav", 0.1f, true);
+	
+	World::inst->clearItems();
 	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
 }
 
-void DayStage::render() {
-	World::inst->player->position = camera->eye;
+void DayStage::onExit()
+{
+}
 
+void DayStage::render() {
+	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
+	renderSky();
 	for (auto& entity : World::inst->day_entities) {
 		entity->render();
 	}
 
-	drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
-	drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
-	
-	renderConsumableMenu();
+	glDisable(GL_DEPTH_TEST);
+	//renderHUD();
+	glEnable(GL_DEPTH_TEST);
+
+	//drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
+	//drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
+	//drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
+	//
+	//renderConsumableMenu();
 	#if DEBUG
-	drawText(5, 505, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
-		, Vector3(0.0f, 0.5f, 0.75f), 2);
+	//drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
+		//, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
 
 }
 
 //	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
-void DayStage::renderConsumableMenu() {
+void DayStage::renderConsumableMenu() 
+{
 	drawText(5, 85, consumable_names[consumable_selected] + std::to_string(World::inst->getConsumableQuant(consumable_selected)), Vector3(0.0f, 0.5f, 0.75f), 2);
 }
 
-void DayStage::update(float dt) {
-	time_remaining -= dt;
-	if (time_remaining <= 0.f) 
-	{
-		StageManager::inst->changeStage("night");
-		return;
+
+void DayStage::renderSky() 
+{
+	Matrix44 model;
+	model.setTranslation(camera->eye.x, camera->eye.y, camera->eye.z);
+	glDisable(GL_DEPTH_TEST);
+	Mesh* cubemap = Mesh::Get("data/cubemap/cubemap.ASE");
+	Shader* shader = Shader::Get("data/shaders/basic.vs","data/shaders/cubemap.fs");
+	shader->enable();
+	shader->setUniform("u_model", model);
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_camera_position", camera->eye);
+	shader->setUniform("u_sky_texture", World::inst->cubemap, 0);
+	cubemap->render(GL_TRIANGLES);
+
+	shader->disable();
+	glEnable(GL_DEPTH_TEST);
+
+}
+
+
+void DayStage::renderHUD()
+{
+
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud.tga"), 0);
+
+	// rendering the icons 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	
+	HUD_quad.render(GL_TRIANGLES);
+	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud2.tga"), 0);
+	instructions_quad.render(GL_TRIANGLES);
+
+	// Rendering Health Bar
+	Vector3 position = Vector3(Game::instance->window_width / 2.3, Game::instance->window_width / 8.3, 0);
+	float width = Game::instance->window_width /7.5;
+	float height = (width * 15 / 90);
+	
+	renderHealthBar(position,
+		(float)(World::inst->player->health) / MAX_HEALTH , shader, width, height);
+
+	// Rendering Hunger bar
+	position = Vector3(Game::instance->window_width / 1.58, Game::instance->window_width / 8.3, 0);
+	
+	renderHungerBar(position, (float)(World::inst->player->hunger)/MAX_HUNGER, shader, width, height);
+	shader->disable();
+
+
+	//Rendering selected option
+	Shader* shader_selected = Shader::Get("data/shaders/quad.vs", "data/shaders/hud.fs");
+	shader_selected->enable();
+	shader_selected->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader_selected->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader_selected->setUniform("u_texture", Texture::Get("data/hudDay/hud_selected.tga"), 0);
+	shader_selected->setUniform("u_ratio", 1.f/6.f);
+	shader_selected->setUniform("u_selected", (consumable_selected));
+
+	HUD_quad.render(GL_TRIANGLES);
+	shader_selected->disable();
+
+	
+
+
+	float x = Game::instance->window_width / 2.87;
+	float y = Game::instance->window_height - (Game::instance->window_width / 8 * 1000 / 3000);
+
+	float offset = Game::instance->window_width /15;
+
+	for (int i = 0; i < 6; i++) {
+		drawText(x + offset * i, y,
+			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * Game::instance->window_height * 0.000005);
+
 	}
+	
+	glDisable(GL_BLEND);
+
+}
+
+
+void DayStage::update(float dt, bool transitioning) {
+
+	if(!transitioning && shouldTrigger(time_remaining, dt))
+		StageManager::inst->changeStage("night");
+
 	updateMovement(dt);
 	updateItemsAndStats();
 }
@@ -91,8 +202,8 @@ void DayStage::updateMovement(float dt){
 
 		// MOVEMENT
 		// The orientation of the camara is conttrolled with the right joystick
-		right_analog_x_disp = Input::gamepads[0].axis[RIGHT_ANALOG_X];
-		right_analog_y_disp = Input::gamepads[0].axis[RIGHT_ANALOG_Y];
+		right_analog_x_disp = -1.f * Input::gamepads[0].axis[RIGHT_ANALOG_X];
+		right_analog_y_disp = -1.f * Input::gamepads[0].axis[RIGHT_ANALOG_Y];
 
 		left_analog_x_disp = Input::gamepads[0].axis[LEFT_ANALOG_X];
 		left_analog_y_disp = Input::gamepads[0].axis[LEFT_ANALOG_Y];
@@ -103,11 +214,18 @@ void DayStage::updateMovement(float dt){
 		}
 
 		//The player moves with the left joystick, so when the left joystick is moved, we need to move the camera. 
-		if (std::abs(left_analog_x_disp) > DRIFT_THRESHOLD)
-			camera->moveXZ(Vector3(left_analog_x_disp, 0.f, 0.f) * -3.0f * speed);
+		if (std::abs(left_analog_x_disp) > DRIFT_THRESHOLD) {
+			int sign = left_analog_x_disp > 0.f ? -1.f : 1.f;
+			move_dir = move_dir + sign * camera->v_right;
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
+		}
 
 		if (std::abs(left_analog_y_disp) > DRIFT_THRESHOLD) {
-			camera->moveXZ(Vector3(0.f, 0.f, left_analog_y_disp) * -3.0f * speed);
+			int sign = left_analog_y_disp > 0.f ? -1.f : 1.f;
+			move_dir = move_dir + sign * camera->front;
+			if (move_dir.length() > 0.01)
+				move_dir.normalize();
 		}
 	}
 	else {
@@ -142,57 +260,53 @@ void DayStage::updateMovement(float dt){
 				move_dir.normalize();
 		}
 
-		World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
-
-		/*#if DEBUG
-		printf("%f %f %f\n", World::inst->player->velocity.x, World::inst->player->velocity.y, World::inst->player->velocity.z);
-		#endif*/
-
-
-		if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions) == 1)
-		{
-			Vector3 new_dir;
-			Vector3 velocity;
-
-			sCollisionData collision = collisions[0];
-				
-			velocity = World::inst->player->velocity;
-				
-			new_dir = World::inst->player->velocity.dot(collision.colNormal);
-			//printf("%f %f %f\n", collision.colNormal.x, collision.colNormal.y, collision.colNormal.z);
-
-			new_dir = new_dir * collision.colNormal;
-			World::inst->player->velocity.x = (World::inst->player->velocity.x-new_dir.x)*0.5;
-			World::inst->player->velocity.z = (World::inst->player->velocity.z-new_dir.z)*0;
-		}
-		World::inst->player->velocity.y = 0.f;
-
-		World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
-		camera->eye = World::inst->player->position;
-
-
-		World::inst->player->velocity *= 0.15f;
-		move_dir *= 0.15f;
 		//to navigate with the mouse fixed in the middle
 		if (mouse_locked)
 			Input::centerMouse();
 	}
 
+	World::inst->player->velocity = World::inst->player->velocity + move_dir * speed;
+
+	if (World::inst->checkPlayerCollisions(World::inst->player->position + World::inst->player->velocity * dt, &collisions) == 1)
+	{
+		Vector3 new_dir;
+		Vector3 velocity;
+
+		sCollisionData collision = collisions[0];
+
+		velocity = World::inst->player->velocity;
+
+		new_dir = World::inst->player->velocity.dot(collision.colNormal);
+
+		new_dir = new_dir * collision.colNormal;
+		World::inst->player->velocity.x = 0;
+		World::inst->player->velocity.z = 0;
+	}
+	World::inst->player->velocity.y = 0.f;
+
+	World::inst->player->position = World::inst->player->position + World::inst->player->velocity * dt;
+	World::inst->player->model_matrix.setTranslation(World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
+
+	World::inst->player->velocity *= 0.15f;
+	camera->eye = World::inst->player->position;
+
+	move_dir *= 0.15f;
+	
 }
 
 void DayStage::updateItemsAndStats() {
 	if (Input::gamepads[0].connected)
 	{
 		// MENU
-		if (Input::wasPadPressed(HATState::PAD_RIGHT))
+		if (Input::wasButtonPressed(RB_BUTTON))
 		{
 			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
 		}
-		else if (Input::wasPadPressed(HATState::PAD_LEFT))
+		else if (Input::wasButtonPressed(LB_BUTTON))
 		{
 			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
-		else if (Input::wasButtonPressed(X_BUTTON))
+		else if (Input::wasButtonPressed(A_BUTTON))
 		{
 			int res = World::inst->useConsumable(consumable_selected);
 			switch (res) {
@@ -210,30 +324,16 @@ void DayStage::updateItemsAndStats() {
 				break;
 			}
 		}
-		#if DEBUG
-		else if (Input::wasPadPressed(PAD_UP))
-		{
-			World::inst->hurtPlayer(KNIFE);
-		}
-		else if (Input::wasPadPressed(PAD_DOWN))
-		{
-			World::inst->consumeHunger(10);
-		}
-		else if (Input::wasButtonPressed(RIGHT_ANALOG_BUTTON))
-		{
-			World::inst->getConsumable(VEST);
-		}
-		#endif
 	}
 	else
 	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 		{
-			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
+			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_E))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected + 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
 		}
 
 		// use consumable
@@ -259,15 +359,35 @@ void DayStage::updateItemsAndStats() {
 				break;
 			}
 		}
-#if DEBUG
-		else if (Input::wasKeyPressed(SDL_SCANCODE_J))
-			World::inst->hurtPlayer(KNIFE);
-
-		else if (Input::wasKeyPressed(SDL_SCANCODE_K))
-			World::inst->consumeHunger(10);
-
-		else if (Input::wasKeyPressed(SDL_SCANCODE_N))
-			StageManager::inst->changeStage("night");
-		#endif
 	}
+#if DEBUG
+	if (Input::wasKeyPressed(SDL_SCANCODE_J))
+		World::inst->hurtPlayer(KNIFE);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_K))
+		World::inst->consumeHunger(10);
+
+	else if (Input::wasKeyPressed(SDL_SCANCODE_N))
+		StageManager::inst->changeStage("night");
+#endif
 }
+
+void DayStage::resizeOptions(float width, float height) {
+
+	float size_x = width / 2.5;
+	float size_y = (size_x * 1000 / 3000);
+
+
+	float position_x = width / 2;
+	float position_y = (position_x / 2 * 1000 / 3000);
+
+	HUD_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
+	size_x = (Game::instance->window_width) / 1.8;
+	size_y = (size_x * 1000 / 4000);
+	position_x = Game::instance->window_width / 2;
+	position_y = (position_x / 1.4 * 1000 / 4000);
+
+	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
+};

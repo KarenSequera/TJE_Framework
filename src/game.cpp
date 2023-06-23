@@ -8,6 +8,7 @@
 #include "animation.h"
 #include "stageManager.h"
 #include "world.h"
+#include "audio.h"
 
 #include <cmath>
 
@@ -19,6 +20,8 @@ Game* Game::instance = NULL;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
+	Audio::Init();
+
 	this->window_width = window_width;
 	this->window_height = window_height;
 	this->window = window;
@@ -45,7 +48,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	new World();
 
-	stage_manager = new StageManager();
+	stage_manager = new StageManager(window_width, window_height);
 }
 
 //what to do when the image has to be draw
@@ -64,7 +67,7 @@ void Game::render(void)
 	//drawGrid();
 
 	//render the FPS, Draw Calls, etc
-	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
+	//drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
 
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
@@ -73,7 +76,10 @@ void Game::render(void)
 void Game::update(double seconds_elapsed)
 {
 	stage_manager->update(seconds_elapsed);
-}
+
+	// Update audio
+	Audio::UpdateDelayed(seconds_elapsed);
+} 
 
 //Keyboard event handler (sync input)
 void Game::onKeyDown(SDL_KeyboardEvent event)
@@ -132,6 +138,6 @@ void Game::onResize(int width, int height)
 	World::inst->camera2D->aspect = width / (float)height;
 	World::inst->camera2D->setOrthographic(0, window_width, 0, window_height, -1, 1); 
 
-	World::inst->resizeOptions(window_width, window_height);
+	stage_manager->resize(width, height);
 }
 

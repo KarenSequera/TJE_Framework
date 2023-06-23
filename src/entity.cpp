@@ -41,6 +41,7 @@ EntityMesh::EntityMesh() : Entity(){
 	mesh = nullptr;
 	texture = nullptr;
 	shader = nullptr;
+	color = Vector4(1.f);
 	is_instanced = false;
 }
 
@@ -82,11 +83,16 @@ void EntityMesh::render_simple() {
 		shader->enable();
 
 		//upload uniforms
-		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_model", model_matrix);
+
+		shader->setUniform("u_color", color);
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
-		shader->setUniform("u_model", getGlobalMatrix());
 		shader->setUniform("u_time", time);
+		shader->setUniform("u_camera_pos", camera->center);
+		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 0.9));
+		shader->setUniform("u_light_dir", Vector3(0.0, 0.1, 0.1));
+		shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
 
 		//do the draw call
 		mesh->render(GL_TRIANGLES);
@@ -116,17 +122,20 @@ void EntityMesh::render_instanced() {
 		shader->enable();
 
 		//upload uniforms
-		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
 		shader->setUniform("u_time", time);
+		shader->setUniform("u_camera_pos", camera->center);
+		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 1.0));
+		shader->setUniform("u_light_dir", Vector3(0.0, 0.75, 0.75));
+		shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
 
 		//do the draw call
 		mesh->renderInstanced(GL_TRIANGLES, models.data(), models.size());
-
 		//disable shader
 		shader->disable();
 	}
+
 
 	Entity::render();
 }
@@ -140,9 +149,7 @@ EntityCollision::EntityCollision(Mesh* in_mesh, Texture* in_texture, Shader* in_
 AnimatedEntity::AnimatedEntity()
 {
 	anim_manager = nullptr;
-	idle = true;
-	animation_time = 0.f;
-	idle_state = 0;
+	time_til_death = -10.f;
 }
 
 void AnimatedEntity::render()
@@ -159,7 +166,7 @@ void AnimatedEntity::render()
 		shader->enable();
 
 		//upload uniforms
-		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_color", color);
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
 		shader->setUniform("u_model", getGlobalMatrix());
@@ -174,33 +181,68 @@ void AnimatedEntity::render()
 	Entity::render();
 }
 
+void AnimatedEntity::renderHolding(Mesh* mesh, Camera* camera, Vector3 offset, bool rotate, float rot_angle, Vector3 rot_axis, bool right_hand) {
+
+	if (!mesh)
+		return;
+
+	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs");
+
+	// get model
+	Matrix44 model = right_hand ? this->getBoneMatrix("mixamorig_RightHandIndex2") : this->getBoneMatrix("mixamorig_LeftHand");
+
+	model = model * model_matrix;
+
+	Vector3 pos = model.getTranslation() + offset;
+	model.setTranslation(pos, false);
+	
+	if(rotate)
+		model.rotate(rot_angle, rot_axis);
+
+	shader->enable();
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_texture", texture, 0);
+	shader->setUniform("u_time", time);
+	shader->setUniform("u_model", model);
+	shader->setUniform("u_camera_pos", camera->center);
+	shader->setUniform("u_light_color", Vector3(1.0, 1.0, 1.0));
+	shader->setUniform("u_light_dir", Vector3(0.0, 0.75, 0.75));
+	shader->setUniform("u_Ia", Vector3(0.5, 0.5, 0.5));
+
+	mesh->render(GL_TRIANGLES);
+
+	shader->disable();
+}
+
 // Returns: wheter the entity is idle
-bool AnimatedEntity::updateAnim(float dt)
+void AnimatedEntity::updateAnim(float dt)
 {
 	anim_manager->update(dt);
-	
-	if (idle)
-		return true;
-
-	animation_time -= dt;
-
-	if (!idle) {
-
-		if (animation_time <= 0.f)
-		{
-			anim_manager->goToState(idle_state, 1.f);
-			idle = true;
-		}
-		else if((animation_time - anim_manager->states[anim_manager->cur_state]->duration / 2.f) <= 0.f)
-			return true;
-		return false;
-	}
-
-	return false;
 }
 
-void AnimatedEntity::toState(int state, float time)
+void AnimatedEntity::triggerDeath(float delay)
 {
-	animation_time = anim_manager->goToState(state, time);
-	idle = false;
+	time_til_death = toStateDelayed(DYING, delay, 0.75f) * 3.f / 4.f;
 }
+
+float AnimatedEntity::toState(int state, float time)
+{
+	return anim_manager->goToState(state, time);
+}
+
+float AnimatedEntity::toStateDelayed(int state, float to_start, float time)
+{
+	return anim_manager->goToStateDelayed(state, to_start, time);
+}
+
+
+Matrix44 AnimatedEntity::getBoneMatrix(const char* name)
+{
+	return anim_manager->getCurrentSkeleton().getBoneMatrix(name, false);
+}
+
+bool AnimatedEntity::isIdle()
+{
+	return anim_manager->isIdle();
+}
+

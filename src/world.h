@@ -1,24 +1,41 @@
 #pragma once
 
 #include "worldEntities.h"
-#include "nightMenu.h"
+#include "Menu.h"
 #include <unordered_map>
 
 
 #define MAX_ITEM_DIST 1000
 #define DIFICULTY_LEVELS 4
 #define NUM_ZOMBIES_WAVE 3
+#define HURT_SOUNDS 5
 
 struct sCollisionData {
 	Vector3 colPoint;
 	Vector3 colNormal;
 };
 
+struct sHoldableMeshData {
+	Mesh* mesh;
+	Vector3 player_offset;
+	Vector3 zombie_offset;
+	int player_rotate;
+	int zombie_rotate;
+	float player_angle;
+	float zombie_angle;
+	Vector3 player_axis;
+	Vector3 zombie_axis;
+};
+
+
 class World {
 public:
 	// General variables
 	static World* inst;
 	Player* player;
+
+	float window_width;
+	float window_height;
 
 	bool unlimited_everything;
 
@@ -34,10 +51,17 @@ public:
 	std::vector<EntitySpawner*> item_spawns;
 
 	std::vector<std::vector<ItemEntity*>> items;
+	std::vector<sHoldableMeshData> weapon_mesh_info;
+	std::vector<sHoldableMeshData> def_mesh_info;
+
+	std::vector<std::string> weapon_sounds;
+	std::vector<std::string> hurt_sounds;
+
+	Texture* cubemap;
 
 	//arrays containing the probabilities
 	float weapon_probabilities[NUM_WEAPONS] = { 0.0, 0.4, 0.4, 0.2 };
-	float consumable_probabilities[NUM_CONSUMABLES] = {0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
+	float consumable_probabilities[NUM_CONSUMABLES] = {0.5, 0.375, 0.125, 0.5, 0.375, 0.125, 0.6, 0.4};
 	float defensive_probabilities[NUM_DEF] = {0.0,0.666,0.333};
 
 	float zombies_probabilities[DIFICULTY_LEVELS][NUM_ZOMBIE_TYPES] = {
@@ -48,16 +72,16 @@ public:
 	};
 
 	//Night variables 
-	std::vector<ZombieEntity*> wave;
-	int zombies_alive;
+	std::vector<std::vector<ZombieEntity*>> waves;
+	int cur_wave;
 
 	zombieInfo z_info[NUM_ZOMBIE_TYPES];
 
 	weaponType weapon;
 
 	// Menus
-	float window_width;
-	float window_height;
+	float w_width;
+	float w_height;
 	Mesh* option_quads[3];
 	Vector2 option_uses_pos[3];
 
@@ -72,23 +96,27 @@ public:
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
 
 	//Animation
-	bool player_idle;
-	bool zombies_idle;
-	
+	bool idle; 
+	bool zombie_attacking;
+
 	int zombie_hurt;
 
 	World();
+
+	void getSounds();
 	
 	// functions to parse
 	void parseStats(const char* filename);
-	void parseSceneDay(const char* filename);
+	void getMeshesToLoad(const char* filename);
+	void parseSceneDay();
 	void parseSceneNight(const char* filename);
 	void parseSpawns(const char* filename);
 	void parseItemEntities(const char* filename);
 	
 
 	// General logic
-	void hurtPlayer(weaponType weapon);
+	void hurtPlayer(int damage);
+	void playerDefenseOff();
 	void consumeHunger(int quant);
 
 	int getConsumableQuant(consumableType consumable);
@@ -96,6 +124,7 @@ public:
 	int getDefItemUses(defensiveType def);
 
 	int useConsumable(consumableType consumable);
+	void applyShields();
 	void clearItems();
 	void spawnerInit();
 	
@@ -107,11 +136,13 @@ public:
 	void addDefItemUses(defensiveType def);
 	void getItem(ItemEntity* item);
 
-	bool checkItemCollisions(const Vector3& ray_dir);
 	int checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions);
+	void loadSky();
 	
 	// NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	void generateZombies(int num_night);
+
+	void playHurt(float delay, bool defend, bool dead);
 
 	// ZOMBIE RELATED
 	// This function is called when the player atacks a zombie
@@ -120,8 +151,15 @@ public:
 		// 1 -> normal damage
 		// 2 -> attack was super efective (x2 damage), player has 
 	int hurtZombie(int zombie_idx);
-	void killZombie(int zombie_idx);
+	// Tries to hurt the player and returns whether the zombie has finished attacking the player or not
+	bool attackPlayer(int zombie_idx);
+	// removes a zombie from the wave vector
+	void removeZombie(int zombie_idx);
 	void defend(defensiveType type);
+	int zombiesAlive();
+	bool nextWave();
+
+	void playWeaponSound(weaponType weapon, float delay, bool dead, bool miss);
 
 	// MENU RELATED
 	void changeMenu(std::string go_to);
@@ -129,10 +167,12 @@ public:
 	void resizeOptions(float width, float height);
 
 	bool selectOption();
+	void selectWeapon(int w_type);
 	void createMenus(std::string filename);
 
 	// ANIMATION RELATED
 	void updateAnimations(float dt);
 	void playerToState(int state, float time = 0.f);
+	void renderNight();
 	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
 };

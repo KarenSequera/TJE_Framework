@@ -82,6 +82,7 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 {
 	//save old state
 	int prev_direction = state.direction;
+
 	char prev_button[16];
 	HATState prev_hat;
 	memcpy(prev_button, state.button, 16);

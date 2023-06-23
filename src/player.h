@@ -8,6 +8,7 @@
 #define NUM_ITEMS 3
 #define NUM_WEAPONS 4
 #define NUM_CONSUMABLES 8
+#define NUM_CONS_PER_TYPE 3
 #define NUM_SHIELD_ITEMS 2
 #define NUM_DEF 3
 #define MAX_HUNGER 100
@@ -32,7 +33,10 @@ public:
 	int shield;
 	int hunger;
 	int mitigates;
-	
+	int defensive;
+	float til_def_broken;
+	bool def_broken;
+
 	//array containing the uses 
 	int weapon_uses[NUM_WEAPONS];
 
@@ -46,4 +50,7 @@ public:
 	void addWeaponUses(weaponType type, int uses);
 	void addDefUses(defensiveType type, int uses);
 	bool affectPlayerStat(affectingStat stat, int amount, bool add);
+	void hurtAnimation(float delay);
+	bool hasWeapon();
+	void updateAnim(float dt);
 };

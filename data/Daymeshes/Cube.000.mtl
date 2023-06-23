@@ -1,0 +1,12 @@
+# Blender MTL File: 'dayScene.blend'
+# Material Count: 1
+
+newmtl Sack
+Ns 96.078421
+Ka 1.000000 1.000000 1.000000
+Kd 0.350551 0.296937 0.184780
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.000000
+illum 9

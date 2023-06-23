@@ -3,6 +3,7 @@
 #include "our_utils.h"
 
 #include "game.h"
+#include "audio.h"
 
 #include <fstream>
 #include <map>
@@ -22,15 +23,19 @@ World::World() {
 	day_entities.push_back(day_root);
 
 	selected_option = 0;
+	zombie_attacking = false;
+	cur_wave = 0;
 
-
-	parseSceneDay("data/myscene.scene");
+	parseSceneDay();
 	parseSpawns("data/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
 
 	createMenus("data/menus/menus.txt");
 	changeMenu("general");
+
+	// Cubemap
+	loadSky();
 
 	//ParseNight 
 	parseSceneNight("data/nightScene.scene");
@@ -47,10 +52,31 @@ World::World() {
 	ready_to_attack = false;
 	unlimited_everything = false;
 
-	player_idle = true;
-	zombies_idle = true;
-
+	idle = true;
 	zombie_hurt = 0;
+
+	//init audio
+	Audio::Init();
+
+	getSounds();
+}
+
+void World::getSounds() {
+	weapon_sounds.resize(NUM_WEAPONS);
+	weapon_sounds[FISTS] = "data/audio/night/fists.wav";
+	weapon_sounds[BAT] = "data/audio/night/bat.wav";
+	weapon_sounds[KNIFE] = "data/audio/night/knife.wav";
+	weapon_sounds[GUN] = "data/audio/night/gun.wav";
+
+	hurt_sounds.resize(NUM_DEF + HURT_SOUNDS);
+
+	for (int i = 0; i < NUM_DEF; i++) {
+		hurt_sounds[i] = "data/audio/night/defend" + std::to_string(i + 1) + ".wav";
+	}
+
+	for (int i = 0; i < HURT_SOUNDS; i++) {
+		hurt_sounds[i + NUM_DEF] = "data/audio/night/hit" + std::to_string(i + 1) + ".wav";
+	}
 }
 
 // Parsing --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,17 +110,24 @@ void World::parseStats(const char* filename) {
 
 void World::parseItemEntities(const char* filename)
 {
+
+	items.resize(NUM_ITEMS);
+	weapon_mesh_info.resize(NUM_WEAPONS);
+	def_mesh_info.resize(NUM_DEF);
+	
 	int i;
-	for (i = 0; i < NUM_ITEMS; i++)
-	{
-		std::vector<ItemEntity*> item;
-		items.push_back(item);
-	}
 
 	int arrs[] = { WEAPON, DEFENSIVE, CONSUMABLE };
 	int sizes[] = { NUM_WEAPONS, NUM_DEF, NUM_CONSUMABLES };
 
-	
+	for (i = 0; i < NUM_ITEMS; i++)
+	{
+		std::vector<ItemEntity*> item_vec;
+		item_vec.resize(sizes[i]);
+		items[i] = item_vec;
+	}
+
+
 	std::ifstream file(filename);
 	if (!file.good()) {
 		std::cerr << "World [ERROR]" << " Stats file not found!" << std::endl;
@@ -111,17 +144,65 @@ void World::parseItemEntities(const char* filename)
 
 			ItemEntity* item = new ItemEntity(
 				Mesh::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
+				Texture::Get("data/texture.tga"),
 				Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"),
 				itemType(item_type),
 				subtype);
 
-			items[item_type].push_back(item);
+			items[item_type][subtype] = item;
+			
 			day_root->addChild(item);
 		}
 		file.ignore(1, '\n');
 	}
 
+	file.ignore(1, '\n');
+	file >> data;
+
+
+	weapon_mesh_info[FISTS].mesh = nullptr;
+
+	for (int weapon_type = 1; weapon_type < NUM_WEAPONS; weapon_type++) {
+		file >> data;
+		sHoldableMeshData weapon_data;
+
+		std::vector<std::string> tokens = tokenize(data, ",");
+
+		weapon_data.mesh = Mesh::Get(tokens[0].c_str());
+		weapon_data.player_offset = Vector3(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+		weapon_data.player_rotate = std::stoi(tokens[4]);
+		weapon_data.player_angle = std::stof(tokens[5]);
+		weapon_data.player_axis = Vector3(std::stof(tokens[6]), std::stof(tokens[7]), std::stof(tokens[8]));
+		weapon_data.zombie_offset = Vector3(std::stof(tokens[9]), std::stof(tokens[10]), std::stof(tokens[11]));
+		weapon_data.zombie_rotate = std::stoi(tokens[12]);
+		weapon_data.zombie_angle = std::stof(tokens[13]);
+		weapon_data.zombie_axis = Vector3(std::stof(tokens[14]), std::stof(tokens[15]), std::stof(tokens[16]));
+
+		weapon_mesh_info[weapon_type] = weapon_data;
+	}
+
+	file.ignore(1, '\n');
+	file >> data;
+	def_mesh_info[ARMS].mesh = nullptr;
+
+	for (int def_type = 1; def_type < NUM_DEF; def_type++) {
+		file >> data;
+		sHoldableMeshData def_data;
+
+		std::vector<std::string> tokens = tokenize(data, ",");
+
+		def_data.mesh = Mesh::Get(tokens[0].c_str());
+		def_data.player_offset = Vector3(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]));
+		def_data.player_rotate = std::stoi(tokens[4]);
+		def_data.player_angle = std::stof(tokens[5]);
+		def_data.player_axis = Vector3(std::stof(tokens[6]), std::stof(tokens[7]), std::stof(tokens[8]));
+		def_data.zombie_offset = Vector3(std::stof(tokens[9]), std::stof(tokens[10]), std::stof(tokens[11]));
+		def_data.zombie_rotate = std::stoi(tokens[12]);
+		def_data.zombie_angle = std::stof(tokens[13]);
+		def_data.zombie_axis = Vector3(std::stof(tokens[14]), std::stof(tokens[15]), std::stof(tokens[16]));
+
+		def_mesh_info[def_type] = def_data;
+	}
 }
 
 struct sRenderData {
@@ -132,13 +213,8 @@ struct sRenderData {
 
 std::map<std::string, sRenderData> meshes_to_load;
 
-//	Parses a scene from a .scene file
-void World::parseSceneDay(const char* filename)
+void World::getMeshesToLoad(const char* filename)
 {
-	// You could fill the map manually to add shader and texture for each mesh
-	// If the mesh is not in the map, you can use the MTL file to render its colors
-	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
-
 	std::cout << " + Scene loading: " << filename << "..." << std::endl;
 
 	std::ifstream file(filename);
@@ -171,8 +247,23 @@ void World::parseSceneDay(const char* filename)
 		render_data.models.push_back(model);
 		mesh_count++;
 	}
+}
+
+//	Parses a scene from a .scene file
+void World::parseSceneDay()
+{
+	// You could fill the map manually to add shader and texture for each mesh
+	// If the mesh is not in the map, you can use the MTL file to render its colors
+	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
 
 	// Iterate through meshes loaded and create corresponding entities
+	// We have 2 loops with more or less the same code, but this will save us conditionals in the end
+
+	getMeshesToLoad("data/dayScene.scene");
+
+	std::string mesh_name, model_data;
+	EntityMesh* new_entity;
+
 	for (auto data : meshes_to_load) {
 
 		mesh_name = "data/" + data.first;
@@ -182,9 +273,9 @@ void World::parseSceneDay(const char* filename)
 		if (render_data.models.empty())
 			continue;
 
-		// Create instanced entity
+
 		if (render_data.models.size() > 1) {
-			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+			new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
 				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"), true, false, false);
 
 			// Add all instances
@@ -192,10 +283,10 @@ void World::parseSceneDay(const char* filename)
 			// Add entity to scene root
 			day_root->addChild(new_entity);
 		}
-		else{
+		else {
 			// Create normal entity
-			EntityCollision* new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
-			Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false, false);
+			new_entity = new EntityCollision(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false, false);
 
 			new_entity->model_matrix = render_data.models[0];
 			new_entity->models.push_back(render_data.models[0]);
@@ -206,8 +297,40 @@ void World::parseSceneDay(const char* filename)
 		
 	}
 
-	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
+	meshes_to_load.clear();
+	getMeshesToLoad("data/dayFloors.scene");
+	for (auto data : meshes_to_load) {
+
+		mesh_name = "data/" + data.first;
+		sRenderData& render_data = data.second;
+
+		// No transforms, anything to do here
+		if (render_data.models.empty())
+			continue;
+
+		if (render_data.models.size() > 1) {
+			new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/instanced.vs", "data/shaders/phong.fs"), true, false);
+
+			// Add all instances
+			new_entity->models = render_data.models;
+			// Add entity to scene root
+			day_root->addChild(new_entity);
+		}
+		else {
+			// Create normal entity
+			new_entity = new EntityMesh(Mesh::Get(mesh_name.c_str()),
+				Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/phong.fs"), false, false);
+
+			new_entity->model_matrix = render_data.models[0];
+			new_entity->models.push_back(render_data.models[0]);
+
+			// Add entity to scene root
+			day_root->addChild(new_entity);
+		}
+	}
 }
+
 
 //	Parses a scene from a .scene file
 void World::parseSceneNight(const char* filename)
@@ -252,22 +375,28 @@ void World::parseSceneNight(const char* filename)
 // behaviour related ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // GENERAL  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//	Hurts the player according to a specific weapon type
-void World::hurtPlayer(weaponType weapon)
+//	Hurts the player for a spefific amount of damage
+void World::hurtPlayer(int damage)
 {
-	int damage = weapon_dmg[weapon];
-
-	if (player->mitigates)
-	{
-		damage = max(damage - player->mitigates, 0);
-		player->mitigates = 0;
+	int dmg = damage;
+	if (player->mitigates) {
+		dmg = max(damage - player->mitigates, 0);
+		player->mitigates = max(player->mitigates - damage, 0);
+		player->def_broken = true;
 	}
 
-	int diff = player->shield - damage;
-	player->affectPlayerStat(SHIELD, damage, false);
+	int diff = player->shield - dmg;
+	player->affectPlayerStat(SHIELD, dmg, false);
 
 	if (diff < 0)
 		player->affectPlayerStat(HEALTH, -1 * diff, false);
+}
+
+void World::playerDefenseOff()
+{
+	player->mitigates = 0;
+	player->defensive = 0;
+	player->toState(IDLE, TRANSITION_TIME);
 }
 
 bool World::isPlayerAlive() {
@@ -322,6 +451,17 @@ int World::useConsumable(consumableType consumable)
 
 }
 
+void World::applyShields()
+{
+	if (player->shield < MAX_SHIELD)
+	{
+		while (player->consumables[VEST] > 0 && player->shield + consumable_stats[VEST] <= MAX_SHIELD)
+			useConsumable(VEST);
+
+		while (player->consumables[HELMET] > 0 && player->shield + consumable_stats[HELMET] <= MAX_SHIELD)
+			useConsumable(HELMET);
+	}
+}
 
 // DAY  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //	Function that adds one consumable of a specific type to the player's inventory
@@ -346,7 +486,7 @@ void World::addDefItemUses(defensiveType def) {
 
 //	Tries to get an item from the world and add it to the player's inventory
 void World::getItem(ItemEntity* item) {
-
+	Audio::Play("data/audio/day/get_item.wav", 1.f, false);
 	switch (item->item_type) {
 		case WEAPON:
 			// get type from entity
@@ -364,42 +504,6 @@ void World::getItem(ItemEntity* item) {
 	}
 }
 
-bool World::checkItemCollisions(const Vector3& ray_dir)
-{
-	for (auto& entity : day_root->children)
-	{
-		EntityCollision* collision = dynamic_cast<EntityCollision*>(entity);
-		if (!collision)
-			continue;
-
-		for (auto& model : collision->models)
-		{
-			if (!collision->mesh->testRayCollision(
-				model,
-				player->position,
-				ray_dir,
-				Vector3(),
-				Vector3(),
-				MAX_ITEM_DIST,
-				false
-			))
-			#if DEBUG
-			{
-
-				printf("NO collision\n");
-				continue;
-			}
-			printf("Collided with item!\n");
-			#else
-				continue;
-			#endif
-			return true;
-		}
-		
-	}
-	return false;
-}
-
 /*
 * Function that checks the collisions of the player with the object in the scene
 * @param target_pos: the position the playe wants to move to
@@ -411,8 +515,8 @@ bool World::checkItemCollisions(const Vector3& ray_dir)
 */
 int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisionData>* collisions)
 {
-	Vector3 center = target_pos - Vector3(0.f, 7.0f, 0.f);
-	float sphere_rad = 25.f;
+	Vector3 center = target_pos - Vector3(0.f, 0.0f, 0.f);
+	float sphere_rad = 40.f;
 	Vector3 colPoint, colNormal;
 
 	for (auto& entity : day_root->children)
@@ -422,7 +526,6 @@ int World::checkPlayerCollisions(const Vector3& target_pos, std::vector<sCollisi
 
 		if (!collision)
 			continue;
-
 
 		for (auto& model : collision->models)
 		{
@@ -475,8 +578,9 @@ void  World::parseSpawns(const char* filename)
 	}
 
 	int spawn_count = 0;
+	int stat_type = 0;
 	// Read file line by line and store mesh path and model info in separated variables
-	while (file >> spawn_type >> model_data)
+	while (file >> spawn_type >> stat_type >> model_data)
 	{
 		// Get all 16 matrix floats
 		std::vector<std::string> tokens = tokenize(model_data, ",");
@@ -487,7 +591,7 @@ void  World::parseSpawns(const char* filename)
 			model.m[t] = (float)atof(tokens[t].c_str());
 		}
 
-		EntitySpawner* itemSpawn = new EntitySpawner{ myHashMap[spawn_type], model };
+		EntitySpawner* itemSpawn = new EntitySpawner{ myHashMap[spawn_type], affectingStat(stat_type), model};
 		item_spawns.push_back(itemSpawn);
 		spawn_count++;
 	}
@@ -524,13 +628,10 @@ void World::clearItems()
 				items[item_type][subtype]->models.clear();
 		}
 	}
-	int i;
 }
 
 void  World::spawnerInit()
 {
-	clearItems();
-
 	for (auto spawn : item_spawns) {
 		switch (spawn->type) {
 			case WEAPON:
@@ -540,66 +641,202 @@ void  World::spawnerInit()
 				items[DEFENSIVE][selectObject(defensive_probabilities, NUM_DEF)]->models.push_back(spawn->model);
 				break;
 			case  CONSUMABLE:
-				items[CONSUMABLE][selectObject(consumable_probabilities, NUM_CONSUMABLES)]->models.push_back(spawn->model);
+				float probabilities[3];
+				int offset = spawn->affecting_stat * NUM_CONS_PER_TYPE;
+				for (int i = 0; i < NUM_CONS_PER_TYPE; i++)
+				{
+					if (offset + i >= NUM_CONSUMABLES)
+						probabilities[i] = 0.0;
+					else
+						probabilities[i] = consumable_probabilities[offset + i];
+				}
+				int selected = selectObject(probabilities, NUM_CONS_PER_TYPE);
+				items[CONSUMABLE][selected + offset]->models.push_back(spawn->model);
 				break;
 		}
 	}
+}
+
+void World::loadSky()
+{
+	cubemap = new Texture();
+	cubemap->loadCubemap("sky", {
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga",
+			"data/cubemap/sky.tga"
+	});
+
 }
 
 // NIGHT  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void World::generateZombies(int num_night) 
 {
-	wave.clear();
+	cur_wave = 0;
+	for (auto& wave : waves)
+		wave.clear();
+
 	ZombieEntity* zombie;
 	
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> distribution(0, 100);
+
+	int idle_anim = distribution(gen);
+
 	int idx = min(num_night, DIFICULTY_LEVELS-1);
 	float probability[NUM_ZOMBIE_TYPES];
 	memcpy(probability, zombies_probabilities[idx], sizeof(probability));
 
-	for (int i = 0; i < NUM_ZOMBIES_WAVE; i++) 
-	{
-		
-		zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
+	int num_waves = num_night / 5 + 1;
+	waves.resize(num_waves);
 
-		zombie = new ZombieEntity(type, z_info, night_models[3+i]);
+	for (int wave_idx = 0; wave_idx < num_waves; wave_idx++) {
+		waves[wave_idx].resize(NUM_ZOMBIES_WAVE);
+		for (int i = 0; i < NUM_ZOMBIES_WAVE; i++)
+		{
 
-		if (type == STANDARD) {
-			zombie->info.weakness = weaponType((std::rand() % 3) + 1);
+			zombieType type = zombieType(selectObject(probability, NUM_ZOMBIE_TYPES));
+
+			zombie = new ZombieEntity(type, z_info[type], night_models[3 + i], (idle_anim + i) % NUM_ZOMBIE_IDLES);
+
+			if (type == STANDARD) {
+				zombie->info.weakness = weaponType((distribution(gen) % 3) + 1);
+
+				switch (zombie->info.weakness) {
+				case BAT:
+					zombie->color = Vector4(0.5f, 1.f, 1.f, 1.f);
+					break;
+				case KNIFE:
+					zombie->color = Vector4(1.f, 0.5f, 1.f, 1.f);
+					break;
+				case GUN:
+					zombie->color = Vector4(1.f, 1.f, 0.5f, 1.f);
+					break;
+				}
+			}
+			waves[wave_idx][i] = zombie;
 		}
-		wave.push_back(zombie);
+	}
+};
+
+void World::playHurt(float delay, bool defend, bool dead) {
+	int sound;
+
+	if (defend && !dead) {
+		sound = player->defensive;
+		Audio::PlayDelayed(hurt_sounds[sound].c_str(), 1.f, delay, 0, 0.f);
+	}
+	else {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> distribution(0, 100);
+
+		sound = distribution(gen) % HURT_SOUNDS + NUM_DEF;
+
+		Audio::PlayDelayed(hurt_sounds[sound].c_str(), 1.f, delay, 0, 0.f);
+
+		sound = (sound + 1) % HURT_SOUNDS + NUM_DEF;
 	}
 
-	zombies_alive = NUM_ZOMBIES_WAVE;
+	if(!dead)
+		Audio::PlayDelayed(hurt_sounds[sound].c_str(), 1.f, delay * 2.75f, 0, 0.f);
 
-};
+}
+
+void World::playWeaponSound(weaponType weapon, float delay, bool miss, bool dead) {
+	int repeat = 1;
+	if (dead || weapon == GUN)
+		repeat = 0;
+
+	if (miss)
+		Audio::PlayDelayed("data/audio/night/miss.wav", 1.f, delay, repeat, delay * 2);
+	else
+		Audio::PlayDelayed(weapon_sounds[weapon].c_str(), 1.f, delay, repeat, delay * 2);
+		
+}
 
 int World::hurtZombie(int zombie_idx)
 {
-	ZombieEntity* zombie = wave[zombie_idx];
+	ZombieEntity* zombie = waves[cur_wave][zombie_idx];
 	int multiplier = zombie->getMultiplier(weapon);
 	zombie->info.health -= weapon_dmg[weapon] * multiplier;
 
 	player->addWeaponUses(weapon, -1);
 
-	if (!zombie->alive())
-		killZombie(zombie_idx);
+	idle = false;
+	float delay = player->toState(weapon, TRANSITION_TIME) / 3;
+	
+	// If the zombie is dead -> trigger their death
+	if (!zombie->alive()) {
+		if (multiplier == 2)
+			Audio::Play("data/audio/night/crit.wav", 1.f, false);
+		zombie->triggerDeath(delay * 1.5);
+		player->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
+	}
 
-	player_idle = false;
-	player->toState(weapon, 1.f);
+	// Trigger one animation or the other depending on the effectiveness of the attack
+	// if the zombie is inmune they will be unfazed
+	else if (multiplier == 1) {
 
-	zombie_hurt = zombie_idx;
+		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
+	}
+
+	else if (multiplier == 2) {
+		Audio::Play("data/audio/night/crit.wav", 1.f, false);
+		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
+	}
+	
+	playWeaponSound(weapon, 1.5 * delay, multiplier == 0, !zombie->alive());
 
 	return multiplier;
 }
 
-void World::killZombie(int zombie_idx)
+bool World::attackPlayer(int zombie_idx)
 {
-	if (zombie_idx >= 0 && zombie_idx < zombies_alive )
+	assert(zombie_idx < waves[cur_wave].size());
+
+	ZombieEntity* zombie = waves[cur_wave][zombie_idx];
+
+	if (!zombie->isAttacking())
 	{
-		ZombieEntity* zombie = wave[zombie_idx];
-		wave.erase(std::next(wave.begin(), zombie_idx));
-		zombies_alive--;
+		bool mitigating = player->mitigates;
+		if (zombie_attacking) {
+			zombie_attacking = false;
+			return true;
+		}
+
+		hurtPlayer(zombie->info.dmg);
+
+		float delay = zombie->toState(zombie->info.weapon, TRANSITION_TIME) / 3.f;
+
+		if (!isPlayerAlive()) {
+			player->triggerDeath(delay * 1.5);
+			playHurt(delay * 1.5, false, true);
+			zombie->toStateDelayed(IDLE, delay * 2.5, TRANSITION_TIME);
+		}
+		else if(!mitigating){
+			player->hurtAnimation(delay);
+			playHurt(delay * 1.5, false, false);
+		}
+		else 
+			playHurt(delay * 1.5, true, false);
+
+
+		zombie_attacking = true;
+	}
+	return false;
+}
+
+void World::removeZombie(int zombie_idx)
+{
+	if (zombie_idx >= 0 && zombie_idx < waves[cur_wave].size())
+	{
+		ZombieEntity* zombie = waves[cur_wave][zombie_idx];
+		waves[cur_wave].erase(std::next(waves[cur_wave].begin(), zombie_idx));
 		delete zombie->anim_manager;
 		delete zombie;
 	}
@@ -609,10 +846,23 @@ void World::defend(defensiveType type)
 {
 	player->mitigates = defensive_stats[type];
 	player->def_uses[type]--;
+	player->defensive = type;
+	player->toState(PLAYER_DEFEND, TRANSITION_TIME);
 }
 
+int World::zombiesAlive() {
+	return waves[cur_wave].size();
+}
 
-// MENU RELATED ---------------------------------------------------------------------------------------
+bool World::nextWave() {
+
+	if (cur_wave + 1 >= waves.size())
+		return true;
+	cur_wave++;
+	return false;
+}
+
+// NIGHTMENU RELATED ---------------------------------------------------------------------------------------
 void World::changeMenu(std::string go_to)
 {
 	cur_menu = menus[go_to];
@@ -624,6 +874,8 @@ void World::changeMenu(std::string go_to)
 
 void World::changeOption(int to_add)
 {
+	Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+
 	int start = cur_menu->start_visible;
 	int end = cur_menu->end_visible;
 	int num_options = cur_menu->options.size();
@@ -661,9 +913,14 @@ bool World::selectOption()
 	return cur_menu->onSelect(selected_option);
 }
 
+void World::selectWeapon(int w_type)
+{
+	ready_to_attack = true;
+	player->toState(PLAYER_FISTS_IDLE + w_type, TRANSITION_TIME / 2.f);
+}
+
 void World::createMenus(std::string filename)
 {
-
 	Menu* general = new Menu();
 	menus["general"] = general;
 
@@ -673,19 +930,18 @@ void World::createMenus(std::string filename)
 		exit(-1);
 	}
 
+	general->options.resize(NUM_GENERAL_OPTIONS);
+
 	std::string data;
 	for (int option = 0; option < NUM_GENERAL_OPTIONS; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		general->options.push_back(
-			new GeneralMenuEntity(
-				Texture::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
-				tokens[3]
-			)
-		);
+		general->options[option] = new GeneralMenuEntity(
+			Texture::Get(tokens[1].c_str()),
+			Texture::Get(tokens[2].c_str()),
+			tokens[3]);
 	}
 
 	file.ignore(1, '\n');
@@ -694,18 +950,17 @@ void World::createMenus(std::string filename)
 	Menu* consumables = new Menu();
 	menus["consumables"] = consumables;
 
+	consumables->options.resize(NUM_CONSUMABLES);
+
 	for (int option = 0; option < NUM_CONSUMABLES; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		consumables->options.push_back(
-			new ConsumableMenuEntity(
-				Texture::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
-				consumableType(std::stoi(tokens[3]))
-			)
-		);
+		consumables->options[option] = new ConsumableMenuEntity(
+			Texture::Get(tokens[1].c_str()),
+			Texture::Get(tokens[2].c_str()),
+			consumableType(std::stoi(tokens[3])));
 	}
 
 	file.ignore(1, '\n');
@@ -714,17 +969,16 @@ void World::createMenus(std::string filename)
 	Menu* weapon = new Menu();
 	menus["weapon"] = weapon;
 
+	weapon->options.resize(NUM_WEAPONS);
 	for (int option = 0; option < NUM_WEAPONS; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		weapon->options.push_back(
-			new WeaponMenuEntity(
-				Texture::Get(tokens[1].c_str()),
-				Texture::Get(tokens[2].c_str()),
-				weaponType(std::stoi(tokens[3]))
-			)
+		weapon->options[option] = new WeaponMenuEntity(
+			Texture::Get(tokens[1].c_str()),
+			Texture::Get(tokens[2].c_str()),
+			weaponType(std::stoi(tokens[3]))
 		);
 	}
 
@@ -733,36 +987,36 @@ void World::createMenus(std::string filename)
 	//Defend menu
 	Menu* defensive = new Menu();
 	menus["defensive"] = defensive;
+	defensive->options.resize(NUM_DEF);
 
 	for (int option = 0; option < NUM_DEF; option++)
 	{
 		file >> data;
 		std::vector<std::string> tokens = tokenize(data, ",");
 
-		defensive->options.push_back(
-			new DefensiveMenuEntity(
+		defensive->options[option] = new DefensiveMenuEntity(
 				Texture::Get(tokens[1].c_str()),
 				Texture::Get(tokens[2].c_str()),
 				defensiveType(std::stoi(tokens[3]))
-			)
-		);
+			);
 	}
 }
 
 void World::resizeOptions(float width, float height)
 {
+
 	window_width = width;
 	window_height = height;
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
-	float size_x = 0.25 * width;
-	float size_y = size_x * 100.f / 350.f;
+	float size_y = 100.f * height / 1080;
+	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 0.05 * height;
+	float offset = 0.05 * width;
 
-	option_uses_pos[0] = Vector2(3 * size_x, 3 * size_y + 2 * offset);
-	option_uses_pos[1] = Vector2(3 * size_x, 2 * size_y + offset);
-	option_uses_pos[2] = Vector2(3 * size_x, 1 * size_y);
+	option_uses_pos[0] = Vector2(0.85 * width, 3 * size_y + 2 * offset);
+	option_uses_pos[1] = Vector2(0.85 * width, 2 * size_y + offset);
+	option_uses_pos[2] = Vector2(0.85 * width, 1 * size_y);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
@@ -770,35 +1024,83 @@ void World::resizeOptions(float width, float height)
 
 	for (int i = 0; i < 3; i++)
 	{
-		option_uses_pos[i].x += 0.1 * width;
-		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
+		option_uses_pos[i].x += 0.4 * size_x;
+		option_uses_pos[i].y = height - option_uses_pos[i].y;
 	}
 }
 
 // Animation related
 void World::updateAnimations(float dt)
 {
-	bool player_gone_idle = player->updateAnim(dt);
-	
-	// if the player was not able, but they are now:
-	if (!player_idle && player_gone_idle)
-	{
-		wave[zombie_hurt]->toState(ZOMBIE_HURT, 0.5f);
-		player_idle = true;
+	player->updateAnim(dt);
+
+	bool local = player->isIdle();
+
+	std::vector<int> to_remove;
+
+	for (int i = 0; i < waves[cur_wave].size(); i++) {
+		ZombieEntity* zombie = waves[cur_wave][i];
+		zombie->updateAnim(dt);
+
+		if (shouldTrigger(zombie->time_til_death, dt))
+			to_remove.push_back(i);
+
+		local = local && zombie->isIdle();
 	}
-	
-	bool accumulative = false;
-	bool local;
-	for (auto& zombie : wave)
-	{
-		local = zombie->updateAnim(dt);
-		accumulative = accumulative || local;
-	}
-	if(!zombies_idle && accumulative)
-		zombies_idle = accumulative;
+
+	for (auto& idx : to_remove)
+		removeZombie(idx);
+
+	idle = local;
 }
 
 void World::playerToState(int state, float time)
 {
 	player->toState(state, time);
+}
+
+void World::renderNight()
+{
+	Camera* camera = Camera::current;
+	// Player
+	player->render();
+
+	if (ready_to_attack || player->hasWeapon())
+		player->renderHolding(weapon_mesh_info[weapon].mesh, 
+			camera,
+			weapon_mesh_info[weapon].player_offset, 
+			weapon_mesh_info[weapon].player_rotate, 
+			weapon_mesh_info[weapon].player_angle, 
+			weapon_mesh_info[weapon].player_axis,
+			true
+		);
+	else if (player->defensive) {
+		int idx = player->defensive;
+		player->renderHolding(def_mesh_info[idx].mesh,
+			camera,
+			def_mesh_info[idx].player_offset,
+			def_mesh_info[idx].player_rotate,
+			def_mesh_info[idx].player_angle,
+			def_mesh_info[idx].player_axis,
+			false
+		);
+	}
+	//TODO: Do for defensive items, the structure would be similar to the previous one
+	/*else if (player->defending())
+		player->renderDefensive(defensive)*/
+
+	// Zombies
+	for (auto& zombie : World::inst->waves[cur_wave])
+	{
+		zombie->render();
+		int zombie_weapon = zombie->info.weapon;
+		zombie->renderHolding(weapon_mesh_info[zombie_weapon].mesh,
+			camera,
+			weapon_mesh_info[zombie_weapon].zombie_offset,
+			weapon_mesh_info[zombie_weapon].zombie_rotate,
+			weapon_mesh_info[zombie_weapon].zombie_angle,
+			weapon_mesh_info[zombie_weapon].zombie_axis,
+			true
+		);
+	}
 }

@@ -1,11 +1,15 @@
 #include "player.h"
+#include "our_utils.h"
+#include "audio.h"
 
 Player::Player() {
 	health = MAX_HEALTH;
 	shield = 0;
 	hunger = MAX_HUNGER;
 	mitigates = 0;
-
+	defensive = 0;
+	til_def_broken = 0.f;
+	def_broken = false;
 	// Render related
 	mesh = Mesh::Get("data/characters/character.MESH");
 	texture = Texture::Get("data/characters/player.tga");
@@ -27,8 +31,6 @@ Player::Player() {
 	for (i = 0; i < NUM_CONSUMABLES; ++i) {
 		consumables[i] = 0;
 	}
-
-	idle_state = PLAYER_IDLE;
 }
 
 //	Adds weapon uses
@@ -62,23 +64,55 @@ bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 	int mult = add ? 1 : -1;
 	switch (stat) {
 	case HUNGER:
-		if (add && hunger == MAX_HUNGER)
-			return false;
-
+		if (add) {
+			if (hunger == MAX_HUNGER)
+				return false;
+			
+			Audio::Play("data/audio/hunger_cons.wav", 1.f, false);
+		}
 		hunger = clamp(hunger + mult * amount, 0, MAX_HUNGER);
 		break;
 	case HEALTH:
-		if (add && health == MAX_HEALTH)
-			return false;
-
+		if (add) {
+			if (health == MAX_HEALTH)
+				return false;
+			
+			Audio::Play("data/audio/health_cons.wav", 1.f, false);
+		}
 		health = clamp(health + mult * amount, 0, MAX_HEALTH);
 		break;
 	case SHIELD:
-		if (add && shield == MAX_SHIELD)
-			return false;
+		if (add) {
+			if(health == MAX_SHIELD)
+				return false;
+			
+			Audio::Play("data/audio/shield_cons.wav", 1.f, false);
+		}
 
 		shield = clamp(shield + mult * amount, 0, MAX_SHIELD);
 		break;
 	}
 	return true;
+}
+
+void Player::hurtAnimation(float delay)
+{
+	toStateDelayed(PLAYER_HURT, delay, TRANSITION_TIME);
+	if(def_broken)
+		til_def_broken = delay;
+}
+
+bool Player::hasWeapon()
+{
+	return ((anim_manager->cur_state <= SHOOT && anim_manager->cur_state >= BAT_SWING)
+		|| (anim_manager->target_state <= SHOOT && anim_manager->target_state >= BAT_SWING));
+}
+
+void Player::updateAnim(float dt) {
+	AnimatedEntity::updateAnim(dt);
+	if (shouldTrigger(til_def_broken, dt)) {
+		if(defensive)
+			Audio::Play("data/audio/night/crack_shield.wav", 1.f, false);
+		defensive = 0;
+	}
 }

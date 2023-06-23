@@ -3,7 +3,6 @@ attribute vec3 a_normal;
 attribute vec2 a_uv;
 attribute mat4 u_model;
 
-uniform vec3 u_camera_pos;
 uniform mat4 u_viewprojection;
 
 //this will store the color for the pixel shader
