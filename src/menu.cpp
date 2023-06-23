@@ -55,7 +55,7 @@ ConsumableMenuEntity::ConsumableMenuEntity(Texture* normal_texture, Texture* sel
 void ConsumableMenuEntity::renderUses(float x, float y)
 {
 	//TODO: DO IT PROPERLY
-	int size = World::inst->window_height < 720 ? 2 : 4;
+	int size = 100.f * World::inst->window_height / 1080 * 0.1;
 	drawText(x, y, std::to_string(World::inst->getConsumableQuant(c_type)), Vector3(1.f, 1.f, 1.f), size);
 }
 
