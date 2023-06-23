@@ -157,17 +157,15 @@ void DayStage::renderHUD()
 
 	
 
-	// Rendering the quantity of each consumable
 
 	float x = Game::instance->window_width / 2.87;
-	//float y = Game::instance->window_width / 1.42;
-	float y = Game::instance->window_height / 1.068;
+	float y = Game::instance->window_height - (Game::instance->window_width / 8 * 1000 / 3000);
 
 	float offset = Game::instance->window_width /15;
 
 	for (int i = 0; i < 6; i++) {
 		drawText(x + offset * i, y,
-			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height / 270);
+			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * Game::instance->window_height * 0.000005);
 
 	}
 	
