@@ -439,16 +439,20 @@ int World::useConsumable(consumableType consumable)
 	{
 		int to_add = consumable_stats[consumable];
 
-		if(!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true))
+		if (!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true)) {
+			Audio::Play("data/audio/error.wav", 1.f, false);
 			return 2;
+		}
 
 		if(!unlimited_everything)
 			player->consumables[consumable]--;
 
 		return 0;
 	}
-	else return 1;
-
+	else {
+		Audio::Play("data/audio/error.wav", 1.f, false);
+		return 1;
+	}
 }
 
 void World::applyShields()
@@ -1086,10 +1090,6 @@ void World::renderNight()
 			false
 		);
 	}
-	//TODO: Do for defensive items, the structure would be similar to the previous one
-	/*else if (player->defending())
-		player->renderDefensive(defensive)*/
-
 	// Zombies
 	for (auto& zombie : World::inst->waves[cur_wave])
 	{

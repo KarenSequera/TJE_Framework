@@ -132,7 +132,6 @@ void NightStage::renderHealthBars(Shader* shader)
 	glDisable(GL_DEPTH_TEST);
 	Matrix44 model;
 	Vector3 position;
-	//TODO, AN ENUM WITH THE TOTAL HEALTH OF EACH TYPE OF ZOMBIE
 	int total_health = MAX_HEALTH;
 	int actual_health = max(0.f, World::inst->player->health);
 
@@ -422,7 +421,6 @@ void NightStage::cameraUpdate(float dt)
 	//to navigate with the mouse fixed in the middle
 	if(mouse_locked)
 		Input::centerMouse();
-
 }
 
 void NightStage::newTurn() 
