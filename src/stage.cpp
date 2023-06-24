@@ -5,9 +5,18 @@
 #include <algorithm>
 
 Stage::Stage() {
+	frozen = false;
 	camera = Camera::current;
+	post_fx = false;
+	renderTarget = nullptr;
 	mouse_locked = false;
+
+	if (!renderTarget) {
+		renderTarget = new RenderToTexture();
+		renderTarget->create(RENDER_TARGET_RES, RENDER_TARGET_RES);
+	}
 }
+
 
 void Stage::renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height)
 {

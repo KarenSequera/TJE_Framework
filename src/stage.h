@@ -2,6 +2,10 @@
 #include <vector>
 #include "world.h"
 #include "audio.h"
+#include "rendertotexture.h"
+
+#define RENDER_TARGET_RES 1024
+#define POST_FX true
 
 class Camera;
 class Stage {
@@ -10,7 +14,11 @@ public:
 	Camera* camera;
 	HCHANNEL channel;
 	
+	bool frozen;
 	bool mouse_locked;
+	bool post_fx;
+	RenderToTexture* renderTarget;
+	Shader* fx_shader;
 
 	//ctor
 	Stage();
