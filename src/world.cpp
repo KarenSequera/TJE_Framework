@@ -1106,3 +1106,9 @@ void World::renderNight()
 		);
 	}
 }
+
+void World::resetWorld()
+{
+	player = new Player();
+	number_nights = 0;
+}

@@ -176,4 +176,6 @@ public:
 	void playerToState(int state, float time = 0.f);
 	void renderNight();
 	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
+
+	void resetWorld();
 };

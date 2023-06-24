@@ -43,7 +43,10 @@ void GameOverStage::onEnter()
 	result = updateScores(World::inst->number_nights);
 }
 
-void GameOverStage::onExit(){}
+void GameOverStage::onExit()
+{
+	World::inst->resetWorld();
+}
 
 void GameOverStage::render()
 {
