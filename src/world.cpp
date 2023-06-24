@@ -54,6 +54,7 @@ World::World() {
 
 	idle = true;
 	zombie_hurt = 0;
+	number_nights = 0;
 
 	//init audio
 	Audio::Init();

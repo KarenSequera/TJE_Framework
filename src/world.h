@@ -86,6 +86,7 @@ public:
 	Vector2 option_uses_pos[3];
 
 	Camera* camera2D;
+	int number_nights;
 
 	std::unordered_map<std::string, Menu*> menus;
 	Menu* cur_menu;

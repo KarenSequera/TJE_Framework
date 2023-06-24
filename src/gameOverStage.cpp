@@ -30,7 +30,6 @@ GameOverStage::GameOverStage()
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
-	
 }
 
 void GameOverStage::onEnter()
@@ -45,6 +44,18 @@ void GameOverStage::render()
 	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
 	{
 		options[i]->render(selected_option == i, option_quads[i]);
+	}
+	renderNights();
+}
+
+
+void GameOverStage::renderNights() {
+	if (World::inst->number_nights == 1) {
+		drawText(World::inst->window_width / 4, World::inst->window_height / 2, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
+
+	}
+	else {
+		drawText(World::inst->window_width / 4, World::inst->window_height / 2, "You have survived " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
 	}
 }
 

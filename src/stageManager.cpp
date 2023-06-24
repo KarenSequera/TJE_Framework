@@ -16,7 +16,7 @@ StageManager::StageManager(float window_width, float window_height) {
 
 	stages["day"] = new DayStage();
 	stages["night"] = new NightStage();
-	stages["game over"] = new IntroStage();
+	stages["game over"] = new GameOverStage();
 	stages["intro stage"] = new IntroStage();
 
 	transition_sounds["day"] = "data/audio/day/to_day.wav";

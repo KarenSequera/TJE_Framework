@@ -10,7 +10,6 @@ NightStage::NightStage() : Stage()
 {
 	mouse_locked = true;
 
-	cur_night = 0;
 	is_player_turn = true;
 
 	selected_target = 0;
@@ -18,7 +17,7 @@ NightStage::NightStage() : Stage()
 
 	free_cam_enabled = false;
 	n_angle = 0.f;
-
+	
 	zombie_attacking = 0;
 
 	time_between_turns = TIME_BTW_TURNS;
@@ -28,11 +27,11 @@ NightStage::NightStage() : Stage()
 void NightStage::onEnter() {
 	channel = Audio::Play("data/audio/night/night.wav", 0.05f, true);
 
-	World::inst->generateZombies(cur_night);
+	World::inst->generateZombies(World::inst->number_nights);
 
 	World::inst->player->model_matrix = World::inst->night_models[2];
 	World::inst->player->health = 100;
-	World::inst->generateZombies(cur_night);
+	World::inst->generateZombies(World::inst->number_nights);
 	World* inst = World::inst;
 	is_player_turn = true;
 	selected_target = 0;
@@ -40,9 +39,9 @@ void NightStage::onEnter() {
 	time_between_turns = TIME_BTW_TURNS;
 
 	//TODO: adjust formula so that it is enjoyable
-	turns_to_day = 10 + (cur_night % 5) * 10;
+	turns_to_day = 10 + (World::inst->number_nights % 5) * 10;
 
-	cur_night++;
+	World::inst->number_nights++;
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
@@ -433,7 +432,7 @@ void NightStage::newTurn()
 
 	if (turns_to_day == 0)
 		StageManager::inst->changeStage("day");
-
+		
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
 	World::inst->consumeHunger(10);
 	World::inst->playerDefenseOff();

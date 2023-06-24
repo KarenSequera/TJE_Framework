@@ -21,6 +21,7 @@ public:
 	void onEnter();
 	void onExit();
 	void render();
+	void renderNights();
 
 	void update(float dt);
 
