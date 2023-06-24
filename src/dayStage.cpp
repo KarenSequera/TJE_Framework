@@ -63,7 +63,7 @@ void DayStage::render() {
 	}
 
 	glDisable(GL_DEPTH_TEST);
-	//renderHUD();
+	renderHUD();
 	glEnable(GL_DEPTH_TEST);
 
 	//drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
