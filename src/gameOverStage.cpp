@@ -7,6 +7,10 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <vector>
+
  
 GameOverStage::GameOverStage()
 {
@@ -30,11 +34,13 @@ GameOverStage::GameOverStage()
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
+	
 }
 
 void GameOverStage::onEnter()
 {
 	selected_option = 0;
+	result = updateScores(World::inst->number_nights);
 }
 
 void GameOverStage::onExit(){}
@@ -49,31 +55,66 @@ void GameOverStage::render()
 }
 
 
-void GameOverStage::renderNights() {
-	if (World::inst->number_nights == 1) {
-		drawText(World::inst->window_width / 4, World::inst->window_height / 2, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
+void GameOverStage::renderNights() 
+{
+	if (!result.isInTopThree) {
+		if (World::inst->number_nights == 1) {
+			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
+			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
+		}
+		else {
+			drawText(World::inst->window_width / 4, World::inst->window_height / 5, "You have survived " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
+			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
+		}
+	}
+	else
+	{   
+		if (World::inst->number_nights == 1) {
+			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
+			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
+		}
+		else if (World::inst->number_nights == result.maximumScore) {
+			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " New record!\n " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
+		}
+		else
+		{
+			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " That was close! \n " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
+			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore) , Vector3(1.0f, 1.0f, 1.0f), 2);
+		}
+	}
+	
+}
+
+void GameOverStage::update(float dt, bool transitioning)
+{
+	if (Input::gamepads[0].connected) {
+		if (Input::gamepads[0].didDirectionChanged(FLICK_UP)) {
+			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
+		}
+		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
+		{
+			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+		}
+		else if (Input::wasButtonPressed(A_BUTTON))
+			selectOption();
 
 	}
 	else {
-		drawText(World::inst->window_width / 4, World::inst->window_height / 2, "You have survived " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
+		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP)) {
+			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
+			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN)) {
+			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
+			selectOption();
 	}
 }
 
-void GameOverStage::update(float dt)
-{
-	if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP)) 
-	{
-		changeOption(-1);
-	}
-	else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN))
-	{
-		changeOption(1);
-	}
-	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
-	{
-		selectOption();
-	}
-}
 
 void  GameOverStage::resizeOptions(float width, float height)
 {
@@ -98,10 +139,7 @@ void  GameOverStage::resizeOptions(float width, float height)
 	}
 }
 
-void GameOverStage::changeOption(int to_add)
-{
-	selected_option = ourMod(selected_option + to_add, OPTIONS_INTRO_MENU);
-}
+
 
 bool GameOverStage::selectOption()
 {
@@ -113,4 +151,50 @@ bool GameOverStage::selectOption()
 			exit(0);
 			break;
 	}
+}
+
+ScoreUpdateResult GameOverStage::updateScores(int number_nights)
+{
+	ScoreUpdateResult result;
+
+	// Open the file for input
+	std::ifstream inputFile("data/gameover/runs.txt");
+
+	std::vector<int> scores(3, 0);  // Vector to store the top 3 runs
+
+	// Read the runs from the file
+	for (int i = 0; i < 3; i++) {
+		inputFile >> scores[i];
+	}
+
+	inputFile.close();
+
+	// The runs are sorted in ascending order, TOP 3 is in the first line
+
+	// If the number of nights of the current run is greater than the top 3, it enters the ranking
+	if (number_nights > scores[0])
+	{
+		scores[0] = number_nights;
+		std::sort(scores.begin(), scores.end());
+
+		// Open the file for output
+		std::ofstream outputFile("data/gameover/runs.txt");
+
+		// Now we write the updated scores to the file
+		for (int i = 0; i < 3; i++) {
+			outputFile << scores[i] << '\n';
+		}
+
+		outputFile.close();
+
+		result.isInTopThree = true;
+	}
+	else {
+		result.isInTopThree = false;
+	}
+
+	// Get the maximum score
+	result.maximumScore = *std::max_element(scores.begin(), scores.end());
+	// We return the top 3 scores.
+	return result;
 }
