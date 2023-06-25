@@ -59,6 +59,9 @@ void IntroStage::render()
 	shader->setUniform("u_texture", Texture::Get("data/introTextures/logo.tga"), 0);
 	logo.render(GL_TRIANGLES);
 
+	shader->setUniform("u_texture", Texture::Get("data/introTextures/a_to_select.tga"), 0);
+	a_to_select.render(GL_TRIANGLES);
+
 	shader->disable();
 
 
@@ -111,8 +114,8 @@ void  IntroStage::resizeOptions(float width, float height)
 
 	float offset = size_x/1.7;
 
-	option_uses_pos[0] = Vector2(width/2 - offset, size_y);
-	option_uses_pos[1] = Vector2(width/2 + offset, size_y);
+	option_uses_pos[0] = Vector2(width/2 - offset, size_y*1.8);
+	option_uses_pos[1] = Vector2(width/2 + offset, size_y*1.8);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
@@ -125,7 +128,7 @@ void  IntroStage::resizeOptions(float width, float height)
 
 	background.createQuad(World::inst->window_width / 2, World::inst->window_height / 2, World::inst->window_width, World::inst->window_height, true);
 	logo.createQuad(World::inst->window_width / 2, World::inst->window_height / 1.7, World::inst->window_height / 1.2, World::inst->window_height / 1.2, true);
-
+	a_to_select.createQuad(width / 2, size_y/1.3, size_x, size_y, true);
 }
 
 bool IntroStage::selectOption()
