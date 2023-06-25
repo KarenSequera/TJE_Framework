@@ -1,6 +1,7 @@
 #include "stageManager.h"
 #include "our_utils.h"
 #include "world.h"
+#include "input.h"
 #include "camera.h"
 #include "audio.h"
 
@@ -30,6 +31,9 @@ void StageManager::render() {
 
 	if (transition_time > 0.f)
 		renderStageTransition();
+
+	if (World::inst->frozen)
+		World::inst->pause_menu->render();
 }
 
 void StageManager::renderStageTransition() {
@@ -85,6 +89,8 @@ void StageManager::update(float dt) {
 	}
 	else {
 		cur_stage->update(dt);
+		if (World::inst->frozen)
+			World::inst->pause_menu->update();
 	}
 }
 

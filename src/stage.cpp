@@ -25,15 +25,18 @@ void Stage::renderTutorial() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// render the textbox
+	
 	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 	shader->enable();
 	shader->setUniform("u_animated", false);
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+	// render overlay
 	shader->setUniform("u_texture", Texture::Get("data/quad_textures/tutorial/overlay.tga"), 0);
 	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
+	// render the textbox
 	shader->setUniform("u_texture", Texture::Get("data/quad_textures/tutorial/message.tga"), 0);
 	World::inst->tutorial_quad.render(GL_TRIANGLES);
 

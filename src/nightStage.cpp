@@ -249,9 +249,11 @@ void NightStage::update(float dt, bool transitioning)
 			if (World::inst->zombiesAlive() <= 0)
 				if (World::inst->nextWave())
 					StageManager::inst->changeStage("day");
-			
+
+			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P))
+				World::inst->frozen = !World::inst->frozen;
 #if DEBUG
-			if (Input::wasKeyPressed(SDL_SCANCODE_N))
+			else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 				StageManager::inst->changeStage("day");
 
 			else if (Input::wasKeyPressed(SDL_SCANCODE_U))
@@ -266,15 +268,12 @@ void NightStage::update(float dt, bool transitioning)
 			if (free_cam_enabled)
 				cameraUpdate(dt);
 
-			else if (World::inst->idle)
+			else if (!World::inst->frozen && World::inst->idle)
 			{
 				if (is_player_turn)
 					playerTurnUpdate(dt);
 				else
 					zombieTurnUpdate(dt);
-			}
-			else
-			{
 			}
 
 			if (!World::inst->isPlayerAlive()) {
@@ -283,7 +282,7 @@ void NightStage::update(float dt, bool transitioning)
 			}
 
 #else
-			if (World::inst->idle)
+			if (!World::inst->frozen World::inst->idle)
 			{
 				if (is_player_turn)
 					playerTurnUpdate(dt);
@@ -299,8 +298,6 @@ void NightStage::update(float dt, bool transitioning)
 		}
 	}
 	World::inst->updateAnimations(dt);;
-
-
 }
 
 void NightStage::playerTurnUpdate(float dt)

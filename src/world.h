@@ -1,7 +1,7 @@
 #pragma once
 
 #include "worldEntities.h"
-#include "Menu.h"
+#include "menu.h"
 #include <unordered_map>
 
 
@@ -37,6 +37,7 @@ public:
 	Mesh fullscreen_quad;
 	Mesh tutorial_quad;
 	bool triggerTutorial;
+	bool frozen;
 
 	float window_width;
 	float window_height;
@@ -96,6 +97,8 @@ public:
 	Menu* cur_menu;
 	int selected_option;
 	bool ready_to_attack;
+
+	PauseMenu* pause_menu;
 
 	//Night model information 
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];

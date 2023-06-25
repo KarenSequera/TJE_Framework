@@ -33,7 +33,7 @@ World::World() {
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
 
-	createMenus("data/menus/menus.txt");
+	createMenus("data/quad_textures/menus/menus.txt");
 	changeMenu("general");
 
 	// Cubemap
@@ -41,7 +41,8 @@ World::World() {
 
 	//ParseNight 
 	parseSceneNight("data/nightScene.scene");
-	
+	pause_menu = new PauseMenu();
+
 	camera2D = new Camera();
 	camera2D->view_matrix = Matrix44();
 	camera2D->setOrthographic(0, Game::instance->window_width, 0, Game::instance->window_height, -1, 1);
@@ -65,6 +66,8 @@ World::World() {
 
 	// we should trigger the tutorial when there are no previous runs
 	triggerTutorial = !existPreviousRuns();
+	frozen = false;
+
 }
 
 // function that returns whether the player has played  the game before, i.e., if there are any previous runs
@@ -1052,7 +1055,7 @@ void World::resizeOptions(float width, float height)
 	float position_y = position_x / 1.4 * 281.f / 762.f;
 
 	tutorial_quad.createQuad(position_x, position_y, size_x, size_y, true);
-
+	pause_menu->resize(width, height);
 }
 
 // Animation related
@@ -1129,6 +1132,7 @@ void World::renderNight()
 
 void World::resetWorld()
 {
+	frozen = false;
 	player = new Player();
 	number_nights = 0;
 }

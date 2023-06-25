@@ -8,7 +8,6 @@
 
 float mouse_speed = 100.0f;
 DayStage::DayStage() : Stage() {
-
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
 
@@ -187,7 +186,6 @@ void DayStage::renderHUD()
 
 
 void DayStage::update(float dt, bool transitioning) {
-
 	if (!transitioning) {
 		if (in_tutorial) {
 			updateTutorial();
@@ -196,11 +194,15 @@ void DayStage::update(float dt, bool transitioning) {
 			if (shouldTrigger(time_remaining, dt))
 				StageManager::inst->changeStage("night");
 
-			updateMovement(dt);
-			updateItemsAndStats();
+			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P)) 
+				World::inst->frozen = !World::inst->frozen;
+			
+			if (!World::inst->frozen) {
+				updateMovement(dt);
+				updateItemsAndStats();
+			}
 		}
 	}
-	
 }
 
 float right_analog_x_disp;
@@ -388,7 +390,7 @@ void DayStage::updateItemsAndStats() {
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("night");
-	else if (Input::wasKeyPressed(SDL_SCANCODE_P))
+	else if (Input::wasKeyPressed(SDL_SCANCODE_L))
 		printf("%f %f %f\n", World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
 #endif
 }
