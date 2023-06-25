@@ -20,8 +20,6 @@ DayStage::DayStage() : Stage() {
 	//hide the cursor
 	SDL_ShowCursor(false); //hide or show the mouse
 
-
-	//TODO: ADAPT THIS TO THE NEW ASSETS
 	float size_x = (Game::instance->window_width)/2.5;
 	float size_y = (size_x * 1000/3000);
 	
@@ -37,6 +35,13 @@ DayStage::DayStage() : Stage() {
 
 	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
 
+	post_fx = POST_FX;
+	if (post_fx)
+		fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
+	else
+		fx_shader = nullptr;
+
+	frozen = true;
 };
 
 void DayStage::onEnter()
@@ -57,23 +62,37 @@ void DayStage::onExit()
 
 void DayStage::render() {
 	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
-	renderSky();
-	for (auto& entity : World::inst->day_entities) {
-		entity->render();
+	
+	if (post_fx) {
+		renderTarget->enable();
+
+		renderSky();
+
+		for (auto& entity : World::inst->day_entities) {
+			entity->render();
+		}
+
+		renderTarget->disable();
+
+		glDisable(GL_DEPTH_TEST);
+		renderTarget->ourToViewport(Vector3(frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		renderSky();
+
+		for (auto& entity : World::inst->day_entities) {
+			entity->render();
+		}
 	}
 
 	glDisable(GL_DEPTH_TEST);
 	renderHUD();
 	glEnable(GL_DEPTH_TEST);
 
-	drawText(5, 25, "HP: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.0f, 0.0f), 2);
-	drawText(5, 45, "HUNGER: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 65, "SHIELD: " + std::to_string(World::inst->player->shield), Vector3(0.75f, 0.75f, 0.75f), 2);
-	//
-	//renderConsumableMenu();
+	
 	#if DEBUG
-	drawText(5, 400, "C: consume, F: getItem, J: hurt, K: get hunger, N: to night"
-		, Vector3(0.0f, 0.5f, 0.75f), 2);
 	#endif
 
 }
@@ -389,5 +408,4 @@ void DayStage::resizeOptions(float width, float height) {
 	position_y = (position_x / 1.4 * 1000 / 4000);
 
 	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
-
 };
