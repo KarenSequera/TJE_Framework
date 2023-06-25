@@ -53,8 +53,10 @@ void IntroStage::render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
+	shader->setUniform("u_animated", false);
 	shader->setUniform("u_texture", Texture::Get("data/introTextures/background.tga"), 0);
-	background.render(GL_TRIANGLES);
+	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
 	shader->setUniform("u_texture", Texture::Get("data/introTextures/logo.tga"), 0);
 	logo.render(GL_TRIANGLES);
@@ -116,7 +118,6 @@ void  IntroStage::resizeOptions(float width, float height)
 		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
 	}
 
-	background.createQuad(World::inst->window_width / 2, World::inst->window_height / 2, World::inst->window_width, World::inst->window_height, true);
 	logo.createQuad(World::inst->window_width / 2, World::inst->window_height / 1.7, World::inst->window_height / 1.2, World::inst->window_height / 1.2, true);
 	a_to_select.createQuad(width / 2, size_y/1.3, size_x, size_y, true);
 }

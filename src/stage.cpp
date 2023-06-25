@@ -89,7 +89,7 @@ void Stage::updateTutorial() {
 	}
 	else
 	{
-		if (Input::wasKeyPressed(SDL_SCANCODE_A)) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 			nextSlide();
 
 		}

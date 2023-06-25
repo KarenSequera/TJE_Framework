@@ -1053,6 +1053,8 @@ void World::resizeOptions(float width, float height)
 	float position_x = width / 2;
 	float position_y = 0.55 * size_y;
 
+
+	fullscreen_quad.createQuad(width / 2.f, height / 2.f, width, height, true);
 	tutorial_quad.createQuad(position_x, position_y, size_x, size_y, true);
 	pause_menu->resize(width, height);
 }

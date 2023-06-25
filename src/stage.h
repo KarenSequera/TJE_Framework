@@ -40,6 +40,6 @@ public:
 	void nextSlide();
 	void renderTutorial();
 	void updateTutorial();
-	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height);
-	void renderHungerBar(Vector3 position, float hunger_ratio, Shader* shader, float width, float height);
+	void renderBar(Vector3 position, float hp_ratio, Shader* shader, float width,
+		float height, Texture* texture_background, Texture* texture_foreground);
 };

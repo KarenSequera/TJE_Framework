@@ -29,6 +29,8 @@ NightStage::NightStage() : Stage()
 	else
 		fx_shader = nullptr;
 
+	resizeOptions(World::inst->window_width, World::inst->window_height);
+
 	in_tutorial = true;
 	num_slides = TUT_SLIDES_NIGHT;
 	getSlides();
@@ -71,7 +73,6 @@ void NightStage::onExit()
 void NightStage::render()
 {
 	Shader* shader;
-	// rendering the background quad
 	if (post_fx) {
 		renderTarget->enable();
 
@@ -112,12 +113,10 @@ void NightStage::render()
 	}
 	else
 	{
-		drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
-		drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-		drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
 		shader->enable();
 
 		renderHealthBars(shader);
+		renderPlayerStats(shader);
 
 		shader->disable();
 
@@ -132,9 +131,7 @@ void NightStage::render()
 		}
 
 		if (is_player_turn && World::inst->idle)
-		{
 			playerTurnRender();
-		}
 	}
 }
 
@@ -168,23 +165,13 @@ void NightStage::renderCrosshair(Shader* shader)
 
 void NightStage::renderHealthBars(Shader* shader)
 {
-	//TO DO: FUNCTION THAT RENDERS THE QUAD CONTAIING THE HEALTH BAR
 	glDisable(GL_DEPTH_TEST);
 	Matrix44 model;
 	Vector3 position;
 	int total_health = MAX_HEALTH;
-	int actual_health = max(0.f, World::inst->player->health);
+	int actual_health;
+	float ratio;
 
-	float ratio = (float) actual_health / total_health;
-
-	model = World::inst->player->model_matrix;
-
-	position = model.getTranslation();
-	position.y -= 25.f;
-	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
-
-	renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
-	
 	//Health bar of the zombies
 	for (auto& zombie : World::inst->waves[World::inst->cur_wave]) {
 
@@ -197,16 +184,17 @@ void NightStage::renderHealthBars(Shader* shader)
 		total_health = zombie->info.max_health;
 		actual_health = max(0.f, zombie->info.health);
 
-		ratio = (float) actual_health / total_health;
+		ratio = (float)actual_health / total_health;
 
-		renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
+		renderBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT,
+			Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
 	}
 	glEnable(GL_DEPTH_TEST);
 }
 
 void NightStage::playerTurnRender() {
-	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
+	//drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 155, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
 
 	// Render menus -> prep options
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -217,7 +205,22 @@ void NightStage::playerTurnRender() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	World::inst->cur_menu->render(World::inst->selected_option);
-	
+
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/turns_left.tga"), 0);
+
+	turns_left.render(GL_TRIANGLES);
+
+	shader->disable();
+
+
+
+	drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(turns_to_day),
+		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
+
 	// Render menus -> prep options
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -239,6 +242,32 @@ void NightStage::renderBackground(Shader* shader)
 	glEnable(GL_DEPTH_TEST);
 }
 
+void NightStage::renderPlayerStats(Shader* shader)
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/hud_night.tga"), 0);
+	night_hud.render(GL_TRIANGLES);
+
+
+	Vector3 position = Vector3(Game::instance->window_width * 0.2, Game::instance->window_height * 0.86, 0);
+	float width = Game::instance->window_height / 3;
+	float height = (width * 15 / 90);
+
+	renderBar(position,
+		(float)(World::inst->player->health) / MAX_HEALTH, shader, width, height,
+		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
+
+	position = Vector3(Game::instance->window_width * 0.2, Game::instance->window_height * 0.75, 0);
+
+	renderBar(position, (float)(World::inst->player->hunger) / MAX_HUNGER, shader, width, height,
+		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
 
 void NightStage::update(float dt, bool transitioning)
 {
@@ -499,3 +528,13 @@ void NightStage::newTurn()
 	time_between_turns = TIME_BTW_TURNS;
 }
 
+void NightStage::resizeOptions(float width, float height) {
+
+	float size_y = height / 3;
+	float size_x = size_y * 1700 / 834;
+
+	night_hud.createQuad(width * 0.18, height * 0.8, size_x, size_y, true);
+
+	turns_left.createQuad(width * 0.88, height * 0.8, height / 1.8, height / 1.8 * 417 / 2000, true);
+	World::inst->resizeOptions(width, height);
+}

@@ -24,13 +24,14 @@ public:
 	int selected_target;
 	int zombie_attacking;
 	Mesh night_hud;
-	Mesh turns_left
+	Mesh turns_left;
 	void onEnter();
 	void onExit();
 	void render();
 	void renderCrosshair(Shader* shader);
 	void renderHealthBars(Shader* shader);
 	void renderBackground(Shader* shader);
+
 	void renderPlayerStats(Shader* shader);
 
 	void update(float dt, bool transitioning);
@@ -42,5 +43,7 @@ public:
 	void playerTurnRender();
 
 	void newTurn();
+
+	void resizeOptions(float width, float height);
 
 };
