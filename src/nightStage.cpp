@@ -64,6 +64,7 @@ void NightStage::onEnter() {
 void NightStage::onExit()
 {
 	World::inst->applyShields();
+	World::inst->triggerTutorial = false;
 }
 
 
@@ -250,8 +251,10 @@ void NightStage::update(float dt, bool transitioning)
 				if (World::inst->nextWave())
 					StageManager::inst->changeStage("day");
 
-			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P))
+			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P)) {
+				Audio::Play("data/audio/messages/appear.wav", 1.f, false);
 				World::inst->frozen = !World::inst->frozen;
+			}
 #if DEBUG
 			else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 				StageManager::inst->changeStage("day");

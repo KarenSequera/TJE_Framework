@@ -257,6 +257,7 @@ void PauseMenu::selectOption()
 			break;
 		case RESTART:
 			World::inst->resetWorld();
+			World::inst->triggerTutorial = false;
 			StageManager::inst->changeStage("day");
 			break;
 		case EXIT:
@@ -266,11 +267,11 @@ void PauseMenu::selectOption()
 
 void PauseMenu::resize(float width, float height)
 {
-	float size_y = 100.f * height / 1080;
+	float size_y = height / 8.f;
 	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 1.5 * size_y;
-	float start = height - 1.f / 3.f;
+	float offset = 1.25 * size_y;
+	float start = height - 2.f * size_y;
 
 	for (int i = 0; i < OPTIONS_PAUSE_MENU + 1; i++)
 		option_quads[i].createQuad(width / 2.f, start - offset * i, size_x, size_y, true);

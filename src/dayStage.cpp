@@ -48,7 +48,7 @@ void DayStage::onEnter()
 	channel = Audio::Play("data/audio/day/day.wav", 0.1f, true);
 	
 	World::inst->clearItems();
-	camera->lookAt(Vector3(382.0f, 100.0f, 300.0f), Vector3(0.0f, 0.0f, 30.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
+	camera->lookAt(Vector3(-103.f, 100.0f, 600.0f), Vector3(0.0f, 0.0f, -30.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
@@ -191,13 +191,14 @@ void DayStage::update(float dt, bool transitioning) {
 			updateTutorial();
 		}
 		else {
-			if (shouldTrigger(time_remaining, dt))
-				StageManager::inst->changeStage("night");
-
-			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P)) 
+			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P)) {
+				Audio::Play("data/audio/messages/appear.wav", 1.f, false);
 				World::inst->frozen = !World::inst->frozen;
+			}
 			
 			if (!World::inst->frozen) {
+				if (shouldTrigger(time_remaining, dt))
+					StageManager::inst->changeStage("night");
 				updateMovement(dt);
 				updateItemsAndStats();
 			}
