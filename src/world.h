@@ -86,6 +86,7 @@ public:
 	Vector2 option_uses_pos[3];
 
 	Camera* camera2D;
+	int number_nights;
 
 	std::unordered_map<std::string, Menu*> menus;
 	Menu* cur_menu;
@@ -175,4 +176,6 @@ public:
 	void playerToState(int state, float time = 0.f);
 	void renderNight();
 	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
+
+	void resetWorld();
 };

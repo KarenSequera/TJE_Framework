@@ -179,7 +179,7 @@ void DayStage::renderHUD()
 
 	for (int i = 0; i < 6; i++) {
 		drawText(x + offset * i, y,
-			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * Game::instance->window_height * 0.000005);
+			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * 0.003);
 
 	}
 	

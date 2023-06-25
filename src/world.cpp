@@ -54,6 +54,7 @@ World::World() {
 
 	idle = true;
 	zombie_hurt = 0;
+	number_nights = 0;
 
 	//init audio
 	Audio::Init();
@@ -1104,4 +1105,10 @@ void World::renderNight()
 			true
 		);
 	}
+}
+
+void World::resetWorld()
+{
+	player = new Player();
+	number_nights = 0;
 }
