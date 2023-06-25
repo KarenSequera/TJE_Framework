@@ -2,6 +2,11 @@
 #include "stage.h"
 #define OPTIONS_INTRO_MENU 2
 
+struct ScoreUpdateResult {
+	int maximumScore;
+	bool isInTopThree;
+};
+
 class GameOverStage : public Stage {
 public:
 
@@ -17,15 +22,18 @@ public:
 
 	std::vector<MenuEntity*> options;
 
+	ScoreUpdateResult result;
+
 	int selected_option;
 	void onEnter();
 	void onExit();
 	void render();
+	void renderNights();
 
-	void update(float dt);
+	void update(float dt, bool transitioning);
 
 	void resizeOptions(float width, float height);
-	void changeOption(int to_add);
 	bool selectOption();
-
+	ScoreUpdateResult updateScores(int number_nights);
 };
+

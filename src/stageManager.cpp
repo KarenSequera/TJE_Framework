@@ -1,6 +1,7 @@
 #include "stageManager.h"
 #include "our_utils.h"
 #include "world.h"
+#include "input.h"
 #include "camera.h"
 #include "audio.h"
 
@@ -9,14 +10,13 @@ StageManager* StageManager::inst = NULL;
 StageManager::StageManager(float window_width, float window_height) {
 	inst = this;
 
-	transition_quad.createQuad(window_width / 2.f, window_height / 2.f, window_width, window_height, true);
 	transition_time = 0.f;
 
 	cur_stage = nullptr;
 
 	stages["day"] = new DayStage();
 	stages["night"] = new NightStage();
-	stages["game over"] = new IntroStage();
+	stages["game over"] = new GameOverStage();
 	stages["intro stage"] = new IntroStage();
 
 	transition_sounds["day"] = "data/audio/day/to_day.wav";
@@ -31,6 +31,9 @@ void StageManager::render() {
 
 	if (transition_time > 0.f)
 		renderStageTransition();
+
+	if (World::inst->frozen)
+		World::inst->pause_menu->render();
 }
 
 void StageManager::renderStageTransition() {
@@ -55,7 +58,7 @@ void StageManager::renderStageTransition() {
 	shader->setUniform("u_color", Vector3(0.0f));
 	shader->setUniform("u_alpha", alpha);
 
-	transition_quad.render(GL_TRIANGLES);
+	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
 	shader->disable();
 	glDisable(GL_BLEND);
@@ -86,12 +89,14 @@ void StageManager::update(float dt) {
 	}
 	else {
 		cur_stage->update(dt);
+		if (World::inst->frozen)
+			World::inst->pause_menu->update();
 	}
 }
 
 void StageManager::resize(float width, float height) {
 
-	transition_quad.createQuad(width / 2.f, height / 2.f, width, height, true);
+	World::inst->resizeOptions(width, height);
 
 	for (auto& stage : stages)
 		stage.second->resizeOptions(width, height);

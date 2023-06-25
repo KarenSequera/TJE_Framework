@@ -10,7 +10,6 @@ NightStage::NightStage() : Stage()
 {
 	mouse_locked = true;
 
-	cur_night = 0;
 	is_player_turn = true;
 
 	selected_target = 0;
@@ -18,83 +17,121 @@ NightStage::NightStage() : Stage()
 
 	free_cam_enabled = false;
 	n_angle = 0.f;
-
+	
 	zombie_attacking = 0;
 
 	time_between_turns = TIME_BTW_TURNS;
 	to_day = false;
+
+	post_fx = POST_FX;
+	if (post_fx)
+		fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
+	else
+		fx_shader = nullptr;
+
+	resizeOptions(World::inst->window_width, World::inst->window_height);
+
+	in_tutorial = true;
+	num_slides = TUT_SLIDES_NIGHT;
+	getSlides();
 }
 
 void NightStage::onEnter() {
 	channel = Audio::Play("data/audio/night/night.wav", 0.05f, true);
 
-	World::inst->generateZombies(cur_night);
-
+	// position the player
 	World::inst->player->model_matrix = World::inst->night_models[2];
-	World::inst->player->health = 100;
-	World::inst->generateZombies(cur_night);
-	World* inst = World::inst;
+
+	// generate zombies
+	World::inst->generateZombies(World::inst->number_nights);
+
+	// reset some variables
 	is_player_turn = true;
 	selected_target = 0;
 	zombie_attacking = 0;
 	time_between_turns = TIME_BTW_TURNS;
 
 	//TODO: adjust formula so that it is enjoyable
-	turns_to_day = 10 + (cur_night % 5) * 10;
+	turns_to_day = 10 + (World::inst->number_nights % 5) * 10;
 
-	cur_night++;
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
-	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
 
-	background.createQuad(World::inst->window_width / 2, World::inst->window_height / 2, World::inst->window_width, World::inst->window_height, true);
+	if (World::inst->triggerTutorial) {
+		Audio::PlayDelayed("data/audio/messages/appear.wav", 1.f, 0.75f, 0, 0.f);
+		in_tutorial = true;
+	}
 }
 
 void NightStage::onExit()
 {
 	World::inst->applyShields();
+	World::inst->triggerTutorial = false;
 }
 
 
 void NightStage::render()
 {
+	Shader* shader;
+	if (post_fx) {
+		renderTarget->enable();
 
-	// rendering the background quad
-	
-	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-	shader->enable();
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	
-	renderBackground(shader);
-	
-	shader->disable();
-	// render what must be rendered always
-	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
-	
-	World::inst->renderNight();
-
-	shader->enable();
-
-	renderHealthBars(shader);
-
-	shader->disable();
-
-
-	if (World::inst->ready_to_attack) {
-		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture_anim.fs");
+		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 		shader->enable();
 		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-		renderCrosshair(shader);
+	
+		renderBackground(shader);
+	
 		shader->disable();
+		// render what must be rendered always
+		World::inst->renderNight();
+		renderTarget->disable();
+
+		glDisable(GL_DEPTH_TEST);
+		renderTarget->ourToViewport(Vector3(in_tutorial ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+		shader->enable();
+		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+		renderBackground(shader);
+
+		shader->disable();
+		// render what must be rendered always
+
+		World::inst->renderNight();
 	}
 
-	if (is_player_turn && World::inst->idle)
+	if (in_tutorial)
 	{
-		playerTurnRender();
+		renderTutorial();
+	}
+	else
+	{
+		shader->enable();
+
+		renderHealthBars(shader);
+		renderPlayerStats(shader);
+
+		shader->disable();
+
+
+		if (World::inst->ready_to_attack) {
+			shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+			shader->enable();
+			shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+			shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+			renderCrosshair(shader);
+			shader->disable();
+		}
+
+		if (is_player_turn && World::inst->idle)
+			playerTurnRender();
 	}
 }
 
@@ -116,10 +153,10 @@ void NightStage::renderCrosshair(Shader* shader)
 	Mesh quad;
 	quad.createQuad(position.x, position.y, 65.f, 65.f, true);
 
+	shader->setUniform("u_animated", true);
 	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair_anim.tga"), 0);
-	shader->setUniform("u_ratio", 1.f / 8.f);
-	shader->setUniform("u_state", int(Game::instance->time * anim_speed) % 8);
-	shader->setUniform("u_time", Game::instance->time);
+	shader->setUniform("u_ratio", 1.f / (float) NUM_STATES_CROSSHAIR);
+	shader->setUniform("u_state", int(Game::instance->time * anim_speed) % NUM_STATES_CROSSHAIR);
 
 	quad.render(GL_TRIANGLES);
 	glDisable(GL_BLEND);
@@ -128,24 +165,13 @@ void NightStage::renderCrosshair(Shader* shader)
 
 void NightStage::renderHealthBars(Shader* shader)
 {
-	//TO DO: FUNCTION THAT RENDERS THE QUAD CONTAIING THE HEALTH BAR
 	glDisable(GL_DEPTH_TEST);
 	Matrix44 model;
 	Vector3 position;
-	//TODO, AN ENUM WITH THE TOTAL HEALTH OF EACH TYPE OF ZOMBIE
 	int total_health = MAX_HEALTH;
-	int actual_health = max(0.f, World::inst->player->health);
+	int actual_health;
+	float ratio;
 
-	float ratio = (float) actual_health / total_health;
-
-	model = World::inst->player->model_matrix;
-
-	position = model.getTranslation();
-	position.y -= 25.f;
-	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
-
-	renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
-	
 	//Health bar of the zombies
 	for (auto& zombie : World::inst->waves[World::inst->cur_wave]) {
 
@@ -158,16 +184,17 @@ void NightStage::renderHealthBars(Shader* shader)
 		total_health = zombie->info.max_health;
 		actual_health = max(0.f, zombie->info.health);
 
-		ratio = (float) actual_health / total_health;
+		ratio = (float)actual_health / total_health;
 
-		renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
+		renderBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT,
+			Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
 	}
 	glEnable(GL_DEPTH_TEST);
 }
 
 void NightStage::playerTurnRender() {
-	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
+	//drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
+	drawText(5, 155, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
 
 	// Render menus -> prep options
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -178,7 +205,22 @@ void NightStage::playerTurnRender() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	World::inst->cur_menu->render(World::inst->selected_option);
-	
+
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/turns_left.tga"), 0);
+
+	turns_left.render(GL_TRIANGLES);
+
+	shader->disable();
+
+
+
+	drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(turns_to_day),
+		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
+
 	// Render menus -> prep options
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -192,66 +234,102 @@ void NightStage::renderBackground(Shader* shader)
 	glDisable(GL_CULL_FACE);
 
 	shader->setUniform("u_texture", Texture::Get("data/NightTextures/background.tga"), 0);
-	background.render(GL_TRIANGLES);
+	shader->setUniform("u_animated", false);
+
+	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 }
 
+void NightStage::renderPlayerStats(Shader* shader)
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/hud_night.tga"), 0);
+	night_hud.render(GL_TRIANGLES);
+
+
+	Vector3 position = Vector3(Game::instance->window_width * 0.2, Game::instance->window_height * 0.86, 0);
+	float width = Game::instance->window_height / 3;
+	float height = (width * 15 / 90);
+
+	renderBar(position,
+		(float)(World::inst->player->health) / MAX_HEALTH, shader, width, height,
+		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
+
+	position = Vector3(Game::instance->window_width * 0.2, Game::instance->window_height * 0.75, 0);
+
+	renderBar(position, (float)(World::inst->player->hunger) / MAX_HUNGER, shader, width, height,
+		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
 void NightStage::update(float dt, bool transitioning)
 {
-	if (!transitioning && World::inst->zombiesAlive() <= 0) 
-		if (World::inst->nextWave()) 
-			StageManager::inst->changeStage("day");
+	if (!transitioning) {
+		if (in_tutorial) {
+			updateTutorial();
+		}
+		else {
+			if (World::inst->zombiesAlive() <= 0)
+				if (World::inst->nextWave())
+					StageManager::inst->changeStage("day");
 
-	World::inst->updateAnimations(dt);
-	 
+			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P)) {
+				Audio::Play("data/audio/messages/appear.wav", 1.f, false);
+				World::inst->frozen = !World::inst->frozen;
+			}
 #if DEBUG
-	if (Input::wasKeyPressed(SDL_SCANCODE_N))
-		StageManager::inst->changeStage("day");
+			else if (Input::wasKeyPressed(SDL_SCANCODE_N))
+				StageManager::inst->changeStage("day");
 
-	else if (Input::wasKeyPressed(SDL_SCANCODE_U))
-		World::inst->unlimited_everything = !World::inst->unlimited_everything;
-	else if (Input::wasKeyPressed(SDL_SCANCODE_G))
-	{
-		if(free_cam_enabled)
-			Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
-		free_cam_enabled = !free_cam_enabled;
-	}
+			else if (Input::wasKeyPressed(SDL_SCANCODE_U))
+				World::inst->unlimited_everything = !World::inst->unlimited_everything;
+			else if (Input::wasKeyPressed(SDL_SCANCODE_G))
+			{
+				if (free_cam_enabled)
+					Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
+				free_cam_enabled = !free_cam_enabled;
+			}
 
-	if (free_cam_enabled)
-		cameraUpdate(dt);
+			if (free_cam_enabled)
+				cameraUpdate(dt);
 
-	else if(World::inst->idle)
-	{
-		if (is_player_turn)
-			playerTurnUpdate(dt);
-		else
-			zombieTurnUpdate(dt);
-	}
-	else
-	{
-	}
+			else if (!World::inst->frozen && World::inst->idle)
+			{
+				if (is_player_turn)
+					playerTurnUpdate(dt);
+				else
+					zombieTurnUpdate(dt);
+			}
 
-	if (!World::inst->isPlayerAlive()) {
-		if (shouldTrigger(World::inst->player->time_til_death, dt))
-			StageManager::inst->changeStage("game over");
-	}
+			if (!World::inst->isPlayerAlive()) {
+				if (shouldTrigger(World::inst->player->time_til_death, dt))
+					StageManager::inst->changeStage("game over");
+			}
 
 #else
-	if (World::inst->idle)
-	{
-		if (is_player_turn)
-			playerTurnUpdate(dt);
-		else
-			zombieTurnUpdate(dt);
-	}
+			if (!World::inst->frozen World::inst->idle)
+			{
+				if (is_player_turn)
+					playerTurnUpdate(dt);
+				else
+					zombieTurnUpdate(dt);
+			}
 
-	if (!World::inst->isPlayerAlive()) {
-		if (shouldTrigger(World::inst->player->time_til_death, dt))
-			StageManager::inst->changeStage("game over");
-	}
+			if (!World::inst->isPlayerAlive()) {
+				if (shouldTrigger(World::inst->player->time_til_death, dt))
+					StageManager::inst->changeStage("game over");
+			}
 #endif
+		}
+	}
+	World::inst->updateAnimations(dt);;
 }
 
 void NightStage::playerTurnUpdate(float dt)
@@ -422,6 +500,13 @@ void NightStage::cameraUpdate(float dt)
 	//to navigate with the mouse fixed in the middle
 	if(mouse_locked)
 		Input::centerMouse();
+}
+
+void NightStage::getSlides(){
+	slides.resize(TUT_SLIDES_NIGHT);
+
+	for (int i = 0; i < TUT_SLIDES_NIGHT; i++)
+		slides[i] = Texture::Get(("data/quad_textures/tutorial/night" + std::to_string(i + 1) + ".tga").c_str());
 
 }
 
@@ -433,7 +518,7 @@ void NightStage::newTurn()
 
 	if (turns_to_day == 0)
 		StageManager::inst->changeStage("day");
-
+		
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
 	World::inst->consumeHunger(10);
 	World::inst->playerDefenseOff();
@@ -444,6 +529,12 @@ void NightStage::newTurn()
 }
 
 void NightStage::resizeOptions(float width, float height) {
-	background.createQuad(width / 2, height / 2, width, height, true);
+
+	float size_y = height / 3;
+	float size_x = size_y * 1700 / 834;
+
+	night_hud.createQuad(width * 0.18, height * 0.8, size_x, size_y, true);
+
+	turns_left.createQuad(width * 0.88, height * 0.8, height / 1.8, height / 1.8 * 417 / 2000, true);
 	World::inst->resizeOptions(width, height);
 }

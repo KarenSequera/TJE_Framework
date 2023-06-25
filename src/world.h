@@ -1,7 +1,7 @@
 #pragma once
 
 #include "worldEntities.h"
-#include "Menu.h"
+#include "menu.h"
 #include <unordered_map>
 
 
@@ -33,6 +33,11 @@ public:
 	// General variables
 	static World* inst;
 	Player* player;
+
+	Mesh fullscreen_quad;
+	Mesh tutorial_quad;
+	bool triggerTutorial;
+	bool frozen;
 
 	float window_width;
 	float window_height;
@@ -86,11 +91,14 @@ public:
 	Vector2 option_uses_pos[3];
 
 	Camera* camera2D;
+	int number_nights;
 
 	std::unordered_map<std::string, Menu*> menus;
 	Menu* cur_menu;
 	int selected_option;
 	bool ready_to_attack;
+
+	PauseMenu* pause_menu;
 
 	//Night model information 
 	Matrix44 night_models[3+NUM_ZOMBIES_WAVE];
@@ -102,7 +110,8 @@ public:
 	int zombie_hurt;
 
 	World();
-
+	
+	bool existPreviousRuns();
 	void getSounds();
 	
 	// functions to parse
@@ -175,4 +184,7 @@ public:
 	void playerToState(int state, float time = 0.f);
 	void renderNight();
 	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
+
+	void resetWorld();
+
 };

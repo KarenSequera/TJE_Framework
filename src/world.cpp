@@ -5,6 +5,7 @@
 #include "game.h"
 #include "audio.h"
 
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <iostream>
@@ -13,6 +14,7 @@
 World* World::inst = NULL;
 
 World::World() {
+
 	inst = this;
 
 	parseStats("data/items/info/stats.txt");
@@ -31,7 +33,7 @@ World::World() {
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
 
-	createMenus("data/menus/menus.txt");
+	createMenus("data/quad_textures/menus/menus.txt");
 	changeMenu("general");
 
 	// Cubemap
@@ -39,7 +41,8 @@ World::World() {
 
 	//ParseNight 
 	parseSceneNight("data/nightScene.scene");
-	
+	pause_menu = new PauseMenu();
+
 	camera2D = new Camera();
 	camera2D->view_matrix = Matrix44();
 	camera2D->setOrthographic(0, Game::instance->window_width, 0, Game::instance->window_height, -1, 1);
@@ -54,11 +57,23 @@ World::World() {
 
 	idle = true;
 	zombie_hurt = 0;
+	number_nights = 0;
 
 	//init audio
 	Audio::Init();
 
 	getSounds();
+
+	// we should trigger the tutorial when there are no previous runs
+	triggerTutorial = !existPreviousRuns();
+	frozen = false;
+
+}
+
+// function that returns whether the player has played  the game before, i.e., if there are any previous runs
+bool World::existPreviousRuns() {
+	std::ifstream file("data/gameover/runs.txt");
+	return file.good();
 }
 
 void World::getSounds() {
@@ -439,16 +454,20 @@ int World::useConsumable(consumableType consumable)
 	{
 		int to_add = consumable_stats[consumable];
 
-		if(!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true))
+		if (!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true)) {
+			Audio::Play("data/audio/error.wav", 1.f, false);
 			return 2;
+		}
 
 		if(!unlimited_everything)
 			player->consumables[consumable]--;
 
 		return 0;
 	}
-	else return 1;
-
+	else {
+		Audio::Play("data/audio/error.wav", 1.f, false);
+		return 1;
+	}
 }
 
 void World::applyShields()
@@ -779,9 +798,7 @@ int World::hurtZombie(int zombie_idx)
 	}
 
 	// Trigger one animation or the other depending on the effectiveness of the attack
-	// if the zombie is inmune they will be unfazed
 	else if (multiplier == 1) {
-
 		zombie->toStateDelayed(ZOMBIE_HURT, delay, TRANSITION_TIME);
 	}
 
@@ -789,6 +806,9 @@ int World::hurtZombie(int zombie_idx)
 		Audio::Play("data/audio/night/crit.wav", 1.f, false);
 		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
 	}
+	
+	else 
+		zombie->toStateDelayed(ZOMBIE_DODGE, delay, TRANSITION_TIME);
 	
 	playWeaponSound(weapon, 1.5 * delay, multiplier == 0, !zombie->alive());
 
@@ -1009,14 +1029,14 @@ void World::resizeOptions(float width, float height)
 	window_height = height;
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
-	float size_y = 100.f * height / 1080;
+	float size_y = height/8.5;
 	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 0.05 * width;
+	float offset = 0.15 * height;
 
-	option_uses_pos[0] = Vector2(0.85 * width, 3 * size_y + 2 * offset);
-	option_uses_pos[1] = Vector2(0.85 * width, 2 * size_y + offset);
-	option_uses_pos[2] = Vector2(0.85 * width, 1 * size_y);
+	option_uses_pos[0] = Vector2(0.85 * width, size_y*1.3 + 2*offset);
+	option_uses_pos[1] = Vector2(0.85 * width, size_y*1.3 + offset);
+	option_uses_pos[2] = Vector2(0.85 * width, size_y*1.3);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
@@ -1027,6 +1047,16 @@ void World::resizeOptions(float width, float height)
 		option_uses_pos[i].x += 0.4 * size_x;
 		option_uses_pos[i].y = height - option_uses_pos[i].y;
 	}
+		
+	size_x = 2.f * width / 3.f;
+	size_y = size_x * 281.f / 762.f;
+	float position_x = width / 2;
+	float position_y = 0.55 * size_y;
+
+
+	fullscreen_quad.createQuad(width / 2.f, height / 2.f, width, height, true);
+	tutorial_quad.createQuad(position_x, position_y, size_x, size_y, true);
+	pause_menu->resize(width, height);
 }
 
 // Animation related
@@ -1085,10 +1115,6 @@ void World::renderNight()
 			false
 		);
 	}
-	//TODO: Do for defensive items, the structure would be similar to the previous one
-	/*else if (player->defending())
-		player->renderDefensive(defensive)*/
-
 	// Zombies
 	for (auto& zombie : World::inst->waves[cur_wave])
 	{
@@ -1103,4 +1129,11 @@ void World::renderNight()
 			true
 		);
 	}
+}
+
+void World::resetWorld()
+{
+	frozen = false;
+	player = new Player();
+	number_nights = 0;
 }
