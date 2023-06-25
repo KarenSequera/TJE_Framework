@@ -53,7 +53,8 @@ void NightStage::onEnter() {
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
-	background.createQuad(World::inst->window_width / 2, World::inst->window_height / 2, World::inst->window_width, World::inst->window_height, true);
+
+	resizeOptions(World::inst->window_width, World::inst->window_height);
 }
 
 void NightStage::onExit()
@@ -75,7 +76,7 @@ void NightStage::render()
 		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 	
 		renderBackground(shader);
-	
+
 		shader->disable();
 		// render what must be rendered always
 		World::inst->renderNight();
@@ -101,12 +102,10 @@ void NightStage::render()
 		renderTarget->disable();
 	}
 
-	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 145, "Player Hunger: " + std::to_string(World::inst->player->hunger), Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 165, "Player Shield: " + std::to_string(World::inst->player->shield), Vector3(1.0f, 0.75f, 0.0f), 2);
 	shader->enable();
 
 	renderHealthBars(shader);
+	renderPlayerStats(shader);
 
 	shader->disable();
 
@@ -193,8 +192,8 @@ void NightStage::renderHealthBars(Shader* shader)
 }
 
 void NightStage::playerTurnRender() {
-	drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
+	//drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
+	//drawText(5, 85, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
 
 	// Render menus -> prep options
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -224,6 +223,22 @@ void NightStage::renderBackground(Shader* shader)
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 }
+
+
+void NightStage::renderPlayerStats(Shader* shader)
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/hud_night.tga"), 0);
+	night_hud.render(GL_TRIANGLES);
+
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
 
 void NightStage::update(float dt, bool transitioning)
 {
@@ -470,6 +485,12 @@ void NightStage::newTurn()
 }
 
 void NightStage::resizeOptions(float width, float height) {
+
 	background.createQuad(width / 2, height / 2, width, height, true);
+
+	float size_y = height / 4;
+	float size_x = size_y * 1700/834;
+
+	night_hud.createQuad(width*0.2, height*0.85, size_x, size_y, true);
 	World::inst->resizeOptions(width, height);
 }

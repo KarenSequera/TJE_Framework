@@ -24,6 +24,7 @@ public:
 	int selected_target;
 	int zombie_attacking;
 	Mesh background;
+	Mesh night_hud;
 
 	void onEnter();
 	void onExit();
@@ -31,6 +32,7 @@ public:
 	void renderCrosshair(Shader* shader);
 	void renderHealthBars(Shader* shader);
 	void renderBackground(Shader* shader);
+	void renderPlayerStats(Shader* shader);
 
 	void update(float dt, bool transitioning);
 
