@@ -35,12 +35,13 @@ NightStage::NightStage() : Stage()
 void NightStage::onEnter() {
 	channel = Audio::Play("data/audio/night/night.wav", 0.05f, true);
 
+	// position the player
+	World::inst->player->model_matrix = World::inst->night_models[2];
+
+	// generate zombies
 	World::inst->generateZombies(World::inst->number_nights);
 
-	World::inst->player->model_matrix = World::inst->night_models[2];
-	World::inst->player->health = 100;
-	World::inst->generateZombies(World::inst->number_nights);
-	World* inst = World::inst;
+	// reset some variables
 	is_player_turn = true;
 	selected_target = 0;
 	zombie_attacking = 0;
@@ -49,12 +50,8 @@ void NightStage::onEnter() {
 	//TODO: adjust formula so that it is enjoyable
 	turns_to_day = 10 + (World::inst->number_nights % 5) * 10;
 
-	World::inst->number_nights++;
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
-	//camera->lookAt(World::inst->night_models[0].getTranslation(), Vector3(419.525, 196.748, 502.831), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
-
-	background.createQuad(World::inst->window_width / 2, World::inst->window_height / 2, World::inst->window_width, World::inst->window_height, true);
 }
 
 void NightStage::onExit()
@@ -99,7 +96,6 @@ void NightStage::render()
 		// render what must be rendered always
 
 		World::inst->renderNight();
-		renderTarget->disable();
 	}
 
 	drawText(5, 125, "Player Health: " + std::to_string(World::inst->player->health), Vector3(1.0f, 0.75f, 0.0f), 2);
@@ -220,7 +216,7 @@ void NightStage::renderBackground(Shader* shader)
 	glDisable(GL_CULL_FACE);
 
 	shader->setUniform("u_texture", Texture::Get("data/NightTextures/background.tga"), 0);
-	background.render(GL_TRIANGLES);
+	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -470,7 +466,3 @@ void NightStage::newTurn()
 	time_between_turns = TIME_BTW_TURNS;
 }
 
-void NightStage::resizeOptions(float width, float height) {
-	background.createQuad(width / 2, height / 2, width, height, true);
-	World::inst->resizeOptions(width, height);
-}

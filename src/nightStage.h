@@ -23,7 +23,6 @@ public:
 	// -1 if we are not in target selection
 	int selected_target;
 	int zombie_attacking;
-	Mesh background;
 
 	void onEnter();
 	void onExit();
@@ -40,8 +39,5 @@ public:
 	void playerTurnRender();
 
 	void newTurn();
-
-
-	void resizeOptions(float width, float height);
 
 };

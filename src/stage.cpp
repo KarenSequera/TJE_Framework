@@ -11,10 +11,15 @@ Stage::Stage() {
 	renderTarget = nullptr;
 	mouse_locked = false;
 
+	cur_slide = 0;
+	inTutorial = false;
+
 	if (!renderTarget) {
 		renderTarget = new RenderToTexture();
 		renderTarget->create(RENDER_TARGET_RES, RENDER_TARGET_RES);
 	}
+
+	getSlides();
 }
 
 

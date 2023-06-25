@@ -5,6 +5,7 @@
 #include "game.h"
 #include "audio.h"
 
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <iostream>
@@ -61,6 +62,15 @@ World::World() {
 	Audio::Init();
 
 	getSounds();
+
+	// we should trigger the tutorial when there are no previous runs
+	triggerTutorial = !existPreviousRuns();
+}
+
+// function that returns whether the player has played  the game before, i.e., if there are any previous runs
+bool World::existPreviousRuns() {
+	std::ifstream file("data/gameover/runs.txt");
+	return file.good();
 }
 
 void World::getSounds() {

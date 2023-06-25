@@ -90,6 +90,8 @@ void StageManager::update(float dt) {
 
 void StageManager::resize(float width, float height) {
 
+	World::inst->resizeOptions(width, height);
+
 	for (auto& stage : stages)
 		stage.second->resizeOptions(width, height);
 }

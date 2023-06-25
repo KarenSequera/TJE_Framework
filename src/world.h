@@ -35,6 +35,7 @@ public:
 	Player* player;
 
 	Mesh fullscreen_quad;
+	bool triggerTutorial;
 
 	float window_width;
 	float window_height;
@@ -105,7 +106,8 @@ public:
 	int zombie_hurt;
 
 	World();
-
+	
+	bool existPreviousRuns();
 	void getSounds();
 	
 	// functions to parse
@@ -180,4 +182,5 @@ public:
 	//TODO: void zombieToState(int zombie_idx, int state, float time = 0.f);
 
 	void resetWorld();
+
 };

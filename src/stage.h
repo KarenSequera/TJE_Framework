@@ -13,6 +13,9 @@ public:
 
 	Camera* camera;
 	HCHANNEL channel;
+
+	std::vector<Texture*> slides;
+	int cur_slide;
 	
 	bool frozen;
 	bool mouse_locked;
@@ -20,7 +23,7 @@ public:
 	RenderToTexture* renderTarget;
 	Shader* fx_shader;
 
-	bool triggerTutorial;
+	bool inTutorial;
 
 	//ctor
 	Stage();
@@ -30,11 +33,10 @@ public:
 	virtual void onEnter() {};
 	virtual void onExit() {};
 	virtual void render() {};
+	virtual void getSlides() {};
 	virtual void update(float dt, bool transitioning = false) {};
 	virtual void resizeOptions(float width, float height) {};
 	void stopMusic();
 	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height);
 	void renderHungerBar(Vector3 position, float hunger_ratio, Shader* shader, float width, float height);
-
-
 };
