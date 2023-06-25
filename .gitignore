@@ -15,3 +15,5 @@ visualstudio/VS2015/Release
 *.db
 *.exe
 visualstudio/.vs/
+visualstudio/.vs/visualstudio/v17/.suo
+game_debug.pdb
