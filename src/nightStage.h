@@ -3,6 +3,8 @@
 #define HEALTH_BAR_WIDTH 50.f
 #define HEALTH_BAR_HEIGHT 10.f
 #define TIME_BTW_TURNS 1.f
+#define NUM_STATES_CROSSHAIR 8
+#define TUT_SLIDES_NIGHT 3
 
 class NightStage : public Stage {
 public:
@@ -33,6 +35,7 @@ public:
 
 	void update(float dt, bool transitioning);
 
+	void getSlides();
 	void playerTurnUpdate(float dt);
 	void zombieTurnUpdate(float dt);
 	void cameraUpdate(float dt);

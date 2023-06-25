@@ -6,10 +6,17 @@ varying vec4 v_color;
 
 uniform vec4 u_color;
 uniform sampler2D u_texture;
-uniform float u_time;
+uniform bool u_animated;
+uniform float u_ratio;
+uniform int u_state;
 
 void main()
 {
 	vec2 uv = v_uv;
+
+	if(u_animated){
+		uv.x = (u_state + uv.x) * u_ratio;
+	}
+	
 	gl_FragColor = u_color * texture2D( u_texture, uv );
 }

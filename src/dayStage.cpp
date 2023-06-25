@@ -5,8 +5,7 @@
 #include "game.h"
 
 #include <algorithm>
- 
-float angle = 0;
+
 float mouse_speed = 100.0f;
 DayStage::DayStage() : Stage() {
 
@@ -41,16 +40,12 @@ DayStage::DayStage() : Stage() {
 	else
 		fx_shader = nullptr;
 
-	if (!renderTarget) {
-		renderTarget = new RenderToTexture();
-		renderTarget->create(RENDER_TARGET_RES * 2, RENDER_TARGET_RES * 2);
-	}
-	frozen = true;
+	num_slides = TUT_SLIDES_DAY;
+	getSlides();
 };
 
 void DayStage::onEnter()
 {
-	//Audio::Init();
 	channel = Audio::Play("data/audio/day/day.wav", 0.1f, true);
 	
 	World::inst->clearItems();
@@ -58,6 +53,11 @@ void DayStage::onEnter()
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
+
+	if (World::inst->triggerTutorial) {
+		Audio::PlayDelayed("data/audio/messages/appear.wav", 1.f, 0.6f, 0, 0.f);
+		in_tutorial = true;
+	}
 }
 
 void DayStage::onExit()
@@ -65,6 +65,7 @@ void DayStage::onExit()
 }
 
 void DayStage::render() {
+
 	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
 	
 	if (post_fx) {
@@ -78,7 +79,7 @@ void DayStage::render() {
 
 		renderTarget->disable();
 		glDisable(GL_DEPTH_TEST);
-		renderTarget->ourToViewport(Vector3(frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		renderTarget->ourToViewport(Vector3(in_tutorial ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
 	}
 	else
@@ -89,9 +90,16 @@ void DayStage::render() {
 			entity->render();
 		}
 	}
-	glDisable(GL_DEPTH_TEST);
-	renderHUD();
-	glEnable(GL_DEPTH_TEST);
+
+	if (in_tutorial)
+		renderTutorial();
+	else
+	{
+		glDisable(GL_DEPTH_TEST);
+		renderHUD();
+		glEnable(GL_DEPTH_TEST);
+	}
+	
 
 }
 
@@ -123,6 +131,7 @@ void DayStage::renderHUD()
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud.tga"), 0);
+	shader->setUniform("u_animated", false);
 
 	// rendering the icons 
 	glEnable(GL_BLEND);
@@ -131,6 +140,7 @@ void DayStage::renderHUD()
 	
 	HUD_quad.render(GL_TRIANGLES);
 	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud2.tga"), 0);
+	shader->setUniform("u_animated", false);
 	instructions_quad.render(GL_TRIANGLES);
 
 	// Rendering Health Bar
@@ -178,11 +188,19 @@ void DayStage::renderHUD()
 
 void DayStage::update(float dt, bool transitioning) {
 
-	if(!transitioning && shouldTrigger(time_remaining, dt))
-		StageManager::inst->changeStage("night");
+	if (!transitioning) {
+		if (in_tutorial) {
+			updateTutorial();
+		}
+		else {
+			if (shouldTrigger(time_remaining, dt))
+				StageManager::inst->changeStage("night");
 
-	updateMovement(dt);
-	updateItemsAndStats();
+			updateMovement(dt);
+			updateItemsAndStats();
+		}
+	}
+	
 }
 
 float right_analog_x_disp;
@@ -197,12 +215,6 @@ int collided = 0;
 
 void DayStage::updateMovement(float dt){
 	collisions.clear();
-
-	//example
-	angle += (float)dt * 10.0f;
-
-	/*Vector3 prueba = camera->getLocalVector(Vector3(0.0f, 0.0f, 1.0f));
-	printf("%f %f %f\n", prueba.x, prueba.y, prueba.z);*/
 
 	//We check if the gamepad is connected:
 	if (Input::gamepads[0].connected) {
@@ -381,6 +393,13 @@ void DayStage::updateItemsAndStats() {
 #endif
 }
 
+void DayStage::getSlides() {
+	slides.resize(TUT_SLIDES_DAY);
+
+	for (int i = 0; i < TUT_SLIDES_DAY; i++)
+		slides[i] = Texture::Get(("data/quad_textures/tutorial/day" + std::to_string(i + 1) + ".tga").c_str());
+}
+
 void DayStage::resizeOptions(float width, float height) {
 
 	float size_x = width / 2.5;
@@ -394,7 +413,7 @@ void DayStage::resizeOptions(float width, float height) {
 
 	size_x = (Game::instance->window_width) / 1.8;
 	size_y = (size_x * 1000 / 4000);
-	position_x = Game::instance->window_width / 2;
+	position_x = width / 2;
 	position_y = (position_x / 1.4 * 1000 / 4000);
 
 	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);

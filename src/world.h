@@ -35,6 +35,7 @@ public:
 	Player* player;
 
 	Mesh fullscreen_quad;
+	Mesh tutorial_quad;
 	bool triggerTutorial;
 
 	float window_width;

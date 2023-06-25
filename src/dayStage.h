@@ -3,6 +3,7 @@
 
 #define DRIFT_THRESHOLD 0.01
 #define DAY_TIME 30.f
+#define TUT_SLIDES_DAY 3
 
 class DayStage : public Stage {
 public:
@@ -32,5 +33,6 @@ public:
 	void updateItemsAndStats();
 
 
+	void getSlides();
 	void resizeOptions(float width, float height);
 };

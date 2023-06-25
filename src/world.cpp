@@ -1045,6 +1045,14 @@ void World::resizeOptions(float width, float height)
 		option_uses_pos[i].x += 0.4 * size_x;
 		option_uses_pos[i].y = height - option_uses_pos[i].y;
 	}
+
+	size_x = 2.f * width / 3.f;
+	size_y = size_x * 281.f / 762.f;
+	float position_x = width / 2;
+	float position_y = position_x / 1.4 * 281.f / 762.f;
+
+	tutorial_quad.createQuad(position_x, position_y, size_x, size_y, true);
+
 }
 
 // Animation related
