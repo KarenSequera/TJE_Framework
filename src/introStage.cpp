@@ -67,36 +67,29 @@ void IntroStage::render()
 
 	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
 		options[i]->render(selected_option == i, option_quads[i]);
-	}
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-
 }
 
 void IntroStage::update(float dt, bool transitioning)
 {
 	if (Input::gamepads[0].connected) {
-		if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT)) {
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+		if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT)) 
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-		}
+		
 		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
-		{
+		
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
 		else if (Input::wasButtonPressed(A_BUTTON))
 			selectOption();
 
 	}
 	else {
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT)) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT)) 
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) {
+		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) 
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 			selectOption();
