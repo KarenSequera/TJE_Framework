@@ -160,18 +160,9 @@ void NightStage::renderHealthBars(Shader* shader)
 	Matrix44 model;
 	Vector3 position;
 	int total_health = MAX_HEALTH;
-	int actual_health = max(0.f, World::inst->player->health);
+	int actual_health;
+	float ratio;
 
-	float ratio = (float) actual_health / total_health;
-
-	model = World::inst->player->model_matrix;
-
-	position = model.getTranslation();
-	position.y -= 25.f;
-	position = camera->project(position, Game::instance->window_width, Game::instance->window_height);
-
-	renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
-	
 	//Health bar of the zombies
 	for (auto& zombie : World::inst->waves[World::inst->cur_wave]) {
 
@@ -186,7 +177,8 @@ void NightStage::renderHealthBars(Shader* shader)
 
 		ratio = (float) actual_health / total_health;
 
-		renderHealthBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
+		renderBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT,
+			Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
 	}
 	glEnable(GL_DEPTH_TEST);
 }
@@ -234,6 +226,19 @@ void NightStage::renderPlayerStats(Shader* shader)
 	shader->setUniform("u_texture", Texture::Get("data/NightTextures/hud_night.tga"), 0);
 	night_hud.render(GL_TRIANGLES);
 
+
+	Vector3 position = Vector3(Game::instance->window_width*0.17, Game::instance->window_height*0.895, 0);
+	float width = Game::instance->window_height/ 4;
+	float height = (width * 15 / 90);
+
+	renderBar(position,
+		(float)(World::inst->player->health) / MAX_HEALTH, shader, width, height,
+		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
+
+	position = Vector3(Game::instance->window_width * 0.17, Game::instance->window_height * 0.82, 0);
+
+	renderBar(position, (float)(World::inst->player->hunger) / MAX_HUNGER, shader, width, height,
+		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
@@ -491,6 +496,6 @@ void NightStage::resizeOptions(float width, float height) {
 	float size_y = height / 4;
 	float size_x = size_y * 1700/834;
 
-	night_hud.createQuad(width*0.2, height*0.85, size_x, size_y, true);
+	night_hud.createQuad(width*0.15, height*0.85, size_x, size_y, true);
 	World::inst->resizeOptions(width, height);
 }

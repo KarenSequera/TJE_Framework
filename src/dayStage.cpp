@@ -147,13 +147,15 @@ void DayStage::renderHUD()
 	float width = Game::instance->window_width /7.5;
 	float height = (width * 15 / 90);
 	
-	renderHealthBar(position,
-		(float)(World::inst->player->health) / MAX_HEALTH , shader, width, height);
+	renderBar(position,
+		(float)(World::inst->player->health) / MAX_HEALTH , shader, width, height,
+		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
 
 	// Rendering Hunger bar
 	position = Vector3(Game::instance->window_width / 1.58, Game::instance->window_width / 8.3, 0);
 	
-	renderHungerBar(position, (float)(World::inst->player->hunger)/MAX_HUNGER, shader, width, height);
+	renderBar(position, (float)(World::inst->player->hunger)/MAX_HUNGER, shader, width, height,
+		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
 	shader->disable();
 
 

@@ -31,8 +31,8 @@ public:
 	virtual void update(float dt, bool transitioning = false) {};
 	virtual void resizeOptions(float width, float height) {};
 	void stopMusic();
-	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height);
-	void renderHungerBar(Vector3 position, float hunger_ratio, Shader* shader, float width, float height);
+	void renderBar(Vector3 position, float hp_ratio, Shader* shader, float width,
+		float height, Texture* texture_background, Texture* texture_foreground);
 
 
 };
