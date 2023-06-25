@@ -9,8 +9,6 @@ public:
 
 	NightStage();
 
-
-	int cur_night;
 	int turns_to_day; 
 	bool is_player_turn;
 	bool to_day;
@@ -25,7 +23,8 @@ public:
 	int zombie_attacking;
 	Mesh background;
 	Mesh night_hud;
-
+	Mesh turns_left
+		;
 	void onEnter();
 	void onExit();
 	void render();

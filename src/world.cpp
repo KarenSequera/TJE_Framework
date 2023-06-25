@@ -1015,14 +1015,14 @@ void World::resizeOptions(float width, float height)
 	window_height = height;
 
 	//TODO: ADAPT THIS TO THE NEW ASSETS
-	float size_y = 100.f * height / 1080;
+	float size_y = height/8.5;
 	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 0.07 * width;
+	float offset = 0.15 * height;
 
-	option_uses_pos[0] = Vector2(0.85 * width, size_y*2 + 2*offset);
-	option_uses_pos[1] = Vector2(0.85 * width, size_y*2 + offset);
-	option_uses_pos[2] = Vector2(0.85 * width, size_y*2);
+	option_uses_pos[0] = Vector2(0.85 * width, size_y*1.3 + 2*offset);
+	option_uses_pos[1] = Vector2(0.85 * width, size_y*1.3 + offset);
+	option_uses_pos[2] = Vector2(0.85 * width, size_y*1.3);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);

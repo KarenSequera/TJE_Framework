@@ -120,8 +120,10 @@ void NightStage::render()
 	}
 
 	if (is_player_turn && World::inst->idle)
-	{
+	{	
+	
 		playerTurnRender();
+		
 	}
 }
 
@@ -197,6 +199,21 @@ void NightStage::playerTurnRender() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	World::inst->cur_menu->render(World::inst->selected_option);
 	
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture", Texture::Get("data/NightTextures/turns_left.tga"), 0);
+	
+	turns_left.render(GL_TRIANGLES);
+
+	shader->disable();
+
+
+
+	drawText(World::inst->window_width*0.95, World::inst->window_height - World::inst->window_height * 0.8105,std::to_string(turns_to_day),
+		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
+
 	// Render menus -> prep options
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -227,15 +244,15 @@ void NightStage::renderPlayerStats(Shader* shader)
 	night_hud.render(GL_TRIANGLES);
 
 
-	Vector3 position = Vector3(Game::instance->window_width*0.17, Game::instance->window_height*0.895, 0);
-	float width = Game::instance->window_height/ 4;
+	Vector3 position = Vector3(Game::instance->window_width*0.2, Game::instance->window_height*0.86, 0);
+	float width = Game::instance->window_height/ 3;
 	float height = (width * 15 / 90);
 
 	renderBar(position,
 		(float)(World::inst->player->health) / MAX_HEALTH, shader, width, height,
 		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
 
-	position = Vector3(Game::instance->window_width * 0.17, Game::instance->window_height * 0.82, 0);
+	position = Vector3(Game::instance->window_width * 0.2, Game::instance->window_height * 0.75, 0);
 
 	renderBar(position, (float)(World::inst->player->hunger) / MAX_HUNGER, shader, width, height,
 		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
@@ -493,9 +510,11 @@ void NightStage::resizeOptions(float width, float height) {
 
 	background.createQuad(width / 2, height / 2, width, height, true);
 
-	float size_y = height / 4;
+	float size_y = height / 3;
 	float size_x = size_y * 1700/834;
 
-	night_hud.createQuad(width*0.15, height*0.85, size_x, size_y, true);
+	night_hud.createQuad(width*0.18, height*0.8, size_x, size_y, true);
+
+	turns_left.createQuad(width*0.88, height * 0.8, height /1.8, height / 1.8 * 417/2000,true);
 	World::inst->resizeOptions(width, height);
 }
