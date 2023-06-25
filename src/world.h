@@ -34,6 +34,8 @@ public:
 	static World* inst;
 	Player* player;
 
+	Mesh fullscreen_quad;
+
 	float window_width;
 	float window_height;
 

@@ -41,6 +41,10 @@ DayStage::DayStage() : Stage() {
 	else
 		fx_shader = nullptr;
 
+	if (!renderTarget) {
+		renderTarget = new RenderToTexture();
+		renderTarget->create(RENDER_TARGET_RES * 2, RENDER_TARGET_RES * 2);
+	}
 	frozen = true;
 };
 
@@ -50,7 +54,7 @@ void DayStage::onEnter()
 	channel = Audio::Play("data/audio/day/day.wav", 0.1f, true);
 	
 	World::inst->clearItems();
-	camera->lookAt(Vector3(-1000.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
+	camera->lookAt(Vector3(382.0f, 100.0f, 300.0f), Vector3(0.0f, 0.0f, 30.0f), Vector3(0.0f, 1.0f, 0.0f)); //position the camera and point to 0,0,0
 	World::inst->player->position = camera->eye;
 	World::inst->spawnerInit();
 	time_remaining = DAY_TIME;
@@ -73,7 +77,6 @@ void DayStage::render() {
 		}
 
 		renderTarget->disable();
-
 		glDisable(GL_DEPTH_TEST);
 		renderTarget->ourToViewport(Vector3(frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
@@ -86,23 +89,11 @@ void DayStage::render() {
 			entity->render();
 		}
 	}
-
 	glDisable(GL_DEPTH_TEST);
 	renderHUD();
 	glEnable(GL_DEPTH_TEST);
 
-	
-	#if DEBUG
-	#endif
-
 }
-
-//	Renders the consumable menu to screen, that is, the menu where the player chooses which item to consume
-void DayStage::renderConsumableMenu() 
-{
-	drawText(5, 85, consumable_names[consumable_selected] + std::to_string(World::inst->getConsumableQuant(consumable_selected)), Vector3(0.0f, 0.5f, 0.75f), 2);
-}
-
 
 void DayStage::renderSky() 
 {
@@ -168,9 +159,6 @@ void DayStage::renderHUD()
 
 	HUD_quad.render(GL_TRIANGLES);
 	shader_selected->disable();
-
-	
-
 
 	float x = Game::instance->window_width / 2.87;
 	float y = Game::instance->window_height - (Game::instance->window_width / 8 * 1000 / 3000);
@@ -388,6 +376,8 @@ void DayStage::updateItemsAndStats() {
 
 	else if (Input::wasKeyPressed(SDL_SCANCODE_N))
 		StageManager::inst->changeStage("night");
+	else if (Input::wasKeyPressed(SDL_SCANCODE_P))
+		printf("%f %f %f\n", World::inst->player->position.x, World::inst->player->position.y, World::inst->player->position.z);
 #endif
 }
 

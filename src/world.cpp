@@ -13,6 +13,7 @@
 World* World::inst = NULL;
 
 World::World() {
+
 	inst = this;
 
 	parseStats("data/items/info/stats.txt");
@@ -1014,7 +1015,8 @@ void World::resizeOptions(float width, float height)
 	window_width = width;
 	window_height = height;
 
-	//TODO: ADAPT THIS TO THE NEW ASSETS
+	fullscreen_quad.createQuad(window_width / 2.f, window_height / 2.f, window_width, window_height, true);
+
 	float size_y = 100.f * height / 1080;
 	float size_x = size_y * 350.f / 100.f;
 

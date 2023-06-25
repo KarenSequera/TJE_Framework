@@ -25,7 +25,6 @@ public:
 	void onEnter();
 	void onExit();
 	void render();
-	void renderConsumableMenu();
 	void renderSky();
 	void renderHUD();
 	void update(float dt, bool transitioning = false);

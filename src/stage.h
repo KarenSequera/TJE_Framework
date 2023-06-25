@@ -5,7 +5,7 @@
 #include "rendertotexture.h"
 
 #define RENDER_TARGET_RES 1024
-#define POST_FX true
+#define POST_FX false
 
 class Camera;
 class Stage {
@@ -19,6 +19,8 @@ public:
 	bool post_fx;
 	RenderToTexture* renderTarget;
 	Shader* fx_shader;
+
+	bool triggerTutorial;
 
 	//ctor
 	Stage();

@@ -9,7 +9,6 @@ StageManager* StageManager::inst = NULL;
 StageManager::StageManager(float window_width, float window_height) {
 	inst = this;
 
-	transition_quad.createQuad(window_width / 2.f, window_height / 2.f, window_width, window_height, true);
 	transition_time = 0.f;
 
 	cur_stage = nullptr;
@@ -55,7 +54,7 @@ void StageManager::renderStageTransition() {
 	shader->setUniform("u_color", Vector3(0.0f));
 	shader->setUniform("u_alpha", alpha);
 
-	transition_quad.render(GL_TRIANGLES);
+	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
 	shader->disable();
 	glDisable(GL_BLEND);
@@ -90,8 +89,6 @@ void StageManager::update(float dt) {
 }
 
 void StageManager::resize(float width, float height) {
-
-	transition_quad.createQuad(width / 2.f, height / 2.f, width, height, true);
 
 	for (auto& stage : stages)
 		stage.second->resizeOptions(width, height);
