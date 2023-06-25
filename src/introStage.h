@@ -12,7 +12,8 @@ public:
 	float window_height;
 	Mesh* option_quads[OPTIONS_INTRO_MENU];
 	Vector2 option_uses_pos[OPTIONS_INTRO_MENU];
-
+	Mesh background;
+	Mesh logo; 
 	Camera* camera2D;
 
 	std::vector<MenuEntity*> options;
