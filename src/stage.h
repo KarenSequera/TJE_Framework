@@ -5,7 +5,8 @@
 #include "rendertotexture.h"
 
 #define RENDER_TARGET_RES 1024
-#define POST_FX true
+#define POST_FX false
+#define NUM_STATES_TEXTBOX 3
 
 class Camera;
 class Stage {
@@ -13,8 +14,12 @@ public:
 
 	Camera* camera;
 	HCHANNEL channel;
+
+	std::vector<Texture*> slides;
+	int num_slides;
+	int cur_slide;
+	bool in_tutorial;
 	
-	bool frozen;
 	bool mouse_locked;
 	bool post_fx;
 	RenderToTexture* renderTarget;
@@ -28,11 +33,13 @@ public:
 	virtual void onEnter() {};
 	virtual void onExit() {};
 	virtual void render() {};
+	virtual void getSlides() {};
 	virtual void update(float dt, bool transitioning = false) {};
 	virtual void resizeOptions(float width, float height) {};
 	void stopMusic();
-	void renderBar(Vector3 position, float hp_ratio, Shader* shader, float width,
-		float height, Texture* texture_background, Texture* texture_foreground);
-
-
+	void nextSlide();
+	void renderTutorial();
+	void updateTutorial();
+	void renderHealthBar(Vector3 position, float hp_ratio, Shader* shader, float width, float height);
+	void renderHungerBar(Vector3 position, float hunger_ratio, Shader* shader, float width, float height);
 };

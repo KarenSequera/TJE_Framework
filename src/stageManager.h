@@ -12,7 +12,6 @@ public:
 	
 	static StageManager* inst;
 
-	Mesh transition_quad;
 	float transition_time;
 
 	Stage* cur_stage;
