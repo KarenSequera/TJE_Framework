@@ -2,6 +2,13 @@
 #include "player.h"
 #define NUM_GENERAL_OPTIONS 3
 #define NUM_OPTIONS 3
+#define OPTIONS_PAUSE_MENU 3
+
+enum {
+	RESUME,
+	RESTART,
+	EXIT
+};
 
 class Camera;
 
@@ -85,3 +92,18 @@ public:
 	bool onSelect(int selected);
 };
 
+class PauseMenu
+{
+public:
+	MenuEntity* options[OPTIONS_PAUSE_MENU];
+	Mesh option_quads[OPTIONS_PAUSE_MENU + 1];
+
+	int selected;
+
+	PauseMenu();
+
+	void render();
+	void update();
+	void selectOption();
+	void resize(float width, float height);
+};

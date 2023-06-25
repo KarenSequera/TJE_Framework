@@ -88,6 +88,7 @@ void EntityMesh::render_simple() {
 		shader->setUniform("u_color", color);
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
+		shader->setUniform("u_animated", false);
 		shader->setUniform("u_time", time);
 		shader->setUniform("u_camera_pos", camera->center);
 		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 0.9));
@@ -124,6 +125,7 @@ void EntityMesh::render_instanced() {
 		//upload uniforms
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
+		shader->setUniform("u_animated", false);
 		shader->setUniform("u_time", time);
 		shader->setUniform("u_camera_pos", camera->center);
 		shader->setUniform("u_light_color", Vector3(1.0, 1.0, 1.0));
@@ -169,6 +171,7 @@ void AnimatedEntity::render()
 		shader->setUniform("u_color", color);
 		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		shader->setUniform("u_texture", texture, 0);
+		shader->setUniform("u_animated", false);
 		shader->setUniform("u_model", getGlobalMatrix());
 		shader->setUniform("u_time", time);
 

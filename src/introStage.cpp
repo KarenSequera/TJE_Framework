@@ -66,7 +66,6 @@ void IntroStage::render()
 
 
 	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
-	{
 		options[i]->render(selected_option == i, option_quads[i]);
 	}
 
@@ -83,7 +82,7 @@ void IntroStage::update(float dt, bool transitioning)
 			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
 		}
-		else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT))
+		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
 		{
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
 			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
@@ -99,8 +98,6 @@ void IntroStage::update(float dt, bool transitioning)
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) {
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 			selectOption();
 	}

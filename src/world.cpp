@@ -5,6 +5,7 @@
 #include "game.h"
 #include "audio.h"
 
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <iostream>
@@ -13,6 +14,7 @@
 World* World::inst = NULL;
 
 World::World() {
+
 	inst = this;
 
 	parseStats("data/items/info/stats.txt");
@@ -31,7 +33,7 @@ World::World() {
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
 
-	createMenus("data/menus/menus.txt");
+	createMenus("data/quad_textures/menus/menus.txt");
 	changeMenu("general");
 
 	// Cubemap
@@ -39,7 +41,8 @@ World::World() {
 
 	//ParseNight 
 	parseSceneNight("data/nightScene.scene");
-	
+	pause_menu = new PauseMenu();
+
 	camera2D = new Camera();
 	camera2D->view_matrix = Matrix44();
 	camera2D->setOrthographic(0, Game::instance->window_width, 0, Game::instance->window_height, -1, 1);
@@ -60,6 +63,17 @@ World::World() {
 	Audio::Init();
 
 	getSounds();
+
+	// we should trigger the tutorial when there are no previous runs
+	triggerTutorial = !existPreviousRuns();
+	frozen = false;
+
+}
+
+// function that returns whether the player has played  the game before, i.e., if there are any previous runs
+bool World::existPreviousRuns() {
+	std::ifstream file("data/gameover/runs.txt");
+	return file.good();
 }
 
 void World::getSounds() {
@@ -1033,6 +1047,14 @@ void World::resizeOptions(float width, float height)
 		option_uses_pos[i].x += 0.4 * size_x;
 		option_uses_pos[i].y = height - option_uses_pos[i].y;
 	}
+		
+	size_x = 2.f * width / 3.f;
+	size_y = size_x * 281.f / 762.f;
+	float position_x = width / 2;
+	float position_y = 0.55 * size_y;
+
+	tutorial_quad.createQuad(position_x, position_y, size_x, size_y, true);
+	pause_menu->resize(width, height);
 }
 
 // Animation related
@@ -1109,6 +1131,7 @@ void World::renderNight()
 
 void World::resetWorld()
 {
+	frozen = false;
 	player = new Player();
 	number_nights = 0;
 }

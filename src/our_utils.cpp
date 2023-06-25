@@ -1,4 +1,6 @@
 #include "our_utils.h"
+#include "audio.h"
+
 int ourMod(int a, int b) {
     int r = a % b;
     return r < 0 ? r + b : r;
@@ -6,6 +8,7 @@ int ourMod(int a, int b) {
 
 void changeOption(int to_add, int& selected_option, int max) {
     selected_option = ourMod(selected_option + to_add, max);
+    Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 }
 
 bool shouldTrigger(float& to_update, float dt)

@@ -26,11 +26,11 @@ GameOverStage::GameOverStage()
 
 	resizeOptions(Game::instance->window_width, Game::instance->window_height);
 
-	Texture* start_button = Texture::Get("data/menus/introMenu/PLAY_BUTTON.tga");
-	Texture* start_button_selected = Texture::Get("data/menus/introMenu/PLAY_BUTTON_SELECTED.tga");;
+	Texture* start_button = Texture::Get("data/quad_textures/menus/introMenu/PLAY_BUTTON.tga");
+	Texture* start_button_selected = Texture::Get("data/quad_textures/menus/introMenu/PLAY_BUTTON_SELECTED.tga");;
 
-	Texture* exit_button = Texture::Get("data/menus/introMenu/EXIT_BUTTON.tga");
-	Texture* exit_button_selected = Texture::Get("data/menus/introMenu/EXIT_BUTTON_SELECTED.tga");
+	Texture* exit_button = Texture::Get("data/quad_textures/menus/introMenu/EXIT_BUTTON.tga");
+	Texture* exit_button_selected = Texture::Get("data/quad_textures/menus/introMenu/EXIT_BUTTON_SELECTED.tga");
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
