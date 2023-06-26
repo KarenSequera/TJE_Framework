@@ -123,6 +123,7 @@ void GameOverStage::updateRanking() {
 
 void GameOverStage::onEnter()
 {
+	channel = Audio::Play("data/audio/gameover/gameover.wav", 0.3f, true);
 	nights_survived = World::inst->number_nights;
 	getRanking();
 }

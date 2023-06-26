@@ -34,6 +34,7 @@ IntroStage::IntroStage()
 
 void IntroStage::onEnter()
 {
+	channel = Audio::Play("data/audio/intro/IntroSong.wav", 0.3f, true);
 	selected_option = 0;
 }
 

@@ -23,7 +23,7 @@ StageManager::StageManager(float window_width, float window_height) {
 	transition_sounds["night"] = "data/audio/night/to_night.wav";
 
 	//TODO: CHANGE THIS TO INTRO
-	cur_stage = stages["game over"];
+	cur_stage = stages["intro stage"];
 	cur_stage->onEnter();
 }
 
