@@ -151,11 +151,11 @@ void GameOverStage::render()
 
 			break;
 		case 1:
-			renderBackground(Texture::Get("data/gameover/enter_name.tga"));
+			renderBackground(Texture::Get("data/gameover/textures/enter_name.tga"));
 			drawText(World::inst->window_width / 4, 3 * World::inst->window_height / 5, name, Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.01f);
 			break;
 		case 2:
-			renderBackground(Texture::Get("data/gameover/bg.tga"));
+			renderBackground(Texture::Get("data/gameover/textures/bg.tga"));
 			for (int i = 0; i < NUM_RANKING; i++) {
 				num_nights = ranking[i].num_nights;
 				drawText(World::inst->window_width / 4, World::inst->window_height / 6 + offset_y * i, std::to_string(i + 1) + ". ", ranking_pos == i ? yellow : white, World::inst->window_height * 0.004);
@@ -177,11 +177,11 @@ void GameOverStage::render()
 
 Texture* GameOverStage::getEndingTexture() {
 	if (nights_survived == 0 && ranking_pos != -1)
-		return Texture::Get("data/gameover/bad_ending.tga");
+		return Texture::Get("data/gameover/textures/bad_ending.tga");
 	else if (ranking_pos < 3)
-		return Texture::Get("data/gameover/good_ending.tga");
+		return Texture::Get("data/gameover/textures/good_ending.tga");
 	else
-		return Texture::Get("data/gameover/neutral_ending.tga");
+		return Texture::Get("data/gameover/textures/neutral_ending.tga");
 }
 
 void GameOverStage::renderBackground(Texture* texture) 
