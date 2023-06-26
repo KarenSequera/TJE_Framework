@@ -4,7 +4,6 @@
 
 Player::Player() {
 	health = MAX_HEALTH;
-	shield = 0;
 	hunger = MAX_HUNGER;
 	mitigates = 0;
 	defensive = 0;
@@ -62,35 +61,26 @@ void Player::addDefUses(defensiveType type, int uses)
 bool Player::affectPlayerStat(affectingStat stat, int amount, bool add)
 {
 	int mult = add ? 1 : -1;
-	switch (stat) {
-	case HUNGER:
+
+	if (stat == HUNGER)
+	{
 		if (add) {
 			if (hunger == MAX_HUNGER)
 				return false;
-			
+
 			Audio::Play("data/audio/hunger_cons.wav", 1.f, false);
 		}
 		hunger = clamp(hunger + mult * amount, 0, MAX_HUNGER);
-		break;
-	case HEALTH:
+	}
+	else
+	{
 		if (add) {
 			if (health == MAX_HEALTH)
 				return false;
-			
+
 			Audio::Play("data/audio/health_cons.wav", 1.f, false);
 		}
 		health = clamp(health + mult * amount, 0, MAX_HEALTH);
-		break;
-	case SHIELD:
-		if (add) {
-			if(health == MAX_SHIELD)
-				return false;
-			
-			Audio::Play("data/audio/shield_cons.wav", 1.f, false);
-		}
-
-		shield = clamp(shield + mult * amount, 0, MAX_SHIELD);
-		break;
 	}
 	return true;
 }

@@ -13,9 +13,6 @@ public:
 
 	float gamepad_sensitivity;
 
-	const char* consumable_names[NUM_CONSUMABLES - NUM_SHIELD_ITEMS] = 
-		{ "Bandages ", "Painkillers ", "First-aid Kit ", "Apple ", "Canned Beans ", "Burger "};
-
 	Mesh HUD_quad;
 	Mesh instructions_quad;
 	consumableType consumable_selected;

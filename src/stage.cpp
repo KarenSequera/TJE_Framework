@@ -6,7 +6,6 @@
 
 Stage::Stage() {
 	camera = Camera::current;
-	post_fx = false;
 	renderTarget = nullptr;
 	mouse_locked = false;
 

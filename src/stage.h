@@ -21,7 +21,6 @@ public:
 	bool in_tutorial;
 	
 	bool mouse_locked;
-	bool post_fx;
 	RenderToTexture* renderTarget;
 	Shader* fx_shader;
 

@@ -8,8 +8,6 @@ aidkit,data/quad_textures/menus/consumables/first_aid_kit.tga,data/quad_textures
 apple,data/quad_textures/menus/consumables/apple.tga,data/quad_textures/menus/consumables/apple_selected.tga,3
 beans,data/quad_textures/menus/consumables/canned_beans.tga,data/quad_textures/menus/consumables/canned_beans_selected.tga,4
 burger,data/quad_textures/menus/consumables/hamburger.tga,data/quad_textures/menus/consumables/hamburger_selected.tga,5
-helmet,data/quad_textures/menus/consumables/helmet.tga,data/quad_textures/menus/consumables/helmet_selected.tga,6
-vest,data/quad_textures/menus/consumables/vest.tga,data/quad_textures/menus/consumables/vest_selected.tga,7
 
 fists,data/quad_textures/menus/weapon/fists.tga,data/quad_textures/menus/weapon/fists_selected.tga,0
 bat,data/quad_textures/menus/weapon/bat.tga,data/quad_textures/menus/weapon/bat_selected.tga,1

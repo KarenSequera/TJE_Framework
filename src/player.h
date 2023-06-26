@@ -7,19 +7,17 @@
 
 #define NUM_ITEMS 3
 #define NUM_WEAPONS 4
-#define NUM_CONSUMABLES 8
+#define NUM_CONSUMABLES 6
 #define NUM_CONS_PER_TYPE 3
-#define NUM_SHIELD_ITEMS 2
 #define NUM_DEF 3
 #define MAX_HUNGER 100
 #define MAX_HEALTH 100
-#define MAX_SHIELD 50
 
 enum itemType { WEAPON, DEFENSIVE, CONSUMABLE};
 enum weaponType { FISTS, BAT, KNIFE, GUN};
-enum consumableType { BANDAGES, PAINKILLER, AID_KIT, APPLE, CANNED_BEANS, BURGER, HELMET, VEST};
+enum consumableType { BANDAGES, PAINKILLER, AID_KIT, APPLE, CANNED_BEANS, BURGER};
 enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD};
-enum affectingStat { HEALTH, HUNGER, SHIELD};
+enum affectingStat { HEALTH, HUNGER };
 
 // all classes related to stages
 class Player : public AnimatedEntity{
@@ -30,7 +28,6 @@ public:
 
 	//Inicialisating the statistics
 	int health;
-	int shield;
 	int hunger;
 	int mitigates;
 	int defensive;

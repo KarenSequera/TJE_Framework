@@ -23,11 +23,11 @@ NightStage::NightStage() : Stage()
 	time_between_turns = TIME_BTW_TURNS;
 	to_day = false;
 
-	post_fx = POST_FX;
-	if (post_fx)
+#if POST_FX
 		fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
-	else
+#else
 		fx_shader = nullptr;
+#endif
 
 	resizeOptions(World::inst->window_width, World::inst->window_height);
 
@@ -65,7 +65,6 @@ void NightStage::onEnter() {
 
 void NightStage::onExit()
 {
-	World::inst->applyShields();
 	World::inst->triggerTutorial = false;
 }
 
@@ -73,7 +72,7 @@ void NightStage::onExit()
 void NightStage::render()
 {
 	Shader* shader;
-	if (post_fx) {
+#if POST_FX
 		renderTarget->enable();
 
 		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
@@ -91,9 +90,7 @@ void NightStage::render()
 		glDisable(GL_DEPTH_TEST);
 		renderTarget->ourToViewport(Vector3(in_tutorial ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
-	}
-	else
-	{
+#else
 		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 		shader->enable();
 		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
@@ -105,8 +102,7 @@ void NightStage::render()
 		// render what must be rendered always
 
 		World::inst->renderNight();
-	}
-
+#endif
 	if (in_tutorial)
 	{
 		renderTutorial();

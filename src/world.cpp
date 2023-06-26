@@ -57,7 +57,7 @@ World::World() {
 
 	idle = true;
 	zombie_hurt = 0;
-	number_nights = 0;
+	number_nights = -1;
 
 	//init audio
 	Audio::Init();
@@ -267,13 +267,6 @@ void World::getMeshesToLoad(const char* filename)
 //	Parses a scene from a .scene file
 void World::parseSceneDay()
 {
-	// You could fill the map manually to add shader and texture for each mesh
-	// If the mesh is not in the map, you can use the MTL file to render its colors
-	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
-
-	// Iterate through meshes loaded and create corresponding entities
-	// We have 2 loops with more or less the same code, but this will save us conditionals in the end
-
 	getMeshesToLoad("data/dayScene.scene");
 
 	std::string mesh_name, model_data;
@@ -350,10 +343,6 @@ void World::parseSceneDay()
 //	Parses a scene from a .scene file
 void World::parseSceneNight(const char* filename)
 {
-	// You could fill the map manually to add shader and texture for each mesh
-	// If the mesh is not in the map, you can use the MTL file to render its colors
-	// meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
-
 	std::cout << " + Scene loading: " << filename << "..." << std::endl;
 
 	std::ifstream file(filename);
@@ -400,11 +389,7 @@ void World::hurtPlayer(int damage)
 		player->def_broken = true;
 	}
 
-	int diff = player->shield - dmg;
-	player->affectPlayerStat(SHIELD, dmg, false);
-
-	if (diff < 0)
-		player->affectPlayerStat(HEALTH, -1 * diff, false);
+	player->affectPlayerStat(HEALTH, dmg, false);
 }
 
 void World::playerDefenseOff()
@@ -470,27 +455,11 @@ int World::useConsumable(consumableType consumable)
 	}
 }
 
-void World::applyShields()
-{
-	if (player->shield < MAX_SHIELD)
-	{
-		while (player->consumables[VEST] > 0 && player->shield + consumable_stats[VEST] <= MAX_SHIELD)
-			useConsumable(VEST);
-
-		while (player->consumables[HELMET] > 0 && player->shield + consumable_stats[HELMET] <= MAX_SHIELD)
-			useConsumable(HELMET);
-	}
-}
-
 // DAY  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//	Function that adds one consumable of a specific type to the player's inventory
 void World::getConsumable(consumableType consumable)
 {
-	// If the consumable is a shield, and it cat be added directly to the player's stats, do nothing
-	if (consumable / 3 == SHIELD && player->affectPlayerStat(SHIELD, consumable_stats[consumable], true)) {}
-	// otherwise add one consumable of that type
-	else player->consumables[consumable]++;
-
+	//add one consumable of that type
+	player->consumables[consumable]++;
 }
 
 //	Adds weapon uses of a specific type
@@ -1135,5 +1104,5 @@ void World::resetWorld()
 {
 	frozen = false;
 	player = new Player();
-	number_nights = 0;
+	number_nights = -1;
 }

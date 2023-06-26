@@ -33,18 +33,18 @@ DayStage::DayStage() : Stage() {
 
 	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
 
-	post_fx = POST_FX;
-	if (post_fx)
+#if POST_FX
 		fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
-	else
+#else
 		fx_shader = nullptr;
-
+#endif
 	num_slides = TUT_SLIDES_DAY;
 	getSlides();
 };
 
 void DayStage::onEnter()
 {
+	World::inst->number_nights++;
 	channel = Audio::Play("data/audio/day/day.wav", 0.1f, true);
 	
 	World::inst->clearItems();
@@ -67,7 +67,7 @@ void DayStage::render() {
 
 	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
 	
-	if (post_fx) {
+#if POST_FX
 		renderTarget->enable();
 
 		renderSky();
@@ -80,16 +80,13 @@ void DayStage::render() {
 		glDisable(GL_DEPTH_TEST);
 		renderTarget->ourToViewport(Vector3(in_tutorial ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
-	}
-	else
-	{
+#else
 		renderSky();
 
 		for (auto& entity : World::inst->day_entities) {
 			entity->render();
 		}
-	}
-
+#endif
 	if (in_tutorial)
 		renderTutorial();
 	else
@@ -324,11 +321,11 @@ void DayStage::updateItemsAndStats() {
 		// MENU
 		if (Input::wasButtonPressed(RB_BUTTON))
 		{
-			consumable_selected = consumableType((consumable_selected + 1) % (NUM_CONSUMABLES - NUM_SHIELD_ITEMS));
+			consumable_selected = consumableType(ourMod((consumable_selected + 1), NUM_CONSUMABLES));
 		}
 		else if (Input::wasButtonPressed(LB_BUTTON))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected - 1), NUM_CONSUMABLES));
 		}
 		else if (Input::wasButtonPressed(A_BUTTON))
 		{
@@ -353,11 +350,11 @@ void DayStage::updateItemsAndStats() {
 	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected - 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected - 1), NUM_CONSUMABLES));
 		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_E))
 		{
-			consumable_selected = consumableType(ourMod((consumable_selected + 1), (NUM_CONSUMABLES - NUM_SHIELD_ITEMS)));
+			consumable_selected = consumableType(ourMod((consumable_selected + 1), NUM_CONSUMABLES));
 		}
 
 		// use consumable
