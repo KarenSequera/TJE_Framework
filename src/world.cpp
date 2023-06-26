@@ -65,15 +65,8 @@ World::World() {
 	getSounds();
 
 	// we should trigger the tutorial when there are no previous runs
-	triggerTutorial = !existPreviousRuns();
 	frozen = false;
 
-}
-
-// function that returns whether the player has played  the game before, i.e., if there are any previous runs
-bool World::existPreviousRuns() {
-	std::ifstream file("data/ranking.txt");
-	return file.good();
 }
 
 void World::getSounds() {

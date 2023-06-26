@@ -33,11 +33,8 @@ DayStage::DayStage() : Stage() {
 
 	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
 
-#if POST_FX
-		fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
-#else
-		fx_shader = nullptr;
-#endif
+	fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
+	
 	num_slides = TUT_SLIDES_DAY;
 	getSlides();
 };
@@ -67,25 +64,17 @@ void DayStage::render() {
 
 	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
 	
-#if POST_FX
-		renderTarget->enable();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderSky();
-		for (auto& entity : World::inst->day_entities) {
-			entity->render();
-		}
+	renderTarget->enable();
+	renderSky();
+	for (auto& entity : World::inst->day_entities) {
+		entity->render();
+	}
 
-		renderTarget->disable();
-		glDisable(GL_DEPTH_TEST);
-		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
-		glEnable(GL_DEPTH_TEST);
-#else
-		renderSky();
+	renderTarget->disable();
+	glDisable(GL_DEPTH_TEST);
+	renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+	glEnable(GL_DEPTH_TEST);
 
-		for (auto& entity : World::inst->day_entities) {
-			entity->render();
-		}
-#endif
 	if (in_tutorial)
 		renderTutorial();
 	else
@@ -104,6 +93,7 @@ void DayStage::render() {
 
 void DayStage::renderSky() 
 {
+	glClear(GL_DEPTH_BUFFER_BIT);
 	Matrix44 model;
 	model.setTranslation(camera->eye.x, camera->eye.y, camera->eye.z);
 	glDisable(GL_DEPTH_TEST);

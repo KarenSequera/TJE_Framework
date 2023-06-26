@@ -23,11 +23,8 @@ NightStage::NightStage() : Stage()
 	time_between_turns = TIME_BTW_TURNS;
 	to_day = false;
 
-#if POST_FX
-		fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
-#else
-		fx_shader = nullptr;
-#endif
+	fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
+
 
 	resizeOptions(World::inst->window_width, World::inst->window_height);
 
@@ -72,37 +69,25 @@ void NightStage::onExit()
 void NightStage::render()
 {
 	Shader* shader;
-#if POST_FX
-		renderTarget->enable();
 
-		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-		shader->enable();
-		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	renderTarget->enable();
+
+	shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 	
-		renderBackground(shader);
+	renderBackground(shader);
 	
-		shader->disable();
-		// render what must be rendered always
-		World::inst->renderNight();
-		renderTarget->disable();
+	shader->disable();
+	// render what must be rendered always
+	World::inst->renderNight();
+	renderTarget->disable();
 
-		glDisable(GL_DEPTH_TEST);
-		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
-		glEnable(GL_DEPTH_TEST);
-#else
-		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-		shader->enable();
-		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	glDisable(GL_DEPTH_TEST);
+	renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+	glEnable(GL_DEPTH_TEST);
 
-		renderBackground(shader);
-
-		shader->disable();
-		// render what must be rendered always
-
-		World::inst->renderNight();
-#endif
 	if (in_tutorial)
 	{
 		renderTutorial();

@@ -5,7 +5,6 @@
 #include "rendertotexture.h"
 
 #define RENDER_TARGET_RES 1024
-#define POST_FX true
 #define NUM_STATES_TEXTBOX 3
 
 class Camera;
