@@ -47,7 +47,7 @@ GameOverStage::GameOverStage()
 
 
 void GameOverStage::getRanking() {
-	std::ifstream file("data/ranking.txt");
+	std::ifstream file("data/gameover/ranking.txt");
 	std::string user, nights;
 
 	sRankingInfo this_user;
@@ -57,7 +57,7 @@ void GameOverStage::getRanking() {
 
 	if (!file) {
 		std::cout << "Ranking does not exist. Creating the file..." << std::endl;
-		std::ofstream createFile("data/ranking.txt");
+		std::ofstream createFile("data/gameover/ranking.txt");
 		createFile.close(); 
 	}
 	else {
@@ -105,7 +105,7 @@ void GameOverStage::updateRanking() {
 	if (ranking_pos == -1)
 		return;
 	else {
-		std::ofstream file("data/ranking.txt");
+		std::ofstream file("data/gameover/ranking.txt");
 
 		if (file) {
 			for (auto& info : ranking) {
