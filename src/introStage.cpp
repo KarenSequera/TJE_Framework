@@ -22,11 +22,11 @@ IntroStage::IntroStage()
 
 	resizeOptions(Game::instance->window_width, Game::instance->window_height);
 
-	Texture* start_button = Texture::Get("data/intro/textures/boton_start.tga");
-	Texture* start_button_selected = Texture::Get("data/intro/textures/boton_start_selected.tga");
+	Texture* start_button = Texture::Get("data/quad_textures/intro/boton_start.tga");
+	Texture* start_button_selected = Texture::Get("data/quad_textures/intro/boton_start_selected.tga");
 
-	Texture* exit_button = Texture::Get("data/intro/textures/boton_exit.tga");
-	Texture* exit_button_selected = Texture::Get("data/intro/textures/boton_exit_selected.tga");
+	Texture* exit_button = Texture::Get("data/quad_textures/intro/boton_exit.tga");
+	Texture* exit_button_selected = Texture::Get("data/quad_textures/intro/boton_exit_selected.tga");
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
@@ -56,16 +56,16 @@ void IntroStage::render()
 
 
 	shader->setUniform("u_animated", false);
-	shader->setUniform("u_texture", Texture::Get("data/intro/textures/background.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/intro/background.tga"), 0);
 	World::inst->fullscreen_quad.render(GL_TRIANGLES);
 
-	shader->setUniform("u_texture", Texture::Get("data/intro/textures/logo.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/intro/logo.tga"), 0);
 	logo.render(GL_TRIANGLES);
 
-	shader->setUniform("u_texture", Texture::Get("data/intro/textures/a_to_select.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/intro/a_to_select.tga"), 0);
 	a_to_select.render(GL_TRIANGLES);
 
-	shader->setUniform("u_texture", Texture::Get("data/intro/textures/x_tutorial.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/intro/x_tutorial.tga"), 0);
 	x_tutorial.render(GL_TRIANGLES);
 
 	shader->disable();
