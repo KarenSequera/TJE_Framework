@@ -15,6 +15,8 @@ public:
 	// Menus
 	float window_width;
 	float window_height;
+	int nights_survived;
+
 	Mesh* option_quads[OPTIONS_INTRO_MENU];
 	Vector2 option_uses_pos[OPTIONS_INTRO_MENU];
 
@@ -28,7 +30,8 @@ public:
 	void onEnter();
 	void onExit();
 	void render();
-	void renderNights();
+	void renderNumNights();
+	void renderButtons();
 
 	void update(float dt, bool transitioning);
 

@@ -26,11 +26,11 @@ GameOverStage::GameOverStage()
 
 	resizeOptions(Game::instance->window_width, Game::instance->window_height);
 
-	Texture* start_button = Texture::Get("data/quad_textures/menus/introMenu/PLAY_BUTTON.tga");
-	Texture* start_button_selected = Texture::Get("data/quad_textures/menus/introMenu/PLAY_BUTTON_SELECTED.tga");;
+	Texture* start_button = Texture::Get("data/introTextures/boton_start.tga");
+	Texture* start_button_selected = Texture::Get("data/introTextures/boton_start_selected.tga");
 
-	Texture* exit_button = Texture::Get("data/quad_textures/menus/introMenu/EXIT_BUTTON.tga");
-	Texture* exit_button_selected = Texture::Get("data/quad_textures/menus/introMenu/EXIT_BUTTON_SELECTED.tga");
+	Texture* exit_button = Texture::Get("data/introTextures/boton_exit.tga");
+	Texture* exit_button_selected = Texture::Get("data/introTextures/boton_exit_selected.tga");
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
@@ -39,6 +39,7 @@ GameOverStage::GameOverStage()
 
 void GameOverStage::onEnter()
 {
+	nights_survived = World::inst->number_nights;
 	selected_option = 0;
 	result = updateScores(World::inst->number_nights);
 }
@@ -50,69 +51,76 @@ void GameOverStage::onExit()
 
 void GameOverStage::render()
 {
+	renderNumNights();
+	renderButtons();
+}
+
+
+void GameOverStage::renderNumNights() 
+{
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	shader->setUniform("u_animated", false);
+
+	if (nights_survived == 1 && nights_survived != result.maximumScore) {
+		shader->setUniform("u_texture", Texture::Get("data/gameover/bad_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	else if (nights_survived == result.maximumScore) {
+		shader->setUniform("u_texture", Texture::Get("data/gameover/record_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	else if(result.isInTopThree) {
+		shader->setUniform("u_texture", Texture::Get("data/gameover/good_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	else{
+		shader->setUniform("u_texture", Texture::Get("data/gameover/neutral_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	//Render number nights and maximum score 
+	drawText(World::inst->window_width / 2.05, World::inst->window_height / 4.1, std::to_string(World::inst->number_nights), Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height*0.009);
+
+	//TODO: IF RANKING DELETE
+	drawText(World::inst->window_width / 4, World::inst->window_height / 2,  std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+}
+
+void GameOverStage::renderButtons()
+{
 	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
 	{
 		options[i]->render(selected_option == i, option_quads[i]);
 	}
-	renderNights();
-}
-
-
-void GameOverStage::renderNights() 
-{
-	if (!result.isInTopThree) {
-		if (World::inst->number_nights == 1) {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-		else {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, "You have survived " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-	}
-	else
-	{   
-		if (World::inst->number_nights == 1) {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-		else if (World::inst->number_nights == result.maximumScore) {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " New record!\n " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-		else
-		{
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " That was close! \n " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore) , Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-	}
-	
 }
 
 void GameOverStage::update(float dt, bool transitioning)
 {
 	if (Input::gamepads[0].connected) {
-		if (Input::gamepads[0].didDirectionChanged(FLICK_UP)) {
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+		if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-		}
+
 		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
-		{
+
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
 		else if (Input::wasButtonPressed(A_BUTTON))
 			selectOption();
 
 	}
 	else {
-		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP)) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN)) {
+		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 			selectOption();
 	}
@@ -125,23 +133,21 @@ void  GameOverStage::resizeOptions(float width, float height)
 	float size_y = 100.f * height / 1080;
 	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 0.05 * height;
+	float offset = size_x / 1.7;
 
-	option_uses_pos[0] = Vector2(width/2, 2 * size_y +  offset);
-	option_uses_pos[1] = Vector2(width/2, 1 * size_y);
-
+	option_uses_pos[0] = Vector2(width / 2 - offset, size_y * 1.8);
+	option_uses_pos[1] = Vector2(width / 2 + offset, size_y * 1.8);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
-	
 
 	for (int i = 0; i < 2; i++)
 	{
 		option_uses_pos[i].x += 0.1 * width;
 		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
 	}
-}
 
+}
 
 
 bool GameOverStage::selectOption()
