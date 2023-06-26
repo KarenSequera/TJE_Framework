@@ -29,7 +29,7 @@ World::World() {
 	cur_wave = 0;
 
 	parseSceneDay();
-	parseSpawns("data/spawner.scene");
+	parseSpawns("data/scenes/spawner.scene");
 	parseItemEntities("data/items/info/items.txt");
 	parseZombieInfo("data/characters/zombie_info.txt", z_info);
 
@@ -40,7 +40,7 @@ World::World() {
 	loadSky();
 
 	//ParseNight 
-	parseSceneNight("data/nightScene.scene");
+	parseSceneNight("data/scenes/nightScene.scene");
 	pause_menu = new PauseMenu();
 
 	camera2D = new Camera();
@@ -260,7 +260,7 @@ void World::getMeshesToLoad(const char* filename)
 //	Parses a scene from a .scene file
 void World::parseSceneDay()
 {
-	getMeshesToLoad("data/dayScene.scene");
+	getMeshesToLoad("data/scenes/dayScene.scene");
 
 	std::string mesh_name, model_data;
 	EntityMesh* new_entity;
@@ -299,7 +299,7 @@ void World::parseSceneDay()
 	}
 
 	meshes_to_load.clear();
-	getMeshesToLoad("data/dayFloors.scene");
+	getMeshesToLoad("data/scenes/dayFloors.scene");
 	for (auto data : meshes_to_load) {
 
 		mesh_name = "data/" + data.first;
