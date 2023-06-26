@@ -66,6 +66,7 @@ void NightStage::onEnter() {
 
 void NightStage::onExit()
 {
+	World::inst->number_nights++;
 	World::inst->applyShields();
 	World::inst->triggerTutorial = false;
 	World::inst->number_nights++;
@@ -217,8 +218,6 @@ void NightStage::playerTurnRender() {
 	turns_left.render(GL_TRIANGLES);
 
 	shader->disable();
-
-
 
 	drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(turns_to_day),
 		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
