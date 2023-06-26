@@ -24,7 +24,6 @@ public:
 	int selected_target;
 	int zombie_attacking;
 	Mesh night_hud;
-	Mesh turns_left;
 	void onEnter();
 	void onExit();
 	void render();

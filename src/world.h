@@ -36,6 +36,7 @@ public:
 
 	Mesh fullscreen_quad;
 	Mesh tutorial_quad;
+	Mesh remaining_info_quad;
 	bool triggerTutorial;
 	bool frozen;
 

@@ -31,7 +31,7 @@ NightStage::NightStage() : Stage()
 
 	resizeOptions(World::inst->window_width, World::inst->window_height);
 
-	in_tutorial = true;
+	in_tutorial = false;
 	num_slides = TUT_SLIDES_NIGHT;
 	getSlides();
 }
@@ -150,7 +150,7 @@ void NightStage::renderCrosshair(Shader* shader)
 	quad.createQuad(position.x, position.y, 65.f, 65.f, true);
 
 	shader->setUniform("u_animated", true);
-	shader->setUniform("u_texture",Texture::Get("data/NightTextures/crosshair_anim.tga"), 0);
+	shader->setUniform("u_texture",Texture::Get("data/quad_textures/night/crosshair_anim.tga"), 0);
 	shader->setUniform("u_ratio", 1.f / (float) NUM_STATES_CROSSHAIR);
 	shader->setUniform("u_state", int(Game::instance->time * anim_speed) % NUM_STATES_CROSSHAIR);
 
@@ -183,15 +183,12 @@ void NightStage::renderHealthBars(Shader* shader)
 		ratio = (float)actual_health / total_health;
 
 		renderBar(position, ratio, shader, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT,
-			Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
+			Texture::Get("data/quad_textures/night/redTexture.tga"), Texture::Get("data/quad_textures/night/greenTexture.tga"));
 	}
 	glEnable(GL_DEPTH_TEST);
 }
 
 void NightStage::playerTurnRender() {
-	//drawText(5, 65, "Player's turn ", Vector3(1.0f, 0.75f, 0.0f), 2);
-	drawText(5, 155, "Unlimited everything: " + std::to_string(World::inst->unlimited_everything), Vector3(1.0f, 0.75f, 0.0f), 2);
-
 	// Render menus -> prep options
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
@@ -206,13 +203,12 @@ void NightStage::playerTurnRender() {
 	shader->enable();
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	shader->setUniform("u_texture", Texture::Get("data/NightTextures/turns_left.tga"), 0);
+	shader->setUniform("u_animated", false);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/night/turns_left.tga"), 0);
 
-	turns_left.render(GL_TRIANGLES);
+	World::inst->remaining_info_quad.render(GL_TRIANGLES);
 
 	shader->disable();
-
-
 
 	drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(turns_to_day),
 		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
@@ -229,7 +225,7 @@ void NightStage::renderBackground(Shader* shader)
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	shader->setUniform("u_texture", Texture::Get("data/NightTextures/background.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/night/background.tga"), 0);
 	shader->setUniform("u_animated", false);
 
 	World::inst->fullscreen_quad.render(GL_TRIANGLES);
@@ -244,7 +240,7 @@ void NightStage::renderPlayerStats(Shader* shader)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	shader->setUniform("u_texture", Texture::Get("data/NightTextures/hud_night.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/night/hud_night.tga"), 0);
 	night_hud.render(GL_TRIANGLES);
 
 
@@ -254,12 +250,12 @@ void NightStage::renderPlayerStats(Shader* shader)
 
 	renderBar(position,
 		(float)(World::inst->player->health) / MAX_HEALTH, shader, width, height,
-		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
+		Texture::Get("data/quad_textures/night/redTexture.tga"), Texture::Get("data/quad_textures/night/greenTexture.tga"));
 
 	position = Vector3(Game::instance->window_width * 0.2, Game::instance->window_height * 0.75, 0);
 
 	renderBar(position, (float)(World::inst->player->hunger) / MAX_HUNGER, shader, width, height,
-		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
+		Texture::Get("data/quad_textures/night/grayTexture.tga"), Texture::Get("data/quad_textures/night/orangeTexture.tga"));
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
@@ -531,6 +527,5 @@ void NightStage::resizeOptions(float width, float height) {
 
 	night_hud.createQuad(width * 0.18, height * 0.8, size_x, size_y, true);
 
-	turns_left.createQuad(width * 0.88, height * 0.8, height / 1.8, height / 1.8 * 417 / 2000, true);
 	World::inst->resizeOptions(width, height);
 }

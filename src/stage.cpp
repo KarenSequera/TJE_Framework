@@ -62,7 +62,7 @@ void Stage::renderBar(Vector3 position, float hp_ratio, Shader* shader, float wi
 	quad2.createQuad(position.x - offset, position.y, foreBarWidth, height, true);
 
 	shader->setUniform("u_animated", false);
-	shader->setUniform("u_texture", Texture::Get("data/NightTextures/redTexture.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/night/redTexture.tga"), 0);
 	quad1.render(GL_TRIANGLES);
 
 	shader->setUniform("u_texture", texture_foreground, 0);

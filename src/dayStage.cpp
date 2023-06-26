@@ -92,7 +92,11 @@ void DayStage::render() {
 	else
 	{
 		glDisable(GL_DEPTH_TEST);
+		
 		renderHUD();
+		// render time remaining
+		drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(int(time_remaining)) + "s",
+			Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
 		glEnable(GL_DEPTH_TEST);
 	}
 	
@@ -126,7 +130,7 @@ void DayStage::renderHUD()
 	shader->enable();
 	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/day/hud.tga"), 0);
 	shader->setUniform("u_animated", false);
 
 	// rendering the icons 
@@ -135,7 +139,7 @@ void DayStage::renderHUD()
 	
 	
 	HUD_quad.render(GL_TRIANGLES);
-	shader->setUniform("u_texture", Texture::Get("data/hudDay/hud2.tga"), 0);
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/day/hud2.tga"), 0);
 	shader->setUniform("u_animated", false);
 	instructions_quad.render(GL_TRIANGLES);
 
@@ -146,22 +150,26 @@ void DayStage::renderHUD()
 	
 	renderBar(position,
 		(float)(World::inst->player->health) / MAX_HEALTH , shader, width, height,
-		Texture::Get("data/NightTextures/redTexture.tga"), Texture::Get("data/NightTextures/greenTexture.tga"));
+		Texture::Get("data/quad_textures/night/redTexture.tga"), Texture::Get("data/quad_textures/night/greenTexture.tga"));
 
 	// Rendering Hunger bar
 	position = Vector3(Game::instance->window_width / 1.58, Game::instance->window_width / 8.3, 0);
 	
 	renderBar(position, (float)(World::inst->player->hunger)/MAX_HUNGER, shader, width, height,
-		Texture::Get("data/NightTextures/grayTexture.tga"), Texture::Get("data/NightTextures/orangeTexture.tga"));
+		Texture::Get("data/quad_textures/night/grayTexture.tga"), Texture::Get("data/quad_textures/night/orangeTexture.tga"));
+	
+	// rendering time left
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/day/time_left.tga"), 0);
+	World::inst->remaining_info_quad.render(GL_TRIANGLES);
+	
 	shader->disable();
-
 
 	//Rendering selected option
 	Shader* shader_selected = Shader::Get("data/shaders/quad.vs", "data/shaders/hud.fs");
 	shader_selected->enable();
 	shader_selected->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
 	shader_selected->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	shader_selected->setUniform("u_texture", Texture::Get("data/hudDay/hud_selected.tga"), 0);
+	shader_selected->setUniform("u_texture", Texture::Get("data/quad_textures/day/hud_selected.tga"), 0);
 	shader_selected->setUniform("u_ratio", 1.f/6.f);
 	shader_selected->setUniform("u_selected", (consumable_selected));
 
@@ -178,7 +186,7 @@ void DayStage::renderHUD()
 			std::to_string(World::inst->getConsumableQuant(consumableType(i))), Vector3(1.0f, 1.0f, 1.0f), Game::instance->window_height * 0.003);
 
 	}
-	
+
 	glDisable(GL_BLEND);
 
 }
