@@ -14,6 +14,7 @@ public:
 	Vector2 option_uses_pos[OPTIONS_INTRO_MENU];
 	Mesh logo; 
 	Mesh a_to_select;
+	Mesh x_tutorial;
 	Camera* camera2D;
 
 	std::vector<MenuEntity*> options;
