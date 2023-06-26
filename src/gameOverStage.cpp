@@ -35,14 +35,93 @@ GameOverStage::GameOverStage()
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
 
+	ranking_pos = -1;
 	name = "";
-	
+
+	//TODO: SET THIS TO 0 WHEN MERGING
+	stage = 1;
+
+}
+
+
+void GameOverStage::getRanking() {
+	std::ifstream file("data/ranking.txt");
+	std::string user, nights;
+
+	sRankingInfo this_user;
+
+	int user_idx = 0;
+	int cur_user_nights = 0;
+
+	if (!file) {
+		std::cout << "Ranking does not exist. Creating the file..." << std::endl;
+		std::ofstream createFile("data/ranking.txt");
+		createFile.close(); 
+	}
+	else {
+		std::cout << "Ranking exists. Opening the file for reading..." << std::endl;
+		while ((file >> user >> nights) && (user_idx < NUM_RANKING)) {
+			cur_user_nights = std::stoi(nights);
+
+			if (ranking_pos == -1 && nights_survived > cur_user_nights) {
+				ranking_pos = user_idx;
+				ranking[user_idx].user = "";
+				ranking[user_idx].num_nights = nights_survived;
+
+				user_idx++;
+			}
+
+			ranking[user_idx].user = user;
+			ranking[user_idx].num_nights = cur_user_nights;
+
+			user_idx++;
+		}
+
+		if (user_idx < NUM_RANKING) {
+			if (ranking_pos == -1) {
+				ranking_pos = user_idx;
+				ranking[user_idx].user = "";
+				ranking[user_idx].num_nights = nights_survived;
+
+				user_idx++;
+			}
+
+			for (user_idx; user_idx < NUM_RANKING; user_idx++) {
+				ranking[user_idx].user = "";
+				ranking[user_idx].num_nights = -1;
+			}
+		}
+	}
+
+	file.close();
+}
+
+void GameOverStage::updateRanking() {
+	if (ranking_pos == -1)
+		return;
+	else {
+		std::ofstream file("data/ranking.txt");
+
+		if (file) {
+			for (auto& info : ranking) {
+				file << info.user << " " << info.num_nights << std::endl;
+			}
+		}
+		else {
+			std::cout << "Error opening the ranking." << std::endl;
+			exit(-1);
+		}
+
+		file.close();
+	}
 }
 
 void GameOverStage::onEnter()
 {
-	//selected_option = 0;
-	result = updateScores(World::inst->number_nights);
+	//TODO: UNCOMMENT THIS
+	//nights_survived = World::inst->number_nights;
+	nights_survived = 10;
+	getRanking();
 }
 
 void GameOverStage::onExit()
@@ -52,40 +131,35 @@ void GameOverStage::onExit()
 
 void GameOverStage::render()
 {
-	drawText(World::inst->window_width / 4, World::inst->window_height / 5, "Enter your name (max 15 characters):", Vector3(1.0f, 1.0f, 1.0f), 4);
-	drawText(World::inst->window_width / 4, 3 * World::inst->window_height / 5, name, Vector3(1.0f, 1.0f, 1.0f), 4);
-}
+	if (stage == 1) {
+		drawText(World::inst->window_width / 4, World::inst->window_height / 5, "Enter your name (max 15 characters):", Vector3(1.0f, 1.0f, 1.0f), 4);
+		drawText(World::inst->window_width / 4, 3 * World::inst->window_height / 5, name, Vector3(1.0f, 1.0f, 1.0f), 4);
+	}
+	else {
+		Vector3 white = Vector3(1.f);
+		Vector3 yellow = Vector3(0.8, 0.8, 0.0);
 
+		int offset_y = 50;
+		int offset_x = 150;
 
-void GameOverStage::renderNights() 
-{
-	if (!result.isInTopThree) {
-		if (World::inst->number_nights == 1) {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-		else {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, "You have survived " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
+		int num_nights = -1;
+
+		for (int i = 0; i < NUM_RANKING; i++) {
+			num_nights = ranking[i].num_nights;
+			drawText(World::inst->window_width / 8, World::inst->window_height / 6 + offset_y * i, std::to_string(i+1) + ". ", ranking_pos == i ? yellow : white, 3);
+			
+			if(num_nights > 0){
+				drawText(World::inst->window_width / 8 + offset_x / 2, World::inst->window_height / 6 + offset_y * i, ranking[i].user, ranking_pos == i ? yellow : white, 3);
+				drawText(World::inst->window_width / 8 + 3 * offset_x, World::inst->window_height / 6 + offset_y * i, std::to_string(num_nights), ranking_pos == i ? yellow : white, 3);
+			}
+			else {
+				drawText(World::inst->window_width / 8 + offset_x, World::inst->window_height / 6 + offset_y * i, "---", ranking_pos == i ? yellow : white, 3);
+			}
+			
 		}
 	}
-	else
-	{   
-		if (World::inst->number_nights == 1) {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " So lame! \n You have survived " + std::to_string(World::inst->number_nights) + " night only!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-		else if (World::inst->number_nights == result.maximumScore) {
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " New record!\n " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-		else
-		{
-			drawText(World::inst->window_width / 4, World::inst->window_height / 5, " That was close! \n " + std::to_string(World::inst->number_nights) + " nights!", Vector3(1.0f, 1.0f, 1.0f), 2);
-			drawText(World::inst->window_width / 4, World::inst->window_height / 2, " Record: \n " + std::to_string(result.maximumScore) , Vector3(1.0f, 1.0f, 1.0f), 2);
-		}
-	}
-	
 }
+
 
 void GameOverStage::update(float dt, bool transitioning)
 {
@@ -95,34 +169,47 @@ const char* key_name;
 //Keyboard event handler (sync input)
 void GameOverStage::onKeyDown(SDL_KeyboardEvent event)
 {
-	if (name.size() >= MAX_NAME_SIZE) {
-		Audio::Play("data/audio/error.wav", 1.f, false);
+	if (stage != 1)
 		return;
-	}
 
 	SDL_Keycode keyCode = event.keysym.sym;
 
-	if (keyCode == SDLK_SPACE)
-		name.push_back(' ');
-	else if ((keyCode >= SDLK_a && keyCode <= SDLK_z) ||
-		(keyCode >= SDLK_0 && keyCode <= SDLK_9) ||
-		(keyCode >= SDLK_KP_1 && keyCode <= SDLK_KP_9 &&
-			!event.keysym.mod & KMOD_SHIFT))
-	{
-		const char* keyName = SDL_GetKeyName(keyCode);
-
-		if (keyName != nullptr) {
-			name.push_back(keyName[0]);
-		}
-	}
-	else if (keyCode == SDLK_BACKSPACE) {
+	if (keyCode == SDLK_BACKSPACE) {
 		if (!name.empty())
 			name.pop_back();
 	}
-	else
-	{
-		Audio::Play("data/audio/error.wav", 1.f, false);
+	else if (keyCode == SDLK_RETURN) {
+		if (name.size()) {
+			ranking[ranking_pos].user = name;
+			updateRanking();
+			stage++;
+		}
+		else {
+			Audio::Play("data/audio/error.wav", 1.f, false);
+		}
 	}
+	else if (name.size() >= MAX_NAME_SIZE)
+		Audio::Play("data/audio/error.wav", 1.f, false);
+
+	else {
+		if (keyCode == SDLK_SPACE)
+			name.push_back('_');
+		else if ((keyCode >= SDLK_a && keyCode <= SDLK_z) ||
+			(keyCode >= SDLK_0 && keyCode <= SDLK_9) ||
+			(keyCode >= SDLK_KP_1 && keyCode <= SDLK_KP_9 &&
+				!event.keysym.mod & KMOD_SHIFT))
+		{
+			const char* keyName = SDL_GetKeyName(keyCode);
+
+			if (keyName != nullptr) {
+				name.push_back(keyName[0]);
+			}
+		}
+		else {
+			Audio::Play("data/audio/error.wav", 1.f, false);
+		}
+	}
+	
 
 }
 
@@ -162,50 +249,4 @@ bool GameOverStage::selectOption()
 			exit(0);
 			break;
 	}
-}
-
-ScoreUpdateResult GameOverStage::updateScores(int number_nights)
-{
-	ScoreUpdateResult result;
-
-	// Open the file for input
-	std::ifstream inputFile("data/gameover/runs.txt");
-
-	std::vector<int> scores(3, 0);  // Vector to store the top 3 runs
-
-	// Read the runs from the file
-	for (int i = 0; i < 3; i++) {
-		inputFile >> scores[i];
-	}
-
-	inputFile.close();
-
-	// The runs are sorted in ascending order, TOP 3 is in the first line
-
-	// If the number of nights of the current run is greater than the top 3, it enters the ranking
-	if (number_nights > scores[0])
-	{
-		scores[0] = number_nights;
-		std::sort(scores.begin(), scores.end());
-
-		// Open the file for output
-		std::ofstream outputFile("data/gameover/runs.txt");
-
-		// Now we write the updated scores to the file
-		for (int i = 0; i < 3; i++) {
-			outputFile << scores[i] << '\n';
-		}
-
-		outputFile.close();
-
-		result.isInTopThree = true;
-	}
-	else {
-		result.isInTopThree = false;
-	}
-
-	// Get the maximum score
-	result.maximumScore = *std::max_element(scores.begin(), scores.end());
-	// We return the top 3 scores.
-	return result;
 }

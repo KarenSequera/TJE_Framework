@@ -72,7 +72,7 @@ World::World() {
 
 // function that returns whether the player has played  the game before, i.e., if there are any previous runs
 bool World::existPreviousRuns() {
-	std::ifstream file("data/gameover/runs.txt");
+	std::ifstream file("data/ranking.txt");
 	return file.good();
 }
 

@@ -3,9 +3,11 @@
 #define OPTIONS_INTRO_MENU 2
 #define MAX_NAME_SIZE 15
 
-struct ScoreUpdateResult {
-	int maximumScore;
-	bool isInTopThree;
+#define NUM_RANKING 10
+
+struct sRankingInfo {
+	std::string user;
+	int num_nights;
 };
 
 class GameOverStage : public Stage {
@@ -16,6 +18,7 @@ public:
 	// Menus
 	float window_width;
 	float window_height;
+	int ranking_pos;
 	Mesh* option_quads[OPTIONS_INTRO_MENU];
 	Vector2 option_uses_pos[OPTIONS_INTRO_MENU];
 
@@ -25,13 +28,14 @@ public:
 
 	std::vector<MenuEntity*> options;
 
-	ScoreUpdateResult result;
+	int nights_survived;
+	int stage;
+	sRankingInfo ranking[NUM_RANKING];
 
 	int selected_option;
 	void onEnter();
 	void onExit();
 	void render();
-	void renderNights();
 
 	void update(float dt, bool transitioning);
 
@@ -39,6 +43,7 @@ public:
 
 	void resizeOptions(float width, float height);
 	bool selectOption();
-	ScoreUpdateResult updateScores(int number_nights);
+	void getRanking();
+	void updateRanking();
 };
 
