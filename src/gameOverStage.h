@@ -35,7 +35,9 @@ public:
 	void onExit();
 	void render();
 
-	void renderNumNights();
+	Texture* getEndingTexture();
+
+	void renderBackground(Texture* texture);
 
 	void renderButtons();
 

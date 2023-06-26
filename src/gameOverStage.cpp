@@ -65,12 +65,15 @@ void GameOverStage::getRanking() {
 		while ((file >> user >> nights) && (user_idx < NUM_RANKING)) {
 			cur_user_nights = std::stoi(nights);
 
-			if (ranking_pos == -1 && nights_survived > cur_user_nights) {
+			if (ranking_pos == -1 && nights_survived >= cur_user_nights) {
 				ranking_pos = user_idx;
 				ranking[user_idx].user = "";
 				ranking[user_idx].num_nights = nights_survived;
 
 				user_idx++;
+
+				if (user_idx >= NUM_RANKING)
+					break;
 			}
 
 			ranking[user_idx].user = user;
@@ -120,9 +123,7 @@ void GameOverStage::updateRanking() {
 
 void GameOverStage::onEnter()
 {
-	//TODO: UNCOMMENT THIS
-	//nights_survived = World::inst->number_nights;
-	nights_survived = 10;
+	nights_survived = World::inst->number_nights;
 	getRanking();
 }
 
@@ -137,31 +138,33 @@ void GameOverStage::render()
 	Vector3 yellow = Vector3(0.8, 0.8, 0.0);
 
 	int offset_y = 50;
-	int offset_x = 150;
+	int offset_x = 300;
 
 	int num_nights = -1;
 
 	switch (stage) {
 		case 0:
-			renderNumNights();
+			renderBackground(getEndingTexture());
+			//Render number nights
+			drawText(World::inst->window_width / 2.15f, World::inst->window_height / 4.1, std::to_string(nights_survived), Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.009);
+
 			break;
 		case 1:
-			//TODO: CHANGE
-			drawText(World::inst->window_width / 8, World::inst->window_height / 5, "Congrats, you are in the ranking!", Vector3(1.0f, 1.0f, 1.0f), 3);
-			drawText(World::inst->window_width / 8, 2 * World::inst->window_height / 5, "Enter your name (max 15 chars):", Vector3(1.0f, 1.0f, 1.0f), 3);
-			drawText(World::inst->window_width / 4, 3 * World::inst->window_height / 5, name, Vector3(1.0f, 1.0f, 1.0f), 8);
+			renderBackground(Texture::Get("data/gameover/enter_name.tga"));
+			drawText(World::inst->window_width / 4, 3 * World::inst->window_height / 5, name, Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.01f);
 			break;
 		case 2:
+			renderBackground(Texture::Get("data/gameover/bg.tga"));
 			for (int i = 0; i < NUM_RANKING; i++) {
 				num_nights = ranking[i].num_nights;
-				drawText(World::inst->window_width / 8, World::inst->window_height / 6 + offset_y * i, std::to_string(i + 1) + ". ", ranking_pos == i ? yellow : white, 3);
+				drawText(World::inst->window_width / 4, World::inst->window_height / 6 + offset_y * i, std::to_string(i + 1) + ". ", ranking_pos == i ? yellow : white, World::inst->window_height * 0.004);
 
 				if (num_nights > 0) {
-					drawText(World::inst->window_width / 8 + offset_x / 2, World::inst->window_height / 6 + offset_y * i, ranking[i].user, ranking_pos == i ? yellow : white, 3);
-					drawText(World::inst->window_width / 8 + 3 * offset_x, World::inst->window_height / 6 + offset_y * i, std::to_string(num_nights), ranking_pos == i ? yellow : white, 3);
+					drawText(World::inst->window_width / 4 + offset_x / 2, World::inst->window_height / 6 + offset_y * i, ranking[i].user, ranking_pos == i ? yellow : white, World::inst->window_height * 0.004);
+					drawText(World::inst->window_width / 4 + 3 * offset_x, World::inst->window_height / 6 + offset_y * i, std::to_string(num_nights), ranking_pos == i ? yellow : white, World::inst->window_height * 0.004);
 				}
 				else {
-					drawText(World::inst->window_width / 8 + offset_x, World::inst->window_height / 6 + offset_y * i, "---", ranking_pos == i ? yellow : white, 3);
+					drawText(World::inst->window_width / 4 + offset_x, World::inst->window_height / 6 + offset_y * i, "---", ranking_pos == i ? yellow : white, 3);
 				}
 			}
 			renderButtons();
@@ -171,47 +174,45 @@ void GameOverStage::render()
 	}
 }
 
-void GameOverStage::renderNumNights() 
-{
-	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-	shader->enable();
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+Texture* GameOverStage::getEndingTexture() {
+	if (nights_survived == 0 && ranking_pos != -1)
+		return Texture::Get("data/gameover/bad_ending.tga");
+	else if (ranking_pos < 3)
+		return Texture::Get("data/gameover/good_ending.tga");
+	else
+		return Texture::Get("data/gameover/neutral_ending.tga");
+}
 
+void GameOverStage::renderBackground(Texture* texture) 
+{
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	shader->setUniform("u_animated", false);
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+	shader->setUniform("u_texture", texture, 0);
 
-	if (nights_survived == 0 && ranking_pos != -1) {
-		shader->setUniform("u_texture", Texture::Get("data/gameover/bad_ending.tga"), 0);
-		World::inst->fullscreen_quad.render(GL_TRIANGLES);
-	}
-	else if (ranking_pos == 0) {
-		shader->setUniform("u_texture", Texture::Get("data/gameover/record_ending.tga"), 0);
-		World::inst->fullscreen_quad.render(GL_TRIANGLES);
-	}
-	else if(ranking_pos < 3) {
-		shader->setUniform("u_texture", Texture::Get("data/gameover/good_ending.tga"), 0);
-		World::inst->fullscreen_quad.render(GL_TRIANGLES);
-	}
-	else{
-		shader->setUniform("u_texture", Texture::Get("data/gameover/neutral_ending.tga"), 0);
-		World::inst->fullscreen_quad.render(GL_TRIANGLES);
-	}
-	//Render number nights and maximum score 
-	drawText(World::inst->window_width / 2.f, World::inst->window_height / 4.1, std::to_string(nights_survived), Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height*0.009);
+	World::inst->fullscreen_quad.render(GL_TRIANGLES);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
 }
 
 void GameOverStage::renderButtons()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
 	{
 		options[i]->render(selected_option == i, option_quads[i]);
 	}
+	glDisable(GL_BLEND);
 }
 
 void GameOverStage::update(float dt, bool transitioning)
