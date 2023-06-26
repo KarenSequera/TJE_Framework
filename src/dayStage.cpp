@@ -88,7 +88,6 @@ void DayStage::render() {
 		glEnable(GL_DEPTH_TEST);
 	}
 	
-
 }
 
 void DayStage::renderSky() 

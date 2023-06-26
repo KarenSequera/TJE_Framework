@@ -20,8 +20,6 @@ public:
 	float window_height;
 	int ranking_pos;
 	Mesh* option_quads[OPTIONS_INTRO_MENU];
-	Vector2 option_uses_pos[OPTIONS_INTRO_MENU];
-
 
 	std::string name;
 	Camera* camera2D;
@@ -36,6 +34,10 @@ public:
 	void onEnter();
 	void onExit();
 	void render();
+
+	void renderNumNights();
+
+	void renderButtons();
 
 	void update(float dt, bool transitioning);
 
