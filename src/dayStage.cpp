@@ -96,7 +96,7 @@ void DayStage::renderSky()
 	Matrix44 model;
 	model.setTranslation(camera->eye.x, camera->eye.y, camera->eye.z);
 	glDisable(GL_DEPTH_TEST);
-	Mesh* cubemap = Mesh::Get("data/cubemap/cubemap.ASE");
+	Mesh* cubemap = Mesh::Get("data/day/cubemap/cubemap.ASE");
 	Shader* shader = Shader::Get("data/shaders/basic.vs","data/shaders/cubemap.fs");
 	shader->enable();
 	shader->setUniform("u_model", model);
