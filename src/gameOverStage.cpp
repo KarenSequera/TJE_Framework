@@ -26,11 +26,11 @@ GameOverStage::GameOverStage()
 
 	resizeOptions(Game::instance->window_width, Game::instance->window_height);
 
-	Texture* start_button = Texture::Get("data/quad_textures/menus/introMenu/PLAY_BUTTON.tga");
-	Texture* start_button_selected = Texture::Get("data/quad_textures/menus/introMenu/PLAY_BUTTON_SELECTED.tga");;
+	Texture* start_button = Texture::Get("data/introTextures/boton_start.tga");
+	Texture* start_button_selected = Texture::Get("data/introTextures/boton_start_selected.tga");
 
-	Texture* exit_button = Texture::Get("data/quad_textures/menus/introMenu/EXIT_BUTTON.tga");
-	Texture* exit_button_selected = Texture::Get("data/quad_textures/menus/introMenu/EXIT_BUTTON_SELECTED.tga");
+	Texture* exit_button = Texture::Get("data/introTextures/boton_exit.tga");
+	Texture* exit_button_selected = Texture::Get("data/introTextures/boton_exit_selected.tga");
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
@@ -144,25 +144,65 @@ void GameOverStage::render()
 
 		int num_nights = -1;
 
-		for (int i = 0; i < NUM_RANKING; i++) {
-			num_nights = ranking[i].num_nights;
-			drawText(World::inst->window_width / 8, World::inst->window_height / 6 + offset_y * i, std::to_string(i+1) + ". ", ranking_pos == i ? yellow : white, 3);
-			
-			if(num_nights > 0){
-				drawText(World::inst->window_width / 8 + offset_x / 2, World::inst->window_height / 6 + offset_y * i, ranking[i].user, ranking_pos == i ? yellow : white, 3);
-				drawText(World::inst->window_width / 8 + 3 * offset_x, World::inst->window_height / 6 + offset_y * i, std::to_string(num_nights), ranking_pos == i ? yellow : white, 3);
-			}
-			else {
-				drawText(World::inst->window_width / 8 + offset_x, World::inst->window_height / 6 + offset_y * i, "---", ranking_pos == i ? yellow : white, 3);
-			}
-			
-		}
+
+void GameOverStage::renderNumNights() 
+{
+	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+	shader->enable();
+	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	shader->setUniform("u_animated", false);
+
+	if (nights_survived == 1 && nights_survived != result.maximumScore) {
+		shader->setUniform("u_texture", Texture::Get("data/gameover/bad_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	else if (nights_survived == result.maximumScore) {
+		shader->setUniform("u_texture", Texture::Get("data/gameover/record_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	else if(result.isInTopThree) {
+		shader->setUniform("u_texture", Texture::Get("data/gameover/good_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	else{
+		shader->setUniform("u_texture", Texture::Get("data/gameover/neutral_ending.tga"), 0);
+		World::inst->fullscreen_quad.render(GL_TRIANGLES);
+	}
+	//Render number nights and maximum score 
+	drawText(World::inst->window_width / 2.05, World::inst->window_height / 4.1, std::to_string(World::inst->number_nights), Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height*0.009);
+
+	//TODO: IF RANKING DELETE
+	drawText(World::inst->window_width / 4, World::inst->window_height / 2,  std::to_string(result.maximumScore), Vector3(1.0f, 1.0f, 1.0f), 2);
+
+}
+
+void GameOverStage::renderButtons()
+{
+	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
+	{
+		options[i]->render(selected_option == i, option_quads[i]);
 	}
 }
 
-
 void GameOverStage::update(float dt, bool transitioning)
 {
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
+		changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
+	else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
+		changeOption(1, selected_option, OPTIONS_INTRO_MENU);
+	else if (Input::wasKeyPressed(SDL_SCANCODE_C))
+		selectOption();
+		}
+
 }
 
 const char* key_name;
@@ -200,17 +240,6 @@ void GameOverStage::onKeyDown(SDL_KeyboardEvent event)
 				!event.keysym.mod & KMOD_SHIFT))
 		{
 			const char* keyName = SDL_GetKeyName(keyCode);
-
-			if (keyName != nullptr) {
-				name.push_back(keyName[0]);
-			}
-		}
-		else {
-			Audio::Play("data/audio/error.wav", 1.f, false);
-		}
-	}
-	
-
 }
 
 
@@ -220,23 +249,21 @@ void  GameOverStage::resizeOptions(float width, float height)
 	float size_y = 100.f * height / 1080;
 	float size_x = size_y * 350.f / 100.f;
 
-	float offset = 0.05 * height;
+	float offset = size_x / 1.7;
 
-	option_uses_pos[0] = Vector2(width/2, 2 * size_y +  offset);
-	option_uses_pos[1] = Vector2(width/2, 1 * size_y);
-
+	option_uses_pos[0] = Vector2(width / 2 - offset, size_y * 1.8);
+	option_uses_pos[1] = Vector2(width / 2 + offset, size_y * 1.8);
 
 	option_quads[0]->createQuad(option_uses_pos[0].x, option_uses_pos[0].y, size_x, size_y, true);
 	option_quads[1]->createQuad(option_uses_pos[1].x, option_uses_pos[1].y, size_x, size_y, true);
-	
 
 	for (int i = 0; i < 2; i++)
 	{
 		option_uses_pos[i].x += 0.1 * width;
 		option_uses_pos[i].y = height - option_uses_pos[i].y + 10;
 	}
-}
 
+}
 
 
 bool GameOverStage::selectOption()

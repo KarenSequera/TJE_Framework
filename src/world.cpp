@@ -1096,6 +1096,7 @@ void World::renderNight()
 
 void World::resetWorld()
 {
+	triggerTutorial = false;
 	frozen = false;
 	player = new Player();
 	number_nights = -1;

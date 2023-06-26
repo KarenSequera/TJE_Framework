@@ -64,6 +64,9 @@ void IntroStage::render()
 	shader->setUniform("u_texture", Texture::Get("data/introTextures/a_to_select.tga"), 0);
 	a_to_select.render(GL_TRIANGLES);
 
+	shader->setUniform("u_texture", Texture::Get("data/introTextures/x_tutorial.tga"), 0);
+	x_tutorial.render(GL_TRIANGLES);
+
 	shader->disable();
 
 
@@ -73,28 +76,42 @@ void IntroStage::render()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+
+	if (World::inst->triggerTutorial) {
+		drawText(World::inst->window_width / 2 + World::inst->window_height * 0.3, World::inst->window_height*0.9105,
+			"on", Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.004);
+	}
+	else {
+		drawText(World::inst->window_width / 2 + World::inst->window_height * 0.3, World::inst->window_height*0.9105,
+			"off", Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.004);
+	}
+	
 }
 
 void IntroStage::update(float dt, bool transitioning)
 {
 	if (Input::gamepads[0].connected) {
-		if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT)) 
+		if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-		
+
 		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
-		
+
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
 		else if (Input::wasButtonPressed(A_BUTTON))
 			selectOption();
-
+		else if (Input::wasButtonPressed(X_BUTTON))
+			World::inst->triggerTutorial = !World::inst->triggerTutorial;
 	}
 	else {
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT)) 
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT)) 
+		else if (Input::wasKeyPressed(SDL_SCANCODE_D) || Input::wasKeyPressed(SDL_SCANCODE_RIGHT))
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
 		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
 			selectOption();
+		else if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
+			World::inst->triggerTutorial = !World::inst->triggerTutorial;
+		}
 	}
 }
 
@@ -119,7 +136,9 @@ void  IntroStage::resizeOptions(float width, float height)
 	}
 
 	logo.createQuad(World::inst->window_width / 2, World::inst->window_height / 1.7, World::inst->window_height / 1.2, World::inst->window_height / 1.2, true);
-	a_to_select.createQuad(width / 2, size_y/1.3, size_x, size_y, true);
+	a_to_select.createQuad(width / 2 - offset, size_y/1.3, size_x, size_y, true);
+	x_tutorial.createQuad(width / 2 + offset, size_y / 1.3, size_x, size_y, true);
+
 }
 
 bool IntroStage::selectOption()

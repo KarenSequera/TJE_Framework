@@ -34,6 +34,7 @@ NightStage::NightStage() : Stage()
 }
 
 void NightStage::onEnter() {
+	
 	channel = Audio::Play("data/audio/night/night.wav", 0.05f, true);
 
 	// position the player
@@ -63,6 +64,7 @@ void NightStage::onEnter() {
 void NightStage::onExit()
 {
 	World::inst->triggerTutorial = false;
+	World::inst->number_nights++;
 }
 
 
