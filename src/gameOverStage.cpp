@@ -34,12 +34,14 @@ GameOverStage::GameOverStage()
 
 	options.push_back(new MenuEntity(start_button, start_button_selected));
 	options.push_back(new MenuEntity(exit_button, exit_button_selected));
+
+	name = "";
 	
 }
 
 void GameOverStage::onEnter()
 {
-	selected_option = 0;
+	//selected_option = 0;
 	result = updateScores(World::inst->number_nights);
 }
 
@@ -50,11 +52,8 @@ void GameOverStage::onExit()
 
 void GameOverStage::render()
 {
-	for (int i = 0; i < OPTIONS_INTRO_MENU; i++)
-	{
-		options[i]->render(selected_option == i, option_quads[i]);
-	}
-	renderNights();
+	drawText(World::inst->window_width / 4, World::inst->window_height / 5, "Enter your name (max 15 characters):", Vector3(1.0f, 1.0f, 1.0f), 4);
+	drawText(World::inst->window_width / 4, 3 * World::inst->window_height / 5, name, Vector3(1.0f, 1.0f, 1.0f), 4);
 }
 
 
@@ -90,32 +89,41 @@ void GameOverStage::renderNights()
 
 void GameOverStage::update(float dt, bool transitioning)
 {
-	if (Input::gamepads[0].connected) {
-		if (Input::gamepads[0].didDirectionChanged(FLICK_UP)) {
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-		}
-		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
-		{
-			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
-		else if (Input::wasButtonPressed(A_BUTTON))
-			selectOption();
+}
 
+const char* key_name;
+//Keyboard event handler (sync input)
+void GameOverStage::onKeyDown(SDL_KeyboardEvent event)
+{
+	if (name.size() >= MAX_NAME_SIZE) {
+		Audio::Play("data/audio/error.wav", 1.f, false);
+		return;
 	}
-	else {
-		if (Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_UP)) {
-			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
+
+	SDL_Keycode keyCode = event.keysym.sym;
+
+	if (keyCode == SDLK_SPACE)
+		name.push_back(' ');
+	else if ((keyCode >= SDLK_a && keyCode <= SDLK_z) ||
+		(keyCode >= SDLK_0 && keyCode <= SDLK_9) ||
+		(keyCode >= SDLK_KP_1 && keyCode <= SDLK_KP_9 &&
+			!event.keysym.mod & KMOD_SHIFT))
+	{
+		const char* keyName = SDL_GetKeyName(keyCode);
+
+		if (keyName != nullptr) {
+			name.push_back(keyName[0]);
 		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_DOWN)) {
-			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
-			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
-		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_C))
-			selectOption();
 	}
+	else if (keyCode == SDLK_BACKSPACE) {
+		if (!name.empty())
+			name.pop_back();
+	}
+	else
+	{
+		Audio::Play("data/audio/error.wav", 1.f, false);
+	}
+
 }
 
 

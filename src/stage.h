@@ -40,5 +40,7 @@ public:
 	void renderTutorial();
 	void updateTutorial();
 	void renderBar(Vector3 position, float hp_ratio, Shader* shader, float width,
-		float height, Texture* texture_background, Texture* texture_foreground);
+	float height, Texture* texture_background, Texture* texture_foreground);
+
+	virtual void onKeyDown(SDL_KeyboardEvent event) {};
 };

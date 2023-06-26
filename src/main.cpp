@@ -15,6 +15,7 @@
 #include "utils.h"
 #include "input.h"
 #include "game.h"
+#include "stageManager.h"
 
 #include <iostream> //to output
 
@@ -120,6 +121,7 @@ void mainLoop()
 				break;
 			case SDL_KEYDOWN:
 				game->onKeyDown(sdlEvent.key);
+				game->stage_manager->cur_stage->onKeyDown(sdlEvent.key);
 				break;
 			case SDL_KEYUP:
 				game->onKeyUp(sdlEvent.key);
