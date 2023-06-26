@@ -88,7 +88,7 @@ void NightStage::render()
 		renderTarget->disable();
 
 		glDisable(GL_DEPTH_TEST);
-		renderTarget->ourToViewport(Vector3(in_tutorial ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
 #else
 		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");

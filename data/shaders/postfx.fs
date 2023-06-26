@@ -4,7 +4,7 @@ uniform sampler2D u_texture;
 uniform vec3 u_options;
 
 #define CONTRAST 1.2
-#define ABERRATION_OFFSET 0.005
+#define ABERRATION_OFFSET 0.01
 
 vec3 colorCorrection(vec3 c_in){
 	vec3 color = c_in;

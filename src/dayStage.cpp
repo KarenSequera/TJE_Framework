@@ -69,16 +69,15 @@ void DayStage::render() {
 	
 #if POST_FX
 		renderTarget->enable();
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		renderSky();
-
 		for (auto& entity : World::inst->day_entities) {
 			entity->render();
 		}
 
 		renderTarget->disable();
 		glDisable(GL_DEPTH_TEST);
-		renderTarget->ourToViewport(Vector3(in_tutorial ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
 #else
 		renderSky();
@@ -201,6 +200,9 @@ void DayStage::update(float dt, bool transitioning) {
 			if (Input::wasButtonPressed(Y_BUTTON) || Input::wasKeyPressed(SDL_SCANCODE_P)) {
 				Audio::Play("data/audio/messages/appear.wav", 1.f, false);
 				World::inst->frozen = !World::inst->frozen;
+			}
+			else if(Input::wasKeyPressed(SDL_SCANCODE_M)) {
+				mouse_locked = !mouse_locked;
 			}
 			
 			if (!World::inst->frozen) {
