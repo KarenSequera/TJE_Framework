@@ -11,7 +11,7 @@ Player::Player() {
 	def_broken = false;
 	// Render related
 	mesh = Mesh::Get("data/characters/character.MESH");
-	texture = Texture::Get("data/characters/player.tga");
+	texture = Texture::Get("data/characters/textures/player.tga");
 	shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
 
 	anim_manager = new AnimationManager();
