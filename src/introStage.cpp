@@ -38,7 +38,9 @@ void IntroStage::onEnter()
 	selected_option = 0;
 }
 
-void IntroStage::onExit(){}
+void IntroStage::onExit(){
+	World::inst->was_tutorial_triggered = World::inst->triggerTutorial;
+}
 
 void IntroStage::render()
 {

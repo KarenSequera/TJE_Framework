@@ -54,7 +54,6 @@ void DayStage::onEnter()
 		Audio::PlayDelayed("data/audio/messages/appear.wav", 1.f, 0.6f, 0, 0.f);
 		in_tutorial = true;
 	}
-	World::inst->was_tutorial_triggered = World::inst->triggerTutorial;
 }
 
 void DayStage::onExit()
