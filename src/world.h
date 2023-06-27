@@ -6,7 +6,7 @@
 
 
 #define MAX_ITEM_DIST 1000
-#define DIFICULTY_LEVELS 4
+#define DIFICULTY_LEVELS 10
 #define NUM_ZOMBIES_WAVE 3
 #define HURT_SOUNDS 5
 
@@ -74,9 +74,16 @@ public:
 		{1,0,0,0},
 		{0,1,0,0},
 		{0,0,1,0},
-		{0,0,0,1}
+		{0,0,0,1},
+		{0.25,0.25,0.25,0.25},
+		{0.25,0.25,0.25,0.25},
+		{0.15,0.35,0.25,0.25},
+		{0.1,0.4,0.25,0.25},
+		{0.1,0.2,0.45,0.25},
+		{0.1,0.2,0.3,0.4}
 	};
 
+	bool was_tutorial_triggered;
 	//Night variables 
 	std::vector<std::vector<ZombieEntity*>> waves;
 	int cur_wave;

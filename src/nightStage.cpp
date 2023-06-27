@@ -151,7 +151,7 @@ void NightStage::renderHealthBars(Shader* shader)
 	glDisable(GL_DEPTH_TEST);
 	Matrix44 model;
 	Vector3 position;
-	int total_health = MAX_HEALTH;
+	int total_health;
 	int actual_health;
 	float ratio;
 
@@ -366,8 +366,6 @@ void NightStage::playerTurnUpdate(float dt)
 			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
 				int result = World::inst->hurtZombie(selected_target);
-
-
 
 				// if the attack is not super effective then we move onto the zombie's turn
 				if (result != 2)

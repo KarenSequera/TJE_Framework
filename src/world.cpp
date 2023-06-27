@@ -66,6 +66,7 @@ World::World() {
 
 	// we should trigger the tutorial when there are no previous runs
 	frozen = false;
+	was_tutorial_triggered = triggerTutorial;
 
 }
 
@@ -667,8 +668,8 @@ void World::generateZombies(int num_night)
 	std::uniform_int_distribution<int> distribution(0, 100);
 
 	int idle_anim = distribution(gen);
-
-	int idx = min(num_night, DIFICULTY_LEVELS-1);
+	int offset = 4 * !was_tutorial_triggered;
+	int idx = min(num_night + offset, DIFICULTY_LEVELS-1);
 	float probability[NUM_ZOMBIE_TYPES];
 	memcpy(probability, zombies_probabilities[idx], sizeof(probability));
 

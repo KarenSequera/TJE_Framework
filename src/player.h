@@ -11,7 +11,7 @@
 #define NUM_CONS_PER_TYPE 3
 #define NUM_DEF 3
 #define MAX_HUNGER 100
-#define MAX_HEALTH 100
+#define MAX_HEALTH 200
 
 enum itemType { WEAPON, DEFENSIVE, CONSUMABLE};
 enum weaponType { FISTS, BAT, KNIFE, GUN};
