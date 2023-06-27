@@ -438,6 +438,8 @@ int World::useConsumable(consumableType consumable)
 
 		if (!player->affectPlayerStat(affectingStat(consumable / 3), to_add, true)) {
 			Audio::Play("data/audio/error.wav", 1.f, false);
+			World::inst->error = true;
+			World::inst->frames_error = 5;
 			return 2;
 		}
 
@@ -448,6 +450,8 @@ int World::useConsumable(consumableType consumable)
 	}
 	else {
 		Audio::Play("data/audio/error.wav", 1.f, false);
+		World::inst->error = true;
+		World::inst->frames_error = 5;
 		return 1;
 	}
 }

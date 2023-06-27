@@ -100,6 +100,8 @@ bool WeaponMenuEntity::onSelect()
 	}
 	else {
 		Audio::Play("data/audio/error.wav", 1.f, false);
+		World::inst->error = true;
+		World::inst->frames_error = 5;
 		//TODO -> make a function or something that resets a timer in the world, when it is not 0 a message will be shown.
 		//World::inst->errorMessage("You don't have enough of that item!");
 	}
@@ -133,6 +135,8 @@ bool DefensiveMenuEntity::onSelect()
 	else {
 		//TODO -> make a function or something that resets a timer in the world, when it is not 0 a message will be shown.
 		Audio::Play("data/audio/error.wav", 1.f, false);
+		World::inst->error = true;
+		World::inst->frames_error = 5;
 		//World::inst->errorMessage("You don't have enough of that item!");
 	}
 	return false;

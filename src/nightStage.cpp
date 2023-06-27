@@ -24,6 +24,7 @@ NightStage::NightStage() : Stage()
 	to_day = false;
 
 	fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
+	error_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/error.fs");
 
 
 	resizeOptions(World::inst->window_width, World::inst->window_height);
@@ -70,52 +71,115 @@ void NightStage::onExit()
 
 void NightStage::render()
 {
-	Shader* shader;
-
-	renderTarget->enable();
-
-	shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-	shader->enable();
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	
-	renderBackground(shader);
-	
-	shader->disable();
-	// render what must be rendered always
-	World::inst->renderNight();
-	renderTarget->disable();
-
-	glDisable(GL_DEPTH_TEST);
-	renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
-	glEnable(GL_DEPTH_TEST);
-
-	if (in_tutorial)
+	if (World::inst->error)
 	{
-		renderTutorial();
-	}
-	else
-	{
+		Shader* shader;
+
+		renderTarget->enable();
+
+		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
 		shader->enable();
+		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
 
-		renderHealthBars(shader);
-		renderPlayerStats(shader);
+		renderBackground(shader);
 
 		shader->disable();
+		// render what must be rendered always
+		World::inst->renderNight();
+		renderTarget->disable();
+
+		errorTarget->enable();
+
+		glDisable(GL_DEPTH_TEST);
+		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		glEnable(GL_DEPTH_TEST);
 
 
-		if (World::inst->ready_to_attack) {
-			shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+		if (in_tutorial)
+		{
+			renderTutorial();
+		}
+		else
+		{
 			shader->enable();
-			shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-			shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-			renderCrosshair(shader);
+
+			renderHealthBars(shader);
+			renderPlayerStats(shader);
+
 			shader->disable();
+
+
+			if (World::inst->ready_to_attack) {
+				shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+				shader->enable();
+				shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+				shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+				renderCrosshair(shader);
+				shader->disable();
+			}
+
+			if (is_player_turn && World::inst->idle)
+				playerTurnRender();
 		}
 
-		if (is_player_turn && World::inst->idle)
-			playerTurnRender();
+		errorTarget->disable();
+
+		glDisable(GL_DEPTH_TEST);
+		errorTarget->toViewport(error_shader);
+		glEnable(GL_DEPTH_TEST);
+
+		World::inst->user_error();
 	}
+	else {
+		Shader* shader;
+
+		renderTarget->enable();
+
+		shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+		shader->enable();
+		shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+		shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+
+		renderBackground(shader);
+
+		shader->disable();
+		// render what must be rendered always
+		World::inst->renderNight();
+		renderTarget->disable();
+
+		glDisable(GL_DEPTH_TEST);
+		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		glEnable(GL_DEPTH_TEST);
+
+		if (in_tutorial)
+		{
+			renderTutorial();
+		}
+		else
+		{
+			shader->enable();
+
+			renderHealthBars(shader);
+			renderPlayerStats(shader);
+
+			shader->disable();
+
+
+			if (World::inst->ready_to_attack) {
+				shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
+				shader->enable();
+				shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
+				shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
+				renderCrosshair(shader);
+				shader->disable();
+			}
+
+			if (is_player_turn && World::inst->idle)
+				playerTurnRender();
+		}
+	}
+	
 }
 
 void NightStage::renderCrosshair(Shader* shader)
