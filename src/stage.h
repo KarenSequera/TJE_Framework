@@ -21,8 +21,9 @@ public:
 	
 	bool mouse_locked;
 	RenderToTexture* renderTarget;
+	RenderToTexture* errorTarget;
 	Shader* fx_shader;
-
+	Shader* error_shader;
 	//ctor
 	Stage();
 	//~Stage();

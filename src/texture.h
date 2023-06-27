@@ -123,6 +123,7 @@ public:
 	//show the texture on the current viewport
 	void toViewport( Shader* shader = NULL );
 	void ourToViewport(Vector3 options, Shader* shader = NULL );
+
 	//copy to another texture
 	void copyTo(Texture* destination, Shader* shader = NULL);
 

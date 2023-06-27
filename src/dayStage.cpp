@@ -34,7 +34,7 @@ DayStage::DayStage() : Stage() {
 	instructions_quad.createQuad(position_x, position_y, size_x, size_y, true);
 
 	fx_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/postfx.fs");
-	
+	error_shader = Shader::Get("data/shaders/screen.vs", "data/shaders/error.fs");
 	num_slides = TUT_SLIDES_DAY;
 	getSlides();
 };
@@ -61,31 +61,77 @@ void DayStage::onExit()
 }
 
 void DayStage::render() {
-
-	camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
 	
-	renderTarget->enable();
-	renderSky();
-	for (auto& entity : World::inst->day_entities) {
-		entity->render();
-	}
-
-	renderTarget->disable();
-	glDisable(GL_DEPTH_TEST);
-	renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
-	glEnable(GL_DEPTH_TEST);
-
-	if (in_tutorial)
-		renderTutorial();
-	else
+	if (World::inst->error)
 	{
+
+		camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
+
+		renderTarget->enable();
+		renderSky();
+		for (auto& entity : World::inst->day_entities) {
+			entity->render();
+		}
+
+		renderTarget->disable();
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		errorTarget->enable();
+	
 		glDisable(GL_DEPTH_TEST);
-		
-		renderHUD();
-		// render time remaining
-		drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(int(time_remaining)) + "s",
-			Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
+		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
 		glEnable(GL_DEPTH_TEST);
+
+		if (in_tutorial)
+			renderTutorial();
+		else
+		{
+			glDisable(GL_DEPTH_TEST);
+
+			renderHUD();
+			// render time remaining
+			drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(int(time_remaining)) + "s",
+				Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
+			glEnable(GL_DEPTH_TEST);
+		}
+
+		errorTarget->disable();
+
+		glDisable(GL_DEPTH_TEST);
+		errorTarget->toViewport(error_shader);
+		glEnable(GL_DEPTH_TEST);
+
+		World::inst->user_error();
+	}
+	else {
+		camera->lookAt(camera->eye, camera->eye + camera->front, camera->up);
+
+		renderTarget->enable();
+		renderSky();
+		for (auto& entity : World::inst->day_entities) {
+			entity->render();
+		}
+
+		renderTarget->disable();
+		glDisable(GL_DEPTH_TEST);
+		renderTarget->ourToViewport(Vector3(in_tutorial || World::inst->frozen ? 1.f : 0.f, 1.f, 1.f), fx_shader);
+		glEnable(GL_DEPTH_TEST);
+
+		if (in_tutorial)
+			renderTutorial();
+		else
+		{
+			glDisable(GL_DEPTH_TEST);
+
+			renderHUD();
+			// render time remaining
+			drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(int(time_remaining)) + "s",
+				Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
+			glEnable(GL_DEPTH_TEST);
+		}
+
 	}
 	
 }
@@ -332,11 +378,15 @@ void DayStage::updateItemsAndStats() {
 			switch (res) {
 			case 1:
 				//TODO: ERROR MSG - NO CONSUMABLES OF THAT TYPE
+				World::inst->error = true;
+				World::inst->frames_error = 5;
 				printf("NO CONSUMABLES OF THAT TYPE\n");
 				break;
 
 			case 2:
 				//TODO: ERROR MSG - STAT ALREADY CAPPED
+				World::inst->error = true;
+				World::inst->frames_error = 5;
 				printf("STAT ALREADY CAPPED\n");
 				break;
 
@@ -362,6 +412,8 @@ void DayStage::updateItemsAndStats() {
 			int res = World::inst->useConsumable(consumable_selected);
 			switch (res) {
 			case 1:
+				World::inst->error = true;
+				World::inst->frames_error = 5;
 				//TODO: ERROR MSG - NO CONSUMABLES OF THAT TYPE
 #if DEBUG
 				printf("NO CONSUMABLES OF THAT TYPE\n");
@@ -370,6 +422,8 @@ void DayStage::updateItemsAndStats() {
 
 			case 2:
 				//TODO: ERROR MSG - STAT ALREADY CAPPED
+				World::inst->error = true;
+				World::inst->frames_error = 5;
 #if DEBUG
 				printf("STAT ALREADY CAPPED\n");
 #endif

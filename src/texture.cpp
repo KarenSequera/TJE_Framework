@@ -4,6 +4,8 @@
 
 #include <iostream> //to output
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
 
 #include "mesh.h"
 #include "shader.h"
@@ -476,6 +478,8 @@ void Texture::ourToViewport(Vector3 options, Shader* shader)
 	quad->render(GL_TRIANGLES);
 	shader->disable();
 }
+
+
 
 FBO* Texture::getGlobalFBO(Texture* texture)
 {

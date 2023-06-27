@@ -66,6 +66,7 @@ World::World() {
 
 	// we should trigger the tutorial when there are no previous runs
 	frozen = false;
+	frames_error = 5;
 
 }
 
@@ -1103,4 +1104,13 @@ void World::resetWorld()
 	frozen = false;
 	player = new Player();
 	number_nights = -1;
+}
+
+void World::user_error() {
+	frames_error--;
+	if (frames_error < 0)
+	{
+		error = false;
+		frames_error = 5;
+	}
 }

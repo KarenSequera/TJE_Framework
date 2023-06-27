@@ -117,6 +117,11 @@ public:
 
 	int zombie_hurt;
 
+
+	//User makes a mistake
+	int frames_error;
+	bool error;
+
 	World();
 	
 	bool existPreviousRuns();
@@ -194,4 +199,6 @@ public:
 
 	void resetWorld();
 
+	//
+	void user_error();
 };

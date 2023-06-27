@@ -7,6 +7,7 @@
 Stage::Stage() {
 	camera = Camera::current;
 	renderTarget = nullptr;
+	errorTarget = nullptr;
 	mouse_locked = false;
 
 	num_slides = 0;
@@ -16,6 +17,10 @@ Stage::Stage() {
 	if (!renderTarget) {
 		renderTarget = new RenderToTexture();
 		renderTarget->create(RENDER_TARGET_RES, RENDER_TARGET_RES);
+	}
+	if (!errorTarget) {
+		errorTarget = new RenderToTexture();
+		errorTarget->create(RENDER_TARGET_RES, RENDER_TARGET_RES);
 	}
 }
 
