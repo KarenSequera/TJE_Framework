@@ -399,7 +399,10 @@ bool World::isPlayerAlive() {
 //	Consumes a specific hunger from the user
 void World::consumeHunger(int quant)
 {
-	player->affectPlayerStat(HUNGER, quant, false);
+	if (player->hunger == 0)
+		player->affectPlayerStat(HEALTH, 10, false);
+	else 
+		player->affectPlayerStat(HUNGER, quant, false);
 }
 
 //	Returns the number of consumables we have of a specific type
