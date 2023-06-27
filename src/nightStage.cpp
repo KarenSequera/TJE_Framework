@@ -59,12 +59,12 @@ void NightStage::onEnter() {
 		Audio::PlayDelayed("data/audio/messages/appear.wav", 1.f, 0.75f, 0, 0.f);
 		in_tutorial = true;
 	}
+	std::cout << World::inst->number_nights;
 }
 
 void NightStage::onExit()
 {
 	World::inst->triggerTutorial = false;
-	World::inst->number_nights++;
 }
 
 
