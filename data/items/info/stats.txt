@@ -2,10 +2,10 @@ bandages,painkiller,aid_kit,apple,beans,burger
 stat,50,75,100,10,25,50
 
 fists,bat,knife,gun
-stat,10,20,30,40
+stat,10,25,30,40
 
 fists,bat,knife,gun
-uses,1,5,4,2
+uses,1,2,2,2
 
 arms,wooden,metal
 stat,20,50,100

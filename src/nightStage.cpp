@@ -50,7 +50,7 @@ void NightStage::onEnter() {
 	time_between_turns = TIME_BTW_TURNS;
 
 	//TODO: adjust formula so that it is enjoyable
-	turns_to_day = 10 + (World::inst->number_nights % 5) * 10;
+	turns_to_day = 10 + World::inst->number_nights;
 
 	Camera::current->lookAt(World::inst->night_models[0].getTranslation(), World::inst->night_models[1].getTranslation(), Vector3(0.0f, 1.0f, 0.0f));
 	camera->Camera::current;
