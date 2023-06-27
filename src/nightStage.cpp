@@ -337,12 +337,15 @@ void NightStage::playerTurnUpdate(float dt)
 				// if the attack is not super effective then we move onto the zombie's turn
 				if (result != 2)
 					is_player_turn = false;
+				
 
 				// otherwise we give the player another action
 				// TODO: message of super efective, perhaps -> with a bool and a specific UI element for it, for example
 				World::inst->ready_to_attack = false;
 				World::inst->changeMenu("general");
 				selected_target = 0;
+				turns_to_day--;
+				World::inst->consumeHunger(5);
 			}
 			else if (Input::wasButtonPressed(B_BUTTON))
 			{
@@ -376,6 +379,8 @@ void NightStage::playerTurnUpdate(float dt)
 				World::inst->ready_to_attack = false;
 				World::inst->changeMenu("general");
 				selected_target = 0;
+				turns_to_day--;
+				World::inst->consumeHunger(5);
 			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
 			{
@@ -492,12 +497,12 @@ void NightStage::newTurn()
 	World::inst->changeMenu("general");
 
 	turns_to_day--;
-
+	
 	if (turns_to_day == 0)
 		StageManager::inst->changeStage("day");
 		
 	//TODO: Make a variable that changes depending on the number of nights, the higher the night the more it takes.
-	World::inst->consumeHunger(10);
+	//World::inst->consumeHunger(10);
 	World::inst->playerDefenseOff();
 
 	zombie_attacking = 0;

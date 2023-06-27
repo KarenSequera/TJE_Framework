@@ -66,7 +66,6 @@ World::World() {
 
 	// we should trigger the tutorial when there are no previous runs
 	frozen = false;
-	was_tutorial_triggered = triggerTutorial;
 
 }
 
