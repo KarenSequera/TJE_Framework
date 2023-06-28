@@ -25,7 +25,6 @@ enum zombieStates {
 	ZOMBIE_HURT = -1,
 	ZOMBIE_HURT_GRAVE = -2,
 	ZOMBIE_DODGE = -3
-
 };
 
 enum commonStates {
@@ -34,7 +33,7 @@ enum commonStates {
 	STAB = 2,
 	SHOOT = 3,
 	IDLE = 4,
-	DYING = -3
+	DYING = -4
 };
 
 // all classes related to stages

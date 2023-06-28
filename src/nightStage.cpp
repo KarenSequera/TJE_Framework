@@ -250,20 +250,6 @@ void NightStage::playerTurnRender() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	World::inst->cur_menu->render(World::inst->selected_option);
 
-	Shader* shader = Shader::Get("data/shaders/quad.vs", "data/shaders/texture.fs");
-	shader->enable();
-	shader->setUniform("u_viewprojection", World::inst->camera2D->viewprojection_matrix);
-	shader->setUniform("u_color", vec4(1.0, 1.0, 1.0, 1.0));
-	shader->setUniform("u_animated", false);
-	shader->setUniform("u_texture", Texture::Get("data/quad_textures/night/turns_left.tga"), 0);
-
-	World::inst->remaining_info_quad.render(GL_TRIANGLES);
-
-	shader->disable();
-
-	drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(turns_to_day),
-		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
-
 	// Render menus -> prep options
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -307,6 +293,13 @@ void NightStage::renderPlayerStats(Shader* shader)
 
 	renderBar(position, (float)(World::inst->player->hunger) / MAX_HUNGER, shader, width, height,
 		Texture::Get("data/quad_textures/night/grayTexture.tga"), Texture::Get("data/quad_textures/night/orangeTexture.tga"));
+
+	shader->setUniform("u_texture", Texture::Get("data/quad_textures/night/turns_left.tga"), 0);
+
+	World::inst->remaining_info_quad.render(GL_TRIANGLES);
+
+	drawText(World::inst->window_width * 0.95, World::inst->window_height - World::inst->window_height * 0.8105, std::to_string(turns_to_day),
+		Vector3(1.0f, 1.0f, 1.0f), World::inst->window_height * 0.0035);
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
