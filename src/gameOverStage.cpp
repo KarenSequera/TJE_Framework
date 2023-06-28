@@ -130,6 +130,10 @@ void GameOverStage::onEnter()
 
 void GameOverStage::onExit()
 {
+	ranking_pos = -1;
+	name = "";
+	selected_option = 0;
+	stage = 0;
 	World::inst->resetWorld();
 }
 
@@ -178,6 +182,8 @@ void GameOverStage::render()
 Texture* GameOverStage::getEndingTexture() {
 	if (nights_survived == 0 && ranking_pos != -1)
 		return Texture::Get("data/quad_textures/gameover/bad_ending.tga");
+	else if(ranking_pos == 0)
+		return Texture::Get("data/quad_textures/gameover/record_ending.tga");
 	else if (ranking_pos < 3)
 		return Texture::Get("data/quad_textures/gameover/good_ending.tga");
 	else
@@ -223,13 +229,20 @@ void GameOverStage::update(float dt, bool transitioning)
 		{
 			switch (stage) {
 			case 0:
-				if (ranking_pos == -1)
+				if (ranking_pos == -1 || nights_survived == 0)
 					stage = 2;
 				else
 					stage = 1;
 				break;
 			case 1:
-				stage++;
+				if (name.size()) {
+					ranking[ranking_pos].user = name;
+					updateRanking();
+					stage++;
+				}
+				else {
+					Audio::Play("data/audio/error.wav", 1.f, false);
+				}
 				break;
 			case 2:
 				selectOption();
@@ -241,7 +254,7 @@ void GameOverStage::update(float dt, bool transitioning)
 			if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
 				changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
 
-			else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
+			else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT))
 				changeOption(1, selected_option, OPTIONS_INTRO_MENU);
 		}
 	}
@@ -250,13 +263,12 @@ void GameOverStage::update(float dt, bool transitioning)
 		{
 			switch (stage) {
 				case 0:
-					if (ranking_pos == -1)
+					if (ranking_pos == -1 || nights_survived == 0)
 						stage = 2;
 					else
 						stage = 1;
 					break;
 				case 1:
-					stage++;
 					break;
 				case 2:
 					selectOption();

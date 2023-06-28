@@ -97,13 +97,14 @@ void IntroStage::update(float dt, bool transitioning)
 		if (Input::gamepads[0].didDirectionChanged(FLICK_LEFT))
 			changeOption(-1, selected_option, OPTIONS_INTRO_MENU);
 
-		else if (Input::gamepads[0].didDirectionChanged(FLICK_DOWN))
-
+		else if (Input::gamepads[0].didDirectionChanged(FLICK_RIGHT))
 			changeOption(1, selected_option, OPTIONS_INTRO_MENU);
 		else if (Input::wasButtonPressed(A_BUTTON))
 			selectOption();
-		else if (Input::wasButtonPressed(X_BUTTON))
+		else if (Input::wasButtonPressed(X_BUTTON)) {
+			Audio::Play("data/audio/messages/continue.wav", 1.f, false);
 			World::inst->triggerTutorial = !World::inst->triggerTutorial;
+		}
 	}
 	else {
 		if (Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_LEFT))

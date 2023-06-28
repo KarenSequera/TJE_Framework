@@ -364,10 +364,12 @@ void DayStage::updateItemsAndStats() {
 		if (Input::wasButtonPressed(RB_BUTTON))
 		{
 			consumable_selected = consumableType(ourMod((consumable_selected + 1), NUM_CONSUMABLES));
+			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 		}
 		else if (Input::wasButtonPressed(LB_BUTTON))
 		{
 			consumable_selected = consumableType(ourMod((consumable_selected - 1), NUM_CONSUMABLES));
+			Audio::Play("data/audio/menu/change_option.wav", 1.f, false);
 		}
 		else if (Input::wasButtonPressed(A_BUTTON))
 		{

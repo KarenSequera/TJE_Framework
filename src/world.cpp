@@ -1105,6 +1105,8 @@ void World::renderNight()
 
 void World::resetWorld()
 {
+	zombie_attacking = false;
+	was_tutorial_triggered = false;
 	triggerTutorial = false;
 	frozen = false;
 	player = new Player();

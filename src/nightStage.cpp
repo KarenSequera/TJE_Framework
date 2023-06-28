@@ -61,10 +61,12 @@ void NightStage::onEnter() {
 		in_tutorial = true;
 	}
 	std::cout << World::inst->number_nights;
+	World::inst->changeMenu("general");
 }
 
 void NightStage::onExit()
 {
+	zombie_attacking = 0;
 	World::inst->triggerTutorial = false;
 }
 
