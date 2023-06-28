@@ -11,7 +11,7 @@ DayStage::DayStage() : Stage() {
 	mouse_locked = true;
 	gamepad_sensitivity = 0.05f;
 
-	consumable_selected = BURGER;
+	consumable_selected = BANDAGES;
 	
 	time_remaining = DAY_TIME + STAGE_TRANSITION_TIME;
 

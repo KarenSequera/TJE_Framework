@@ -408,7 +408,6 @@ void NightStage::playerTurnUpdate(float dt)
 				World::inst->ready_to_attack = false;
 				World::inst->changeMenu("general");
 				selected_target = 0;
-				turns_to_day--;
 				World::inst->consumeHunger(5);
 			}
 			else if (Input::wasButtonPressed(B_BUTTON))
@@ -443,7 +442,6 @@ void NightStage::playerTurnUpdate(float dt)
 				World::inst->ready_to_attack = false;
 				World::inst->changeMenu("general");
 				selected_target = 0;
-				turns_to_day--;
 				World::inst->consumeHunger(5);
 			}
 			else if (Input::wasKeyPressed(SDL_SCANCODE_Z))
@@ -561,7 +559,8 @@ void NightStage::newTurn()
 	World::inst->changeMenu("general");
 
 	turns_to_day--;
-	
+	World::inst->consumeHunger(5);
+
 	if (turns_to_day == 0)
 		StageManager::inst->changeStage("day");
 		

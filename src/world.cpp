@@ -67,6 +67,8 @@ World::World() {
 	// we should trigger the tutorial when there are no previous runs
 	frozen = false;
 	frames_error = 5;
+	triggerTutorial = true;
+
 
 }
 
@@ -776,7 +778,6 @@ int World::hurtZombie(int zombie_idx)
 		Audio::Play("data/audio/night/crit.wav", 1.f, false);
 		zombie->toStateDelayed(ZOMBIE_HURT_GRAVE, delay, TRANSITION_TIME);
 	}
-	
 	else 
 		zombie->toStateDelayed(ZOMBIE_DODGE, delay, TRANSITION_TIME);
 	

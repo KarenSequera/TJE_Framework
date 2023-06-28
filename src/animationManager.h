@@ -19,12 +19,13 @@ enum playerStates {
 };
 
 enum zombieStates {
-	ZOMBIE_DODGE = -2,
-	ZOMBIE_HURT = -1,
 	ZOMBIE_PUNCH = 0,
 	ZOMBIE_KNIFE = 2,
 	ZOMBIE_GUN = 3,
-	ZOMBIE_HURT_GRAVE = -2
+	ZOMBIE_HURT = -1,
+	ZOMBIE_HURT_GRAVE = -2,
+	ZOMBIE_DODGE = -3
+
 };
 
 enum commonStates {

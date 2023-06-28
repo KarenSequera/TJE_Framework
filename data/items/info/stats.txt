@@ -8,7 +8,7 @@ fists,bat,knife,gun
 uses,1,2,2,2
 
 arms,wooden,metal
-stat,20,50,100
+stat,30,75,150
 
 arms,wooden,metal
 uses,1,1,1
