@@ -15,8 +15,8 @@
 
 enum itemType { WEAPON, DEFENSIVE, CONSUMABLE};
 enum weaponType { FISTS, BAT, KNIFE, GUN};
-enum consumableType { BANDAGES, PAINKILLER, AID_KIT, APPLE, CANNED_BEANS, BURGER};
-enum defensiveType { ARMS, WOODEN_DOOR, METAL_SHIELD};
+enum consumableType { PAINKILLER, SYRINGE, AID_KIT, APPLE, CANNED_BEANS, BURGER};
+enum defensiveType { ARMS, TRASH_LID, POLICE_SHIELD};
 enum affectingStat { HEALTH, HUNGER };
 
 // all classes related to stages
